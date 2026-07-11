@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>马列分析工具箱</title>
+<style>
+  :root {
+    --red: #c41e3a;
+    --red-dark: #8b0000;
+    --gold: #d4a017;
+    --bg: #fdfaf6;
+    --card: #fff;
+    --text: #2c2c2c;
+    --text-light: #666;
+    --border: #e0d5c1;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --radius: 10px;
+    --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; min-height: 100vh; }
+
+  /* 顶部横幅 */
+  .banner {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 50%, #1a1a1a 100%);
+    color: #fff; padding: 28px 32px; text-align: center; position: relative; overflow: hidden;
+  }
+  .banner::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--gold), var(--red));
+  }
+  .banner h1 { font-size: 1.8em; font-weight: 700; letter-spacing: 2px; }
+  .banner .subtitle { font-size: 0.9em; color: #bbb; margin-top: 6px; letter-spacing: 1px; }
+  .banner .tagline {
+    margin-top: 12px; font-style: italic; color: var(--gold); font-size: 0.85em;
+  }
+
+  /* 导航栏 */
+  nav {
+    display: flex; flex-wrap: wrap; gap: 2px; background: #fff; padding: 8px 16px;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  }
+  nav button {
+    background: none; border: none; padding: 10px 18px; cursor: pointer;
+    font-size: 0.9em; color: var(--text-light); border-radius: 6px;
+    transition: all 0.2s; font-family: var(--font); white-space: nowrap;
+  }
+  nav button:hover { background: #f5f0e8; color: var(--red); }
+  nav button.active { background: var(--red); color: #fff; font-weight: 600; }
+
+  /* 主体 */
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 卡片 */
+  .card {
+    background: var(--card); border-radius: var(--radius); padding: 24px;
+    margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .card h2 {
+    font-size: 1.25em; margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--red); display: flex; align-items: center; gap: 10px;
+  }
+  .card h2 .icon { font-size: 1.2em; }
+  .card h3 { font-size: 1.05em; margin: 16px 0 8px; color: var(--red-dark); }
+
+  /* 矛盾分析工作表 */
+  .worksheet label { display: block; font-weight: 600; margin: 14px 0 4px; font-size: 0.9em; color: #444; }
+  .worksheet textarea, .worksheet input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.95em; font-family: var(--font); resize: vertical; background: #fefefb;
+  }
+  .worksheet textarea:focus, .worksheet input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(196,30,58,0.08); }
+  .worksheet textarea { min-height: 60px; }
+  .btn-row { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer;
+    font-size: 0.95em; font-weight: 600; font-family: var(--font); transition: all 0.2s;
+  }
+  .btn-primary { background: var(--red); color: #fff; }
+  .btn-primary:hover { background: var(--red-dark); }
+  .btn-outline { background: #fff; color: var(--red); border: 1.5px solid var(--red); }
+  .btn-outline:hover { background: #fef5f5; }
+  .btn-export { background: #333; color: #fff; }
+  .btn-export:hover { background: #555; }
+
+  /* 思潮批判网格 */
+  .critique-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .critique-card {
+    background: var(--card); border-radius: var(--radius); padding: 18px 20px;
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+    border-left: 4px solid var(--red); box-shadow: var(--shadow);
+  }
+  .critique-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .critique-card .num { font-size: 0.75em; color: var(--red); font-weight: 700; }
+  .critique-card h4 { margin: 4px 0; font-size: 1em; }
+  .critique-card .brief { font-size: 0.85em; color: var(--text-light); line-height: 1.5; }
+
+  /* 弹出详情 */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 200; justify-content: center; align-items: flex-start; padding: 40px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff; border-radius: 12px; max-width: 720px; width: 100%;
+    padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative;
+  }
+  .modal .close {
+    position: absolute; top: 12px; right: 16px; background: none; border: none;
+    font-size: 1.6em; cursor: pointer; color: #999; line-height: 1;
+  }
+  .modal .close:hover { color: var(--red); }
+  .modal .critique-body { font-size: 0.92em; line-height: 1.9; }
+  .modal .critique-body .quote {
+    border-left: 3px solid var(--red); padding-left: 14px; margin: 12px 0;
+    color: #555; font-style: italic;
+  }
+  .modal .critique-body .point { font-weight: 600; color: var(--red-dark); }
+
+  /* 实践透镜 */
+  .lens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .lens-card {
+    background: var(--card); border-radius: var(--radius); padding: 18px;
+    border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow);
+  }
+  .lens-card .lens-icon { font-size: 2em; margin-bottom: 8px; }
+  .lens-card h4 { font-size: 0.95em; margin-bottom: 6px; }
+  .lens-card p { font-size: 0.82em; color: var(--text-light); line-height: 1.5; }
+
+  /* 经典引文 */
+  .citation-list { display: flex; flex-direction: column; gap: 14px; }
+  .cite-item {
+    background: var(--card); border-radius: var(--radius); padding: 18px 20px;
+    border-left: 4px solid var(--gold); box-shadow: var(--shadow);
+  }
+  .cite-item .quote-text { font-style: italic; margin-bottom: 6px; line-height: 1.7; }
+  .cite-item .source { font-size: 0.82em; color: var(--text-light); }
+  .cite-item .use-case { font-size: 0.8em; color: var(--red); margin-top: 4px; }
+  .search-box { margin-bottom: 18px; }
+  .search-box input {
+    width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 1em; font-family: var(--font);
+  }
+  .search-box input:focus { outline: none; border-color: var(--red); }
+
+  /* 场景路由 */
+  .route-table { width: 100%; border-collapse: collapse; }
+  .route-table th {
+    text-align: left; padding: 10px 14px; background: #333; color: #fff;
+    font-size: 0.85em; font-weight: 600;
+  }
+  .route-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+  .route-table tr:hover td { background: #fef9f0; }
+  .route-table .scene { font-weight: 600; color: var(--red-dark); }
+
+  /* 统计栏 */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 16px; text-align: center; box-shadow: var(--shadow); border-top: 3px solid var(--red); }
+  .stat-card .num { font-size: 2em; font-weight: 700; color: var(--red); }
+  .stat-card .label { font-size: 0.82em; color: var(--text-light); margin-top: 4px; }
+
+  /* 响应式 */
+  @media (max-width: 600px) {
+    nav { gap: 1px; padding: 6px 8px; }
+    nav button { padding: 8px 12px; font-size: 0.8em; }
+    .banner h1 { font-size: 1.3em; }
+    .critique-grid { grid-template-columns: 1fr; }
+    .lens-grid { grid-template-columns: 1fr 1fr; }
+    .modal { padding: 18px; }
+  }
+
+  /* 打印样式 */
+  @media print {
+    nav, .banner, .btn-row, .modal-overlay { display: none !important; }
+    .section { display: block !important; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  /* 搜索高亮 */
+  .highlight { background: #ffe066; padding: 0 2px; border-radius: 2px; }
+  .hidden-item { display: none; }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #333; color: #fff; padding: 12px 28px; border-radius: 8px;
+    font-size: 0.9em; z-index: 999; opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- 顶部 -->
+<header class="banner">
+  <h1>🔨 马列分析工具箱</h1>
+  <div class="subtitle">Marxism-Leninism-Maoism Analysis Toolkit</div>
+  <div class="tagline">"辩证法不崇拜任何东西，按其本质来说，它是批判的和革命的。" —— 马克思</div>
+</header>
+
+<!-- 导航 -->
+<nav>
+  <button class="active" data-tab="worksheet">📋 矛盾分析表</button>
+  <button data-tab="critique">🎯 思潮批判 (21种)</button>
+  <button data-tab="lenses">🔍 实践透镜</button>
+  <button data-tab="citations">📖 经典引文</button>
+  <button data-tab="routes">🗺️ 场景路由</button>
+  <button data-tab="method">⚙️ 方法论</button>
+  <button data-tab="literature">📚 经典著作</button>
+</nav>
+
+<main>
+
+<!-- ====== 矛盾分析工作表 ====== -->
+<section class="section active" id="tab-worksheet">
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">21</div><div class="label">批判对象</div></div>
+    <div class="stat-card"><div class="num">5</div><div class="label">实践透镜</div></div>
+    <div class="stat-card"><div class="num">104</div><div class="label">经典著作</div></div>
+    <div class="stat-card"><div class="num">14</div><div class="label">分析场景</div></div>
+  </div>
+
+  <div class="card worksheet">
+    <h2><span class="icon">📋</span> 智能矛盾分析</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">
+      描述你遇到的事情或问题，系统会自动识别关键矛盾、匹配相关理论框架，输出完整的分析报告。
+    </p>
+
+    <label>📝 描述你面对的事件或问题</label>
+    <textarea id="wsInput" placeholder="例：团队连续加班三个月，项目还是延期。老板说大家不够努力，但真实原因是需求一直在变，产品经理每次开会都加新功能。有人开始离职，剩下的人也不说话了…"
+      style="min-height:120px;" oninput="autoAnalyze()"></textarea>
+    <p style="font-size:0.8em;color:var(--text-light);margin-top:4px;">💡 尽量描述具体：谁、发生了什么、什么时候开始、有什么后果。越详细分析越精准。</p>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runFullAnalysis()">🔍 完整分析</button>
+      <button class="btn btn-outline" onclick="clearAnalysis()">🔄 清空重来</button>
+      <button class="btn btn-export" onclick="exportAnalysis()">📥 导出报告</button>
+      <button class="btn btn-outline" onclick="webSearch()" id="btnWebSearch" style="display:none;">🌐 联网搜索</button>
+    </div>
+
+    <!-- 速览提示 -->
+    <div id="quickInsight" style="display:none;margin-top:16px;padding:14px 18px;background:#fef9f0;border-radius:8px;border-left:4px solid var(--red);"></div>
+
+    <!-- 联网搜索结果 -->
+    <div id="webResult" style="display:none;margin-top:16px;"></div>
+
+    <!-- 完整分析结果 -->
+    <div id="analysisResult" style="display:none;margin-top:20px;"></div>
+  </div>
+</section>
+
+<!-- ====== 思潮批判 ====== -->
+<section class="section" id="tab-critique">
+  <div class="card">
+    <h2><span class="icon">🎯</span> 21种当代思潮的马克思主义批判</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
+      点击任意卡片查看完整批判分析。红色标记 = 最常遇到的意识形态。
+    </p>
+    <div class="critique-grid" id="critiqueGrid"></div>
+  </div>
+</section>
+
+<!-- 弹出层 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- ====== 实践透镜 ====== -->
+<section class="section" id="tab-lenses">
+  <div class="card">
+    <h2><span class="icon">🔍</span> 五大实践透镜</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
+      每次分析问题时，依次用这五个透镜审视，确保分析的全面性。
+    </p>
+    <div class="lens-grid">
+      <div class="lens-card">
+        <div class="lens-icon">🔬</div>
+        <h4>客观实际</h4>
+        <p>事实先于假设；区分用户证据与创作者期望</p>
+      </div>
+      <div class="lens-card">
+        <div class="lens-icon">🔗</div>
+        <h4>联系与发展</h4>
+        <p>检查上下游依赖、采纳漏斗、工具链、阶段变化</p>
+      </div>
+      <div class="lens-card">
+        <div class="lens-icon">⚡</div>
+        <h4>矛盾分析</h4>
+        <p>找出当前支配其他所有问题的那一个瓶颈</p>
+      </div>
+      <div class="lens-card">
+        <div class="lens-icon">🧪</div>
+        <h4>实践与认识</h4>
+        <p>将信念转化为最小实验、试点、A/B 测试</p>
+      </div>
+      <div class="lens-card">
+        <div class="lens-icon">🏛️</div>
+        <h4>历史结构</h4>
+        <p>检查工具、分工、激励、工作流、维护者关系</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🚫</span> 六条不可协商的规则</h2>
+    <ol style="padding-left:20px;line-height:2.2;">
+      <li>从客观条件出发，不从愿望出发</li>
+      <li>区分现象与本质</li>
+      <li>只确定<span style="font-weight:700;color:var(--red)">一个</span>主要矛盾</li>
+      <li>分析总是指向一个实践步骤</li>
+      <li>始终提供一个验证规则</li>
+      <li>对于具体项目任务，检查本地证据或明确说"未检查项目证据"</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">⚠️</span> 常见反模式</h2>
+    <ul style="padding-left:20px;line-height:2.2;color:var(--text-light);">
+      <li>❌ 用哲学口号替代分析</li>
+      <li>❌ 用户要诊断时去解释马克思主义理论</li>
+      <li>❌ 没有证据就把每个问题称为"系统问题"</li>
+      <li>❌ 没有具体映射就使用"生产关系""上层建筑"等术语</li>
+      <li>❌ 识别出太多"主要矛盾"</li>
+      <li>❌ 给建议没有实践步骤 / 给实践步骤没有验证规则</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ====== 经典引文 ====== -->
+<section class="section" id="tab-citations">
+  <div class="card">
+    <h2><span class="icon">📖</span> 经典引文速查</h2>
+    <div class="search-box">
+      <input type="text" id="citeSearch" placeholder="🔍 搜索引文——输入关键词如"矛盾""人性""实践""阶级"…" oninput="filterCitations()">
+    </div>
+    <div class="citation-list" id="citationList"></div>
+  </div>
+</section>
+
+<!-- ====== 场景路由 ====== -->
+<section class="section" id="tab-routes">
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 场景路由表</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:14px;">
+      面对不同问题，快速定位应该使用哪个分析工具和参考文件。
+    </p>
+    <div style="overflow-x:auto;">
+      <table class="route-table" id="routeTable"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 方法论映射 ====== -->
+<section class="section" id="tab-method">
+  <div class="card">
+    <h2><span class="icon">⚙️</span> 方法论映射</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
+      马克思主义基本原理 → 具体项目的操作对应。
+    </p>
+    <div class="citation-list" id="methodList"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ====== 经典著作 ====== -->
+<section class="section" id="tab-literature">
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">22</div><div class="label">马克思</div></div>
+    <div class="stat-card"><div class="num">15</div><div class="label">恩格斯</div></div>
+    <div class="stat-card"><div class="num">24</div><div class="label">列宁</div></div>
+    <div class="stat-card"><div class="num">9</div><div class="label">斯大林</div></div>
+    <div class="stat-card"><div class="num">34</div><div class="label">毛泽东</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（104部）</h2>
+    <div class="search-box">
+      <input type="text" id="litSearch" placeholder="🔍 搜索著作——输入关键词如"资本论""矛盾""国家""帝国主义"…" oninput="filterLiterature()">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <button class="btn btn-outline lit-filter active" data-author="all" onclick="filterByAuthor('all',this)">全部</button>
+      <button class="btn btn-outline lit-filter" data-author="marx" onclick="filterByAuthor('marx',this)">马克思</button>
+      <button class="btn btn-outline lit-filter" data-author="engels" onclick="filterByAuthor('engels',this)">恩格斯</button>
+      <button class="btn btn-outline lit-filter" data-author="lenin" onclick="filterByAuthor('lenin',this)">列宁</button>
+      <button class="btn btn-outline lit-filter" data-author="stalin" onclick="filterByAuthor('stalin',this)">斯大林</button>
+      <button class="btn btn-outline lit-filter" data-author="mao" onclick="filterByAuthor('mao',this)">毛泽东</button>
+    </div>
+    <div class="citation-list" id="literatureList"></div>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 数据 ====================
+
+const critiques = [
+  { id:1, title:'技术决定论与技术乐观主义', brief:'技术进步自动带来社会进步？AI 将解决人类问题？', body:'<p class="point">核心批判：</p><p>技术不是中性的——技术是在特定生产关系下被开发的，由资本驱动。AI 不服务"人类"，AI 服务于拥有数据和算力的资本。</p><p class="point">生产力发展不自动带来解放：</p><p>蒸汽机带来了工业革命，也带来了血汗工厂和殖民扩张。如果生产关系不变，AI 带来的不是"所有人的解放"，而是大规模的劳动力贬值、监控的精细化、控制的自动化。</p><div class="quote">"在我们这个时代，每一种事物好像都包含有自己的反面。我们看到，机器具有减少人类劳动和使劳动更有成效的神奇力量，然而却引起了饥饿和过度的疲劳。" —— 马克思</div><p class="point">实践指向：</p><p>追问每一项新技术的所有权、控制权和利益分配——谁来训练它？谁使用它？谁受益？谁被替代？</p>' },
+  { id:2, title:'加速主义', brief:'让资本主义更疯狂它就会崩溃？等待技术奇点？', body:'<p class="point">左翼加速主义的幼稚性：</p><p>希望资本主义在矛盾激化中自动崩溃，而忽略了崩溃时受害最深的是无产阶级和劳动人民——不是资本家。</p><p class="point">右翼加速主义的阶级本质：</p><p>技术奇点由资本推动、由资本控制，它所"超越"的不可能是资本本身。</p><p class="point">共同的错误：</p><p>低估了人（阶级）在历史中的主体作用，把历史进程看作自动运行的技术/经济过程。</p><div class="quote">"历史什么事情也没有做……创造这一切、拥有这一切并为这一切而斗争的，不是\'历史\'，而正是人，现实的、活生生的人。" —— 马克思、恩格斯《神圣家族》</div>' },
+  { id:3, title:'有效利他主义与长期主义', brief:'用"理性计算"最大化全球福祉？关注未来数万亿生命？', body:'<p class="point">回避了贫困的结构性根源：</p><p>将贫困、疾病、不平等视为可以通过技术手段和个体慈善来"优化"的技术问题，而不问这些问题的生产机制——资本积累和剥削。</p><p class="point">"理性"是占统治地位的理性：</p><p>硅谷精英的"理性计算"将未来潜在生命当作可计算的单位，却对当下的、具体的人的苦难保持距离。</p><p class="point">长期主义的阶级盲区：</p><p>担心未来 AI 灭绝人类，却不担心当下资本正在灭绝工人阶级的生存保障。这种"远视"恰恰是对近处不公的政治性失明。</p><div class="quote">"哲学家们只是用不同的方式解释世界，而问题在于改变世界。" —— 马克思《关于费尔巴哈的提纲》</div>' },
+  { id:4, title:'数据拜物教', brief:'数据是客观真理的化身？量化指标等于现实？', body:'<p class="point">数据拜物教是商品拜物教的新形态：</p><p>商品拜物教让人把人与人的关系看作物与物的关系；数据拜物教让人把复杂的社会现实看作一组组数字。一个用户不是一个点击率，一个工人不是一个生产力指数。</p><p class="point">数据的生产有立场：</p><p>什么被收集、什么不被收集、指标怎么定义——这些都不是中性的。用户的"幸福"不被量化，用户的"注意力"被精准量化——这就是立场。</p><div class="quote">"在资产阶级社会里，活的劳动只是增殖已经积累起来的劳动的一种手段。" ——《共产党宣言》</div>' },
+  { id:5, title:'AI 万能论与技术解决主义', brief:'任何问题都可以通过 AI 解决？算法消除偏见？', body:'<p class="point">将政治问题转化为技术问题：</p><p>不是"公平分配资源"的政治问题，而是"优化物流算法"的技术问题。去政治化本身就是政治的——它服务于维持现状的权力。</p><p class="point">AI 不能解决它自身就是一部分的问题：</p><p>AI 的能源消耗加剧气候变化；训练数据内嵌偏见；算力基础设施被少数公司垄断。</p><div class="quote">"人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。" —— 马克思《关于费尔巴哈的提纲》</div>' },
+  { id:6, title:'去中心化/Web3 意识形态', brief:'区块链解放个人？代码即法律？DAO 实现民主？', body:'<p class="point">去中心化遮蔽了新的中心化：</p><p>比特币的算力和财富高度集中，以太坊的早期投资者和基金会掌握实际治理权。</p><p class="point">"代码即法律"是技术至上论的极端形态：</p><p>将政治问题交给代码，表面上消除了人治的任意性，实际上冻结了创立者的意志，排除了民主改变的路径。</p><p class="point">Token 经济是金融化的高级阶段：</p><p>将一切关系——社交、创作、治理——都转化为可交易的金融资产。</p><div class="quote">"这种剥夺是通过资本主义生产本身的内在规律的作用，即通过资本的集中进行的。一个资本家打倒许多资本家。" —— 马克思《资本论》</div>' },
+  { id:7, title:'敏捷与效率意识形态', brief:'敏捷就是好的？效率是最高价值？快速迭代教条？', body:'<p class="point">敏捷服务的是资本对剩余价值的占有速度：</p><p>更短的迭代周期 → 更快的反馈 → 更快的价值提取。高效率带来的利润归谁？</p><p class="point">"效率"是为谁效率：</p><p>减少开发者休息时间 = 资本的效率；提供更好的工具 = 开发者的效率。</p><p class="point">增长崇拜的代价：</p><p>无限增长的要求在有限地球上注定不可持续。</p>' },
+  { id:8, title:'"自我优化"与新自由主义主体', brief:'对自己负责？做自己热爱的事？终身学习？', body:'<p class="point">将系统性问题转化为个人问题：</p><p>失业？技能不够新。焦虑？没学会时间管理。996？效率不够高。这种意识形态让个体承担系统矛盾的全部重量，同时免除了资本和制度的任何责任。</p><p class="point">"做自己热爱的事"是剥削的高级形式：</p><p>当劳动披上"passion"的外衣，劳动者会自发地为工作付出超额劳动。</p><div class="quote">"工人只有在劳动之外才感到自在，而在劳动中则感到不自在。" —— 马克思《1844年经济学哲学手稿》</div>' },
+  { id:9, title:'"扁平化"与隐形等级制', brief:'没有老板就是平等？开放工位促进平等交流？', body:'<p class="point">取消头衔不等于取消权力：</p><p>头衔的取消使权力不可见——你不知道谁在决定你的命运。</p><p class="point">工位平等，股权不平等：</p><p>大家在同一个开放空间工作，但一个持有百万期权，一个拿固定工资。形式的平等掩盖实质的不平等。</p><div class="quote">"在雇佣劳动制基础上要求平等的或仅仅是公平的报酬，就犹如在奴隶制基础上要求自由一样。" —— 马克思《工资、价格和利润》</div>' },
+  { id:10, title:'开源意识形态', brief:'代码是自由的？开源是数字共产主义？', body:'<p class="point">开源代码的"自由"与开发者的不自由：</p><p>代码是自由的，但写代码的人是不自由的——受雇于公司，业余贡献是无偿劳动。</p><p class="point">大公司拥抱开源是剥削的新形式：</p><p>降低维护成本（众人帮忙修 Bug），锁定用户生态，对冲竞争对手。</p><p class="point">开源的不平等结构：</p><p>99% 的贡献来自 1% 的用户。少数人维护开源是过劳的。</p>' },
+  { id:11, title:'女权主义——辨析与批判', brief:'自由派vs激进派vs后现代——马克思主义女性主义的立场', body:'<p class="point">性别压迫不是"永恒的"：</p><div class="quote">"最初的阶级压迫是同男性对女性的压迫同时发生的。" —— 恩格斯《家庭、私有制和国家的起源》</div><p>私有制的产生 → 父系继承的需要 → 对女性性行为的控制。性别压迫有其物质根源——私有制和阶级社会。</p><p class="point">对自由派女权主义的批判：</p><p>追求"更多女性 CEO"让少数特权女性加入压迫者的行列，而不改变压迫结构本身。</p><p class="point">家务劳动与再生产：</p><p>资本主义依赖无偿的家务劳动。家庭是"劳动力再生产的工厂"，女性是这家工厂的无偿工人。</p>' },
+  { id:12, title:'社会生物学与进化心理学', brief:'"人性"的意识形态功能——天性如此？', body:'<p class="point">"人性"是最大的意识形态：</p><p>当某种特定历史条件下的社会关系（竞争、私有制、等级制）被说成是"人性"时，它就获得了免于批判的豁免权。</p><div class="quote">"人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。" —— 马克思《关于费尔巴哈的提纲》</div><p>不是"人性"产生了资本主义——是资本主义产生了特定的"人性"——自私、竞争、贪婪——并把它当作"普遍人性"灌输给所有人。</p><p class="point">进化心理学的"就是如此故事"（Just-so stories）：</p><p>观察当前社会现象 → 编造远古"适应性功能" → 声称这就是"进化原因"。不可证伪——你永远无法回到更新世验证。</p>' },
+  { id:13, title:'身份政治', brief:'阶级政治的替代还是补充？经验能替代分析吗？', body:'<p class="point">身份政治是阶级政治的碎片化：</p><p>当工人阶级从政治舞台上退场，阶级团结被身份分裂替代——白人下岗工人和黑人下岗工人的共同利益被遮蔽。</p><p class="point">"经验"不能替代分析：</p><p>身份政治将个体的直接经验神圣化。但经验本身需要被分析——你痛，不意味着你理解为什么痛。</p><p class="point">代表权不等于解放：</p><p>让更多黑人和女性进入统治阶级，不改变阶级剥削。资本很快就学会了用"多样性"来装点门面。</p>' },
+  { id:14, title:'"内卷"与"躺平"', brief:'中国青年的结构性困境——个体退出还是集体行动？', body:'<p class="point">"内卷"不是文化问题，是经济问题：</p><p>内卷的本质是在资本积累规律下，劳动者之间被迫的恶性竞争。不是年轻人"太拼命"——是系统迫使每个人拼命奔跑只为停在原地。</p><p class="point">"躺平"的双重性：</p><p>消极面：个体化的反抗——不组织、不动员、不改变制度。积极面：对"内卷意识形态"的拒绝——一种本能反抗。</p><p class="point">从"躺平"到联合：</p><p>不是我不够努力，而是努力的果实被谁拿走了。从"我不干了"到"我们不干了"——个体退出变成集体行动。</p>' },
+  { id:15, title:'新自由主义', brief:'"没有替代方案"的意识形态——市场决定一切？', body:'<p class="point">新自由主义不是"自由主义"：</p><p>它不是解放个人——它解放的是资本。借用"自由"的名义，它拆除了一切限制资本权力的制度。</p><p class="point">"个人责任"为社会性灾难背锅：</p><p>失业 → 你不够有竞争力。贫困 → 你不够努力。任何系统性的失败都被转译为个人的失败。</p><p class="point">新自由主义的终极成就：</p><p>让底层彼此指责，让资本免于问责。</p>' },
+  { id:16, title:'优绩主义（Meritocracy）', brief:'成功者配得成功？只要你努力就能成功？', body:'<p class="point">优绩主义忽略起点的不平等：</p><p>两个"同样努力"的人——出生中产 vs 出生农村——结果完全不同。优绩主义让前者觉得"我的成功是我自己挣的"，让后者内化"我的失败是我的错"。</p><p class="point">意识形态功能：</p><p>为阶级社会提供道德合法性。如果成功 = 能力 + 努力，资本家就是"最有能力的人"——而不是继承财富或剥削劳动的人。</p><div class="quote">"在资产阶级社会里，资本具有独立性和个性，而活动着的个人却没有独立性和个性。" ——《共产党宣言》</div>' },
+  { id:17, title:'反工作运动（Anti-Work）', brief:'工作就是现代奴役？静默辞职？狗屁工作？', body:'<p class="point">区分"劳动"与"雇佣劳动"：</p><p>马克思主义批判的不是劳动——劳动是人的本质活动。批判的是雇佣劳动——被迫的、异化的、为资本家创造剩余价值的劳动。</p><p class="point">"静默辞职"是个体化的策略——不够：</p><p>一个人静默辞职，雇主没什么损失。不工作的自由只有在所有人都不被迫工作的时候才是真的——而这需要改变所有制。</p><div class="quote">"在共产主义社会里……上午打猎，下午捕鱼，傍晚从事畜牧，晚饭后从事批判。" —— 马克思、恩格斯《德意志意识形态》</div>' },
+  { id:18, title:'后现代主义', brief:'解构一切宏大叙事——但解构之后，还剩什么？', body:'<p class="point">后现代主义是对1968年失败的回应：</p><p>革命没有发生，左翼知识分子从改造世界的实践中撤退，转向在学院里解构文本。改变不了物质世界，至少可以颠覆意义。</p><p class="point">解构一切，除了资本：</p><p>后现代主义安全地激进——在话语层面挑战一切，但在物质层面什么都不挑战。</p><p class="point">"没有客观真理"的政治后果：</p><p>如果一切真理都只是"话语建构"，那么剥削也只是"一种观点"——否定客观真理最终服务于权力。</p>' },
+  { id:19, title:'民粹主义与新民族主义', brief:'愤怒是真实的——但愤怒被引向了谁？', body:'<p class="point">民粹主义的阶级基础：</p><p>新自由主义几十年的破坏制造了大量愤怒的、被抛弃的群体。他们的愤怒是真实的——但愤怒被引向了错误的方向。</p><p class="point">右翼民粹主义如何转移阶级怒火：</p><p>把阶级矛盾转化为民族矛盾、种族矛盾——让被剥削的白人工人恨移民工人，而不是恨剥削他们的资本家。</p><div class="quote">"全世界的无产者联合起来" 被替换为 "全世界的无产者互相仇恨"。</div>' },
+  { id:20, title:'"身心健康"意识形态', brief:'正念冥想、自我关怀——让你更好地继续被剥削？', body:'<p class="point">将社会痛苦医学化和个体化：</p><p>你焦虑，不是因为工作不稳定、房租太高——而是因为"你不会管理压力"。每一种社会性的苦难都被重新定义为个人的心理缺陷。</p><p class="point">"自我关怀"是让你更好地继续被剥削：</p><p>正念帮你平静地接受不合理的工作量。瑜伽减轻了腰背痛——让你能再坐 10 个小时。</p><p class="point">双重剥削：</p><p>劳动中被榨取，再为修复榨取的损伤而消费。资本先让你生病，再卖药给你。</p>' },
+  { id:21, title:'改良主义', brief:'装修牢房还是释放囚犯？改良能无限积累成革命吗？', body:'<p class="point">改良主义的逻辑陷阱：</p><p>改良是在资本主义框架内的调整，框架本身不变。每一次改良都可能被资本的应对抵消。战后福利国家几十年成果，二三十年就被新自由主义吞噬大半。</p><p class="point">苏联的教训——修正主义如何导致复辟：</p><p>赫鲁晓夫→勃列日涅夫→戈尔巴乔夫→叶利钦，三代人的渐变。否认社会主义时期的阶级斗争是修正主义的第一个错误。</p><div class="quote">"改良是革命的副产品。" —— 列宁</div>' }
+];
+
+const citations = [
+  { quote:'人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。', source:'马克思《关于费尔巴哈的提纲》(1845)', use:'批判"人性论"、生物决定论' },
+  { quote:'哲学家们只是用不同的方式解释世界，而问题在于改变世界。', source:'马克思《关于费尔巴哈的提纲》(1845)', use:'任何分析之后必须指向行动' },
+  { quote:'辩证法在对现存事物的肯定的理解中同时包含对现存事物的否定的理解。', source:'马克思《资本论》第二版跋 (1873)', use:'架构、流程都不是永恒的' },
+  { quote:'不是人们的意识决定人们的存在，相反，是人们的社会存在决定人们的意识。', source:'马克思《政治经济学批判·序言》(1859)', use:'不看口号看实际分工和激励结构' },
+  { quote:'在复杂的事物的发展过程中，有许多的矛盾存在，其中必有一种是主要的矛盾。', source:'毛泽东《矛盾论》(1937)', use:'找出当前最主要的瓶颈' },
+  { quote:'矛盾存在于一切事物发展的过程中，矛盾贯串于每一事物发展过程的始终。', source:'毛泽东《矛盾论》(1937)', use:'不存在"完美方案"' },
+  { quote:'实事求是"就是客观存在着的一切事物，"是"就是客观事物的内部联系。', source:'毛泽东《改造我们的学习》(1941)', use:'调查研究的方法论基础' },
+  { quote:'批判的武器当然不能代替武器的批判，物质力量只能用物质力量来摧毁。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'理论必须与实践结合' },
+  { quote:'统治阶级的思想在每一时代都是占统治地位的思想。', source:'马克思、恩格斯《德意志意识形态》(1845-1846)', use:'意识形态批判——对"理所当然"保持警惕' },
+  { quote:'这些观念、这些范畴，也同它们所表现的关系一样，不是永恒的。它们是历史的、暂时的产物。', source:'马克思《哲学的贫困》(1847)', use:'任何声称"永恒"的制度/观念都是意识形态' },
+  { quote:'整个历史也无非是人类本性的不断改变而已。', source:'马克思《哲学的贫困》(1847)', use:'反"人性不变论"' },
+  { quote:'人应该在实践中证明自己思维的真理性。', source:'马克思《关于费尔巴哈的提纲》(1845)', use:'方案的正确性由实践检验' },
+  { quote:'没有调查就没有发言权。', source:'毛泽东《反对本本主义》(1930)', use:'任何分析的前提' },
+  { quote:'调查就像"十月怀胎"，解决问题就像"一朝分娩"。', source:'毛泽东《反对本本主义》(1930)', use:'充分调查是解决的前提' },
+  { quote:'人民，只有人民，才是创造世界历史的动力。', source:'毛泽东《论联合政府》(1945)', use:'一线开发者和用户是真正的推动力' },
+  { quote:'实践、认识、再实践、再认识，这种形式，循环往复以至无穷。', source:'毛泽东《实践论》(1937)', use:'迭代开发的方法论基础' },
+  { quote:'无论哪一个社会形态，在它所能容纳的全部生产力发挥出来以前，是决不会灭亡的。', source:'马克思《政治经济学批判·序言》(1859)', use:'判断重构/改革时机——"两个绝不会"' },
+  { quote:'在资产阶级社会里，资本具有独立性和个性，而活动着的个人却没有独立性和个性。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'批判"个人奋斗"神话' },
+  { quote:'工人只有在劳动之外才感到自在，而在劳动中则感到不自在。', source:'马克思《1844年经济学哲学手稿》', use:'异化劳动——工作不是自我实现' },
+  { quote:'全世界无产者，联合起来！', source:'马克思、恩格斯《共产党宣言》(1848)', use:'个体力量在联合中成为阶级力量' },
+  { quote:'在雇佣劳动制基础上要求平等的或仅仅是公平的报酬，就犹如在奴隶制基础上要求自由一样。', source:'马克思《工资、价格和利润》(1865)', use:'批判改良主义——不改变制度结构的改良不是真正变革' },
+  { quote:'让思想冲破牢笼。', source:'欧仁·鲍狄埃《国际歌》(1871)', use:'思想解放是行动解放的前提' },
+  { quote:'所谓彻底，就是抓住事物的根本。但人的根本就是人本身。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'彻底的批判追溯到人的解放' },
+  { quote:'他们没有意识到这一点，但是他们这样做了。', source:'马克思《资本论》第一卷 (1867)', use:'意识形态的运作方式——做但不知在做什么' },
+  { quote:'最初的阶级压迫是同男性对女性的压迫同时发生的。', source:'恩格斯《家庭、私有制和国家的起源》(1884)', use:'性别压迫的物质根源' },
+  { quote:'妇女解放的程度是衡量普遍解放的天然尺度。', source:'傅立叶（马克思、恩格斯多次引用）', use:'女性地位检验社会进步' },
+  { quote:'马克思的整个世界观不是教义，而是方法。', source:'恩格斯《致韦尔纳·桑巴特》(1895)', use:'不要把方法论当教条' },
+  { quote:'看事情必须要看它的实质，而把它的现象只看作入门的向导。', source:'毛泽东《星星之火，可以燎原》(1930)', use:'穿透现象看本质' },
+  { quote:'在共产主义社会里……上午打猎，下午捕鱼，傍晚从事畜牧，晚饭后从事批判。', source:'马克思、恩格斯《德意志意识形态》', use:'共产主义的理想——消灭分工的奴役' },
+  { quote:'代替那存在着阶级和阶级对立的资产阶级旧社会的，将是这样一个联合体，在那里，每个人的自由发展是一切人的自由发展的条件。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'共产主义本质——自由人的联合体' },
+  { quote:'资本不是物，而是一定的、社会的、属于一定历史社会形态的生产关系。', source:'马克思《雇佣劳动与资本》(1849)', use:'理解资本的本质——不是钱，是社会关系' },
+  { quote:'人们自己创造自己的历史，但是他们并不是随心所欲地创造。', source:'马克思《路易·波拿巴的雾月十八日》(1852)', use:'分析历史行动的约束条件' },
+  { quote:'财富的尺度决不再是劳动时间，而是可以自由支配的时间。', source:'马克思《政治经济学批判大纲》(1857-1858)', use:'共产主义财富标准——自由时间' },
+  { quote:'国家是阶级矛盾不可调和的产物和表现。', source:'列宁《国家与革命》(1917)', use:'国家本质分析' },
+  { quote:'政治是经济的集中表现。政治同经济相比不能不占首位。', source:'列宁《再论工会》(1921)', use:'政治与经济关系的经典表述' },
+  { quote:'社会主义可能首先在少数甚至在单独一个资本主义国家内获得胜利。', source:'列宁《论欧洲联邦口号》(1915)', use:'一国胜利论——不平衡发展规律' },
+  { quote:'夺取全国胜利，这只是万里长征走完了第一步。', source:'毛泽东《七届二中全会报告》(1949)', use:'胜利后的清醒——不骄不躁' },
+  { quote:'百花齐放、百家争鸣。', source:'毛泽东《关于正确处理人民内部矛盾的问题》(1957)', use:'文化方针——学术与艺术自由' },
+  { quote:'应当把社会主义社会看成是一个不断变化和不断进步的社会。', source:'恩格斯《致奥托·伯尼克》(1890)', use:'社会主义不是一成不变的' },
+  { quote:'国家不是"被废除"的，它是自行消亡的。', source:'恩格斯《社会主义从空想到科学的发展》(1880)', use:'国家消亡的辩证过程' },
+];
+
+const routes = [
+  { scene:'科研不确定性', route:'practice-playbook.md（科研场景）+ epistemology.md' },
+  { scene:'Bug / 性能 / 根因', route:'证据扫描 → 现象/本质 → 矛盾' },
+  { scene:'项目停滞', route:'证据扫描 → 矛盾 → 阶段判断' },
+  { scene:'开源没人用', route:'证据扫描 → OSS 采纳清单 → 实践方案' },
+  { scene:'架构/流程变更', route:'证据扫描 → 系统关系' },
+  { scene:'团队/流程诊断', route:'证据扫描 → 历史结构' },
+  { scene:'复盘', route:'实践 → 认识 → 再实践' },
+  { scene:'思潮批判', route:'critique-methodology.md + classic-citations.md' },
+  { scene:'性别/女性主义', route:'critique-methodology.md §2.11 + historical-materialism.md §八' },
+  { scene:'人性/生物决定论', route:'critique-methodology.md §2.12 + dialectical-materialism.md' },
+  { scene:'内卷/躺平', route:'critique-methodology.md §2.14 + political-economy.md' },
+  { scene:'政治经济学/剥削', route:'political-economy.md' },
+  { scene:'革命/国家/阶级斗争', route:'scientific-socialism.md' },
+  { scene:'阶级分析', route:'historical-materialism.md §四 + §十' },
+];
+
+const methods = [
+  { quote:'客观实际', source:'方法论映射', use:'先盘点数据、资源、边界条件、客观约束。把"我认为"改写成"证据显示"。' },
+  { quote:'现象与本质', source:'方法论映射', use:'从表面症状深入到深层机制。用户说"界面不好看"→ 本质可能是"找不到想要的功能"。' },
+  { quote:'主要矛盾', source:'方法论映射', use:'列出当前所有矛盾 → 找出哪个矛盾卡住了一切 → 找出主导方面 → 针对主导方面设计行动。' },
+  { quote:'联系与发展', source:'方法论映射', use:'改一个模块会影响哪些其他模块？优化 A 是否会损害 B？一个决策会通过什么路径反馈回来？' },
+  { quote:'实践检验', source:'方法论映射', use:'将诊断转化为最小的变更 + 可观测的通过/失败规则。不是辩论方案好坏——做实验。' },
+  { quote:'质量互变', source:'辩证法规律', use:'技术债务 → 每次绕过 → 量变积累 → 某天系统无法维护。关注"度"与"关节点"。' },
+  { quote:'否定之否定（扬弃）', source:'辩证法规律', use:'不虚无主义一刀切推翻全部，也不保守主义害怕改变。保留旧方案合理内核，克服缺陷，上升到更高层次。' },
+  { quote:'必然与偶然', source:'辩证法范畴', use:'技术债务导致崩溃是必然的，由哪个具体 bug 触发是偶然的。不因偶然成功忽视必然风险。' },
+  { quote:'思潮批判五步法', source:'批判方法论 §3.1', use:'物质根源 → 阶级功能 → 内在矛盾 → 历史暂时性 → 实践指向' },
+];
+
+// ==================== 渲染 ====================
+
+function renderCritiques() {
+  const grid = document.getElementById('critiqueGrid');
+  grid.innerHTML = critiques.map(c => `
+    <div class="critique-card" onclick="openCritique(${c.id})">
+      <div class="num">#${c.id}</div>
+      <h4>${c.title}</h4>
+      <div class="brief">${c.brief}</div>
+    </div>
+  `).join('');
+}
+
+function openCritique(id) {
+  const c = critiques.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('modalContent').innerHTML = `
+    <button class="close" onclick="closeModal()">✕</button>
+    <h2 style="color:var(--red-dark);margin-bottom:16px;">#${c.id} ${c.title}</h2>
+    <div class="critique-body">${c.body}</div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+function renderCitations(filter = '') {
+  const list = document.getElementById('citationList');
+  const filtered = filter
+    ? citations.filter(c => c.quote.includes(filter) || c.source.includes(filter) || c.use.includes(filter))
+    : citations;
+  list.innerHTML = filtered.map(c => `
+    <div class="cite-item">
+      <div class="quote-text">"${c.quote}"</div>
+      <div class="source">—— ${c.source}</div>
+      <div class="use-case">🎯 适用：${c.use}</div>
+    </div>
+  `).join('');
+}
+
+function filterCitations() {
+  const val = document.getElementById('citeSearch').value.trim();
+  renderCitations(val);
+}
+
+function renderRoutes() {
+  document.getElementById('routeTable').innerHTML = `
+    <thead><tr><th>场景</th><th>路由</th></tr></thead>
+    <tbody>${routes.map(r => `
+      <tr><td class="scene">${r.scene}</td><td>${r.route}</td></tr>
+    `).join('')}</tbody>
+  `;
+}
+
+function renderMethods() {
+  document.getElementById('methodList').innerHTML = methods.map(m => `
+    <div class="cite-item">
+      <div class="quote-text" style="font-weight:700;color:var(--red-dark);font-style:normal;">${m.quote}</div>
+      <div class="source">${m.source}</div>
+      <div class="use-case">${m.use}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== 工作表 ====================
+
+// ==================== 智能分析引擎 ====================
+
+const analysisKB = {
+  // 关键词 → 对应分析框架
+  patterns: [
+    {keys:['加班','996','工时','过劳','加班费','大小周','单休'], lens:'劳动异化', aspect:'资本对剩余劳动的榨取', contradict:'劳动力再生产的需要 vs 资本增殖对剩余劳动时间的无限追求', cite:{q:'工人只有在劳动之外才感到自在，而在劳动中则感到不自在。',s:'马克思《1844年经济学哲学手稿》'}, critique:'敏捷与效率意识形态', stage:'激化阶段——已出现离职和消极抵抗'},
+    {keys:['需求变更','需求变化','改需求','加功能','产品经理','PRD'], lens:'矛盾分析', aspect:'需求生产端（无节制提出需求）', contradict:'不断膨胀的功能需求 vs 有限的交付能力和资源', cite:{q:'在复杂的事物的发展过程中，有许多的矛盾存在，其中必有一种是主要的矛盾。',s:'毛泽东《矛盾论》'}, critique:'敏捷与效率意识形态', stage:'发展阶段——矛盾正在累积'},
+    {keys:['离职','裁员','辞职','跳槽','人才流失','留不住人','招聘'], lens:'历史结构', aspect:'劳动市场中的议价权力失衡', contradict:'劳动者生存发展需要 vs 资本压低劳动力成本的逻辑', cite:{q:'资产阶级在它不到一百年的阶级统治中所创造的生产力比过去一切世代还要多还要大——而这庞大的生产力服务于资本增殖而非人的需要。',s:'马克思、恩格斯《共产党宣言》'}, critique:'自我优化与新自由主义主体', stage:'激化阶段——人力资本的流失'},
+    {keys:['绩效','KPI','考核','评估','打分','排名','末位淘汰'], lens:'数据拜物教', aspect:'管理层将量化指标等同于人的价值', contradict:'人的全面价值 vs 被KPI窄化的可量化指标', cite:{q:'在资产阶级社会里活的劳动只是增殖已经积累起来的劳动的一种手段。',s:'马克思、恩格斯《共产党宣言》'}, critique:'数据拜物教', stage:'发展阶段——量化正在替代判断'},
+    {keys:['内卷','竞争','卷','抢','拼','淘汰'], lens:'矛盾分析', aspect:'资本逻辑内化为劳动者的自我竞争', contradict:'劳动者之间的被迫竞争 vs 劳动者的共同利益', cite:{q:'内卷的本质是在资本积累规律下劳动者之间被迫的恶性竞争——不是年轻人太拼命，而是系统迫使每个人拼命奔跑只为停在原地。',s:'批判方法论 §2.14'}, critique:'内卷与躺平', stage:'激化阶段——竞争收益递减'},
+    {keys:['躺平','摆烂','佛系','不想干了','放弃了','无所谓'], lens:'实践与认识', aspect:'个体退出是对系统的消极抵抗', contradict:'个体化退出 vs 集体行动改变制度', cite:{q:'全世界无产者联合起来——对躺平青年意味着：你不需要一个人躺平，你可以和所有人一起站起来。',s:'批判方法论 §2.14'}, critique:'内卷与躺平', stage:'转化阶段——消极抵抗可能转向积极联合'},
+    {keys:['老板','领导','管理层','CEO','高管','上级','上面'], lens:'历史结构', aspect:'管理权力与劳动权力的不对称', contradict:'管理层代表资本利益进行管控 vs 劳动者争取自主性和合理回报', cite:{q:'统治阶级的思想在每一时代都是占统治地位的思想。',s:'马克思、恩格斯《德意志意识形态》'}, critique:'扁平化与隐形等级制', stage:'取决于具体情境'},
+    {keys:['工资','薪水','薪酬','涨薪','降薪','不发','拖欠'], lens:'客观实际', aspect:'劳动力价值的市场价格', contradict:'劳动者对体面生活的需求 vs 资本压缩劳动力成本的必然趋势', cite:{q:'在雇佣劳动制基础上要求平等的或仅仅是公平的报酬，就犹如在奴隶制基础上要求自由一样。',s:'马克思《工资、价格和利润》'}, critique:'新自由主义', stage:'发展阶段——分配矛盾显现'},
+    {keys:['沟通','开会','会议','流程','审批','汇报','周报'], lens:'联系与发展', aspect:'形式主义的流程消耗', contradict:'组织控制信息的需要 vs 实际工作效率的需要', cite:{q:'盲目地表面上完全无异议地执行上级指示这不是真正执行上级指示。',s:'毛泽东《反对本本主义》'}, critique:'敏捷与效率意识形态', stage:'发展阶段——流程异化'},
+    {keys:['用户','客户','用户反馈','用户体验','投诉','差评'], lens:'客观实际', aspect:'用户需求是检验产品的客观标准', contradict:'满足用户真实需求 vs 满足内部指标和政治', cite:{q:'没有调查就没有发言权。',s:'毛泽东《反对本本主义》'}, critique:'数据拜物教', stage:'取决于具体情境'},
+    {keys:['代码质量','技术债','重构','架构','bug','故障','线上事故'], lens:'质量互变', aspect:'技术债务从量变逼近质变临界点', contradict:'快速交付的压力 vs 代码可维护性的需要', cite:{q:'单纯的量的变化到一定点时就转化为质的区别。',s:'恩格斯《反杜林论》'}, critique:'敏捷与效率意识形态', stage:'量变积累阶段——逼近关节点'},
+    {keys:['AI','人工智能','自动化','机器','算法','大模型','取代'], lens:'联系与发展', aspect:'技术背后的所有权和控制权', contradict:'技术降低劳动强度的潜力 vs 资本利用技术替代和管控劳动的现实', cite:{q:'机器具有减少人类劳动和使劳动更有成效的神奇力量然而却引起了饥饿和过度的疲劳。',s:'马克思《在人民报创刊纪念会上的演说》'}, critique:'技术决定论与技术乐观主义', stage:'发生阶段——新技术引入'},
+    {keys:['开源','自由软件','GitHub','代码','社区','贡献'], lens:'历史结构', aspect:'开源劳动的无偿性与商业化的矛盾', contradict:'代码的自由 vs 写代码的人不自由', cite:{q:'Code is free but are the coders free?',s:'批判方法论 §2.10'}, critique:'开源意识形态', stage:'发展阶段——矛盾日益显露'},
+    {keys:['焦虑','抑郁','burnout','情绪','压力','崩溃','心理健康'], lens:'实践与认识', aspect:'社会痛苦被个体化和医学化', contradict:'社会结构性压力 vs 被诊断为个人心理缺陷', cite:{q:'当每个人都病了问题不在每个人身上——在环境里。',s:'批判方法论 §2.20'}, critique:'身心健康意识形态', stage:'激化阶段——个体症状普遍化'},
+    {keys:['性别','男女','女性','歧视','骚扰','同工不同酬'], lens:'历史结构', aspect:'性别压迫是阶级压迫最早的形式之一', contradict:'形式上的性别平等 vs 实质上的性别分工和压迫', cite:{q:'最初的阶级压迫是同男性对女性的压迫同时发生的。',s:'恩格斯《家庭、私有制和国家的起源》'}, critique:'女权主义——辨析与批判', stage:'取决于具体情境'},
+    {keys:['自由','选择','市场','个人奋斗','努力','靠自己'], lens:'现象与本质', aspect:'个人奋斗话语遮蔽结构不平等', contradict:'形式上的自由选择 vs 物质条件约束下的被迫选择', cite:{q:'在资产阶级社会里资本具有独立性和个性而活动着的个人却没有独立性和个性。',s:'马克思、恩格斯《共产党宣言》'}, critique:'优绩主义', stage:'发展阶段——意识形态再生产'},
+    {keys:['改革','制度','政策','规定','新规','调整','变动'], lens:'否定之否定', aspect:'变革中的新旧矛盾', contradict:'旧制度的惯性 vs 新制度的建立和完善', cite:{q:'对于任何问题应取分析态度不要否定一切。',s:'毛泽东《学习和时局》'}, critique:'改良主义', stage:'转化阶段——新旧交替'},
+    {keys:['学习','技能','培训','提升','自我提升','成长','进步'], lens:'实践与认识', aspect:'自我优化的背后是资本对人力资本的需求', contradict:'人的全面发展的需要 vs 被市场需要规训的自我优化', cite:{q:'教育者本人一定是受教育的。',s:'马克思《关于费尔巴哈的提纲》'}, critique:'自我优化与新自由主义主体', stage:'发展阶段——主动或被动的适应'},
+    {keys:['家庭','婚姻','生育','孩子','家务','带娃','养老'], lens:'历史结构', aspect:'家庭作为劳动力再生产的无偿工厂', contradict:'劳动力再生产的社会需要 vs 再生产负担的私人化', cite:{q:'妇女解放的第一个先决条件就是一切女性重新回到公共的劳动中去。',s:'恩格斯《家庭、私有制和国家的起源》'}, critique:'女权主义', stage:'发展阶段——再生产矛盾'},
+    {keys:['房子','房租','房价','房贷','住房','买房','租房'], lens:'客观实际', aspect:'住房商品化制造终身债务主体', contradict:'居住的基本需要 vs 住房作为资本积累工具', cite:{q:'权利永远不能超出社会的经济结构。',s:'马克思《哥达纲领批判》'}, critique:'新自由主义', stage:'激化阶段——居住成本超过承受能力'},
+    {keys:['教育','学历','文凭','考试','高考','考研','学区'], lens:'优绩主义', aspect:'教育再生产阶级不平等', contradict:'教育作为阶层流动的希望 vs 教育作为阶层固化的工具', cite:{q:'优绩主义遮蔽了竞争之前的不平等——农村学生和城市学生在进入考场之前已经经历了12年资源完全不同的公平竞争。',s:'批判方法论 §2.16'}, critique:'优绩主义', stage:'发展阶段——学历交换价值贬值'},
+
+    // ============ 网络生态 ============
+    {keys:['短视频','抖音','快手','刷视频','算法推荐','信息茧房','上瘾','沉迷手机'], lens:'数据拜物教', aspect:'平台算法以注意力和停留时长为唯一优化目标', contradict:'人的自由时间与注意力自主权 vs 算法对注意力的无限攫取和商品化', cite:{q:'他们没有意识到这一点，但是他们这样做了。',s:'马克思《资本论》第一卷'}, critique:'数据拜物教', stage:'激化阶段——注意力被全面殖民化'},
+    {keys:['网络暴力','网暴','键盘侠','喷子','人肉','网络骂战','对骂'], lens:'矛盾分析', aspect:'网络空间的匿名性放大了社会分裂', contradict:'被压抑的社会愤怒需要表达渠道 vs 网络空间将愤怒引向个体互害而非结构批判', cite:{q:'统治阶级最不希望看到的，就是底层不同肤色不同性别的人发现他们有一个共同的敌人。',s:'批判方法论 §2.13'}, critique:'身份政治', stage:'激化阶段——矛盾被引向错误方向'},
+    {keys:['自媒体','公众号','博主','网红','up主','内容创作者','流量','粉丝'], lens:'历史结构', aspect:'平台抽取创作者剩余价值的数字经济', contradict:'创作者对自主表达的追求 vs 平台对内容的流量化控制和价值抽成', cite:{q:'Code is free but are the coders free?',s:'批判方法论 §2.10——同样适用于内容创作者'}, critique:'开源意识形态', stage:'发展阶段——创作者看似自由实则被平台算法和流量逻辑支配'},
+    {keys:['直播','带货','主播','打赏','电商直播','321上链接'], lens:'商品拜物教', aspect:'直播将消费欲望实时化和情感化', contradict:'商品的使用价值 vs 直播营造的情感幻象和冲动消费', cite:{q:'商品形式的奥秘在于：商品形式在人们面前把人们本身劳动的社会性质反映成劳动产品本身的物的性质。',s:'马克思《资本论》第一卷'}, critique:'数据拜物教', stage:'激化阶段——消费主义找到终极形态'},
+    {keys:['饭圈','粉丝','追星','应援','打榜','流量明星','塌房'], lens:'异化劳动', aspect:'情感劳动被商品化——粉丝无偿生产数据和热度', contradict:'粉丝对情感连接和归属感的需要 vs 资本将粉丝情感转化为可剥削的数字劳动', cite:{q:'工人只有在劳动之外才感到自在，而在劳动中则感到不自在。',s:'马克思《1844年经济学哲学手稿》'}, critique:'身份政治', stage:'激化阶段——情感全面商品化'},
+    {keys:['隐私','数据泄露','监控','人脸识别','大数据杀熟','手机监听'], lens:'矛盾分析', aspect:'数据监控是资本权力和政治权力的技术延伸', contradict:'个人信息自主权 vs 资本和国家对个人数据的无限采集和利用', cite:{q:'在我们的时代每一种事物好像都包含有自己的反面。',s:'马克思《在人民报创刊纪念会上的演说》'}, critique:'数据拜物教', stage:'激化阶段——技术便利与监控控制同步增长'},
+    {keys:['网恋','交友软件','社交APP','匹配','陌陌','探探','soul'], lens:'商品拜物教', aspect:'人际关系被平台化为可匹配、可滑动的商品', contradict:'人对真实情感连接的需要 vs 平台将关系量化为数据和付费服务', cite:{q:'人的本质不是单个人所固有的抽象物，在其现实性上它是一切社会关系的总和。',s:'马克思《关于费尔巴哈的提纲》'}, critique:'数据拜物教', stage:'发展阶段——社会关系原子化后的虚假补偿'},
+    {keys:['游戏','氪金','抽卡','手游','网游','防沉迷','充值'], lens:'商品拜物教', aspect:'游戏设计利用行为心理学最大化付费转化', contradict:'玩家的娱乐和社交需要 vs 游戏公司的利润最大化逻辑', cite:{q:'资本破坏这一切并使之不断革命化。',s:'马克思《政治经济学批判大纲》'}, critique:'技术决定论', stage:'激化阶段——游戏从文化产品蜕变为榨取工具'},
+    {keys:['线上办公','远程工作','混合办公','视频会议','在家上班','钉钉','飞书'], lens:'联系与发展', aspect:'远程办公模糊了劳动时间与生活时间的边界', contradict:'灵活工作形式的解放潜力 vs 资本利用技术将劳动时间延伸至全部生活时间', cite:{q:'工人只有在劳动之外才感到自在，而在劳动中则感到不自在。',s:'马克思《1844年经济学哲学手稿》'}, critique:'敏捷与效率意识形态', stage:'发展阶段——工作与生活的边界消失'},
+    {keys:['信息茧房','算法','推荐','推送','千人千面','个性化','精准推送'], lens:'数据拜物教', aspect:'算法推荐将人的认知封闭在舒适区内', contradict:'人对多样化信息的需要 vs 算法以商业利益为唯一标准的筛选机制', cite:{q:'统治阶级的思想在每一时代都是占统治地位的思想。',s:'马克思、恩格斯《德意志意识形态》'}, critique:'数据拜物教', stage:'发展阶段——认知自主权的悄然丧失'},
+
+    // ============ 消费与社会生活 ============
+    {keys:['消费降级','省钱','平替','拼多多','性价比','消费主义','买买买'], lens:'客观实际', aspect:'消费降级是实际购买力下降的反映', contradict:'资本制造消费欲望以维持增长 vs 劳动者实际购买力持续下降', cite:{q:'物质生活的生产方式制约着整个社会生活、政治生活和精神生活的过程。',s:'马克思《政治经济学批判·序言》'}, critique:'新自由主义', stage:'激化阶段——消费驱动型增长模式触及天花板'},
+    {keys:['双十一','618','购物节','促销','满减','凑单','囤货'], lens:'商品拜物教', aspect:'购物节制造虚假的时间紧迫感和消费共同体幻觉', contradict:'消费者的实际需要 vs 资本人为制造的消费狂欢和过度消费', cite:{q:'他们没有意识到这一点，但是他们这样做了。',s:'马克思《资本论》'}, critique:'数据拜物教', stage:'激化阶段——消费狂欢的边际效用递减'},
+    {keys:['网贷','消费贷','花呗','借呗','信用卡','分期','负债','超前消费'], lens:'政治经济学', aspect:'消费信贷将劳动者绑定为终身债务人', contradict:'当下消费欲望的满足 vs 未来劳动成果的提前兑付和利息剥削', cite:{q:'资本来到世间从头到脚每个毛孔都滴着血和肮脏的东西。',s:'马克思《资本论》第一卷'}, critique:'新自由主义', stage:'激化阶段——债务成为控制劳动者的新枷锁'},
+    {keys:['外卖','骑手','快递','网约车','滴滴','灵活就业','零工经济','平台经济'], lens:'历史结构', aspect:'平台将雇佣风险全部转嫁给劳动者', contradict:'灵活就业形式上的自由 vs 平台对劳动者工作条件和收入的实质控制', cite:{q:'在雇佣劳动制基础上要求平等的报酬就犹如在奴隶制基础上要求自由。',s:'马克思《工资、价格和利润》'}, critique:'新自由主义', stage:'激化阶段——算法控制下的新型血汗劳动'},
+    {keys:['算法困住','系统派单','配送时间','超时罚款','差评扣钱','外卖系统'], lens:'矛盾分析', aspect:'算法以效率为名实施对劳动者的精准管控', contradict:'算法提高效率的技术潜力 vs 算法作为资本强化劳动控制的工具', cite:{q:'机器具有减少人类劳动的神奇力量然而却引起了饥饿和过度的疲劳。',s:'马克思《在人民报创刊纪念会上的演说》'}, critique:'技术决定论', stage:'激化阶段——算法成为直接管控劳动者的数字工头'},
+    {keys:['预制菜','食品安全','添加剂','外卖卫生','地沟油','食品安全焦虑'], lens:'客观实际', aspect:'食品安全危机是资本逐利的必然结果', contradict:'公众对安全食品的基本需要 vs 资本通过降低成本最大化利润的冲动', cite:{q:'资本害怕没有利润或利润太少就像自然界害怕真空一样。',s:'马克思引用邓宁格《工会与罢工》'}, critique:'新自由主义', stage:'激化阶段——监管与资本的猫鼠游戏'},
+    {keys:['宠物','养猫','养狗','铲屎官','猫粮','宠物经济'], lens:'历史结构', aspect:'宠物经济是社会关系原子化和生育率下降的补偿性消费', contradict:'人对陪伴和情感连接的需要 vs 现代社会中人际关系的疏离和抚育成本上升', cite:{q:'人的本质是一切社会关系的总和。',s:'马克思《关于费尔巴哈的提纲》'}, critique:'后现代主义', stage:'发展阶段——孤独成为经济'},
+    {keys:['知识付费','割韭菜','卖课','训练营','变现','认知升级','财富自由'], lens:'现象与本质', aspect:'知识付费将知识变为缓解焦虑的商品', contradict:'学习者对能力提升的真实需要 vs 贩卖者利用焦虑情绪收割流量的商业模式', cite:{q:'教育者本人一定是受教育的。',s:'马克思《关于费尔巴哈的提纲》'}, critique:'自我优化与新自由主义主体', stage:'激化阶段——知识付费成为新型智商税'},
+    {keys:['医美','整容','容貌焦虑','身材焦虑','减肥','颜值','外貌'], lens:'商品拜物教', aspect:'身体本身被商品化和标准化', contradict:'人对自我接纳和健康的需要 vs 资本制造身体焦虑以销售解决方案', cite:{q:'资本破坏这一切并使之不断革命化——包括对身体的规训。',s:'批判方法论 §2.8'}, critique:'自我优化与新自由主义主体', stage:'激化阶段——身体成为被资本规训和榨取的场所'},
+    {keys:['国潮','国货','民族品牌','新消费','新中式','国风'], lens:'现象与本质', aspect:'民族情感被资本收编为营销策略', contradict:'消费者对民族文化认同的需要 vs 资本将民族情感转化为溢价和消费符号', cite:{q:'一切已死的先辈们的传统像梦魇一样纠缠着活人的头脑。',s:'马克思《路易·波拿巴的雾月十八日》'}, critique:'民粹主义与新民族主义', stage:'发展阶段——民族情感的消费主义挪用'},
+
+    // ============ 劳动与就业 ============
+    {keys:['考公','考编','公务员','编制','稳定工作','铁饭碗','体制内'], lens:'历史结构', aspect:'考公潮反映的是私营部门就业质量的全面恶化', contradict:'劳动者对稳定和安全的基本需要 vs 资本逻辑下私营部门就业的全面不稳定', cite:{q:'人们自己创造自己的历史但是他们并不是随心所欲地创造。',s:'马克思《路易·波拿巴的雾月十八日》'}, critique:'新自由主义', stage:'激化阶段——劳动者用脚投票拒绝市场化的就业市场'},
+    {keys:['派遣','外包','临时工','合同工','同工不同酬','第三方','非正式雇佣'], lens:'矛盾分析', aspect:'非正式雇佣是资本分化劳动者团结的结构性手段', contradict:'企业对降低用工成本的追求 vs 劳动者对公平待遇和安全保障的合理要求', cite:{q:'全世界无产者联合起来！',s:'马克思、恩格斯《共产党宣言》'}, critique:'新自由主义', stage:'激化阶段——同工不同酬制造劳动者之间的分裂'},
+    {keys:['职场PUA','打压','羞辱','精神控制','画饼','洗脑'], lens:'矛盾分析', aspect:'职场PUA是资本权力对劳动者人格的侵犯', contradict:'劳动者对尊重和职业发展的合理期望 vs 管理者以精神控制手段压榨剩余劳动', cite:{q:'统治阶级的思想在每一时代都是占统治地位的思想。',s:'马克思、恩格斯《德意志意识形态》'}, critique:'扁平化与隐形等级制', stage:'激化阶段——精神暴力成为管理工具'},
+    {keys:['副业','斜杠','兼职','搞钱','第二收入','被动收入','睡后收入'], lens:'现象与本质', aspect:'副业热是工资收入不足以维持体面生活的反映', contradict:'劳动者对经济安全的追求 vs 单一雇佣关系下的收入不足和不确定性', cite:{q:'在资产阶级社会里活的劳动只是增殖已经积累起来的劳动的一种手段。',s:'马克思、恩格斯《共产党宣言》'}, critique:'自我优化与新自由主义主体', stage:'发展阶段——不得不把全部生活时间转化为劳动时间'},
+    {keys:['中年危机','35岁','裁员','年龄歧视','优化','毕业'], lens:'历史结构', aspect:'年龄歧视是资本追求更高剥削率的手段', contradict:'劳动者经验积累的价值 vs 资本偏好更年轻更廉价更易控制的劳动力', cite:{q:'资本主义生产的真正限制是资本自身。',s:'马克思《资本论》第三卷'}, critique:'新自由主义', stage:'激化阶段——劳动者被当作消耗品而非资产'},
+    {keys:['自由职业','数字游民','不上班','独立工作者','接单','freelancer'], lens:'现象与本质', aspect:'自由职业形式上自由了但实质上失去了集体议价权', contradict:'个体对工作自主权的追求 vs 市场对个体劳动者的全方位风险转嫁', cite:{q:'在雇佣劳动制基础上要求平等的报酬就犹如在奴隶制基础上要求自由。',s:'马克思《工资、价格和利润》'}, critique:'新自由主义', stage:'发展阶段——自由的表象与实质不自由的现实'},
+
+    // ============ 文化与意识形态 ============
+    {keys:['鸡娃','焦虑','育儿','内卷孩子','学区房','补习班','兴趣班'], lens:'矛盾分析', aspect:'教育竞争是阶级竞争的前移', contradict:'家长对孩子未来的期望 vs 教育作为阶级再生产工具的残酷筛选', cite:{q:'权利永远不能超出社会的经济结构。',s:'马克思《哥达纲领批判》'}, critique:'优绩主义', stage:'激化阶段——育儿从抚养变成投资和竞争'},
+    {keys:['性别对立','男女对立','女权','男权','性别战争','打拳','厌男厌女'], lens:'矛盾分析', aspect:'性别矛盾被网络放大和商品化——真正的阶级矛盾被遮蔽', contradict:'真实存在的性别不平等 vs 网络将性别矛盾激化为互相攻击而非联合批判父权制和资本主义', cite:{q:'最初的阶级压迫是同男性对女性的压迫同时发生的。',s:'恩格斯《家庭、私有制和国家的起源》'}, critique:'身份政治', stage:'激化阶段——性别矛盾被引导为互害而非指向制度'},
+    {keys:['躺平','摆烂','佛系','低欲望','断亲','不婚','不生'], lens:'实践与认识', aspect:'全面退出是对系统的总体性不合作', contradict:'个体退出作为消极抵抗 vs 集体行动作为积极变革', cite:{q:'从"我不干了"到"我们不干了"——个体退出变成集体行动。',s:'批判方法论 §2.14'}, critique:'内卷与躺平', stage:'转化阶段——消极抵抗蕴含着转向积极联合的可能'},
+    {keys:['孔乙己','长衫','脱不下长衫','学历贬值','大学生就业难','文凭通胀'], lens:'矛盾分析', aspect:'教育回报率下降暴露了优绩主义承诺的虚假性', contradict:'教育系统承诺的阶层上升 vs 劳动力市场提供的低质量就业', cite:{q:'整个历史也无非是人类本性的不断改变而已——教育改变命运这句话本身就随历史条件而改变其真理性。',s:'马克思《哲学的贫困》'}, critique:'优绩主义', stage:'激化阶段——优绩主义承诺的系统性违约'},
+    {keys:['消费主义','物质主义','炫耀性消费','品牌','奢侈品','轻奢'], lens:'商品拜物教', aspect:'品牌消费是人被物化的精致形态', contradict:'人对身份认同和社会尊重的需要 vs 资本将认同和尊重与商品消费挂钩', cite:{q:'商品形式的奥秘在于：商品形式在人们面前把人们本身劳动的社会性质反映成劳动产品本身的物的性质。',s:'马克思《资本论》第一卷'}, critique:'数据拜物教', stage:'激化阶段——人的价值被物的价格所定义'},
+    {keys:['信息过载','新闻疲劳','刷不完','信息焦虑','热点','热搜'], lens:'数据拜物教', aspect:'信息爆炸是注意力商品化的前提', contradict:'人对有效信息的需要 vs 平台制造信息噪音以最大化用户停留时长', cite:{q:'他们没有意识到这一点，但是他们这样做了。',s:'马克思《资本论》'}, critique:'数据拜物教', stage:'激化阶段——信息从赋权工具变成控制手段'},
+    {keys:['网络谣言','假新闻','辟谣','阴谋论','带节奏','反转'], lens:'现象与本质', aspect:'谣言传播的土壤是社会信任崩塌', contradict:'公众对真相的需要 vs 信息生态的商业化和政治化导致的真相贬值', cite:{q:'如果事物的表现形式和事物的本质会直接合而为一，一切科学就都成为多余的了。',s:'马克思《资本论》第三卷'}, critique:'后现代主义', stage:'激化阶段——后真相时代的认知危机'},
+
+    // ============ 家庭与代际 ============
+    {keys:['相亲','婚恋','结婚率','不婚','彩礼','找对象','大龄单身'], lens:'历史结构', aspect:'婚恋市场化是人际关系全面商品化的缩影', contradict:'人对亲密关系和家庭温暖的需要 vs 婚恋被市场逻辑（条件匹配、等价交换）所殖民', cite:{q:'资产阶级撕下了罩在家庭关系上的温情脉脉的面纱，把这种关系变成了纯粹的金钱关系。',s:'马克思、恩格斯《共产党宣言》'}, critique:'新自由主义', stage:'激化阶段——婚姻从制度变为市场'},
+    {keys:['生育','生孩子','二胎','三胎','出生率','不生','生育率'], lens:'历史结构', aspect:'生育率下降是劳动者无力承担再生产成本的结果', contradict:'社会对人口再生产的需求 vs 个体家庭无法承受的生育养育成本', cite:{q:'物质生活的生产方式制约着整个社会生活政治生活和精神生活的过程。',s:'马克思《政治经济学批判·序言》'}, critique:'新自由主义', stage:'激化阶段——劳动力再生产出现系统性危机'},
+    {keys:['养老','老龄化','退休','养老金','延迟退休','独居老人'], lens:'矛盾分析', aspect:'养老危机是劳动力再生产的社会化要求与私人化负担的矛盾', contradict:'老龄人口对体面生活的需要 vs 养老责任的私有化和商业化', cite:{q:'权利永远不能超出社会的经济结构。',s:'马克思《哥达纲领批判》'}, critique:'新自由主义', stage:'激化阶段——老龄化社会的系统性压力'},
+    {keys:['代沟','父母不理解','原生家庭','家庭矛盾','催婚','催生'], lens:'历史结构', aspect:'代际冲突是不同生产方式塑造的不同主体之间的冲突', contradict:'两代人在不同物质条件下形成的价值观 vs 亲密关系中价值观冲突的不可调和性', cite:{q:'不是人们的意识决定人们的存在，相反是人们的社会存在决定人们的意识。',s:'马克思《政治经济学批判·序言》'}, critique:'后现代主义', stage:'发展阶段——代际矛盾是结构转型的微观体现'},
+    {keys:['离婚','分手','出轨','婚外情','感情破裂','冷暴力'], lens:'矛盾分析', aspect:'亲密关系破裂是个体在结构压力下关系调节能力的耗竭', contradict:'人对稳定亲密关系的需要 vs 资本主义社会关系中个体化、原子化对亲密关系的侵蚀', cite:{q:'人的本质是一切社会关系的总和。',s:'马克思《关于费尔巴哈的提纲》'}, critique:'后现代主义', stage:'取决于具体情境'},
+
+    // ============ 城乡与空间 ============
+    {keys:['城市','北上广深','一线城市','漂','北漂','沪漂','深漂'], lens:'历史结构', aspect:'大城市对人的吸引与排斥是一体两面', contradict:'劳动者对发展机会和生活质量的追求 vs 大城市以高房价和长通勤对劳动者的系统性排斥', cite:{q:'人们自己创造自己的历史但并不是随心所欲地创造。',s:'马克思《路易·波拿巴的雾月十八日》'}, critique:'新自由主义', stage:'激化阶段——城市从机会之地变为生存战场'},
+    {keys:['农村','乡村','县城','城乡差距','留守儿童','留守老人'], lens:'联系与发展', aspect:'城乡差距是资本积累非均衡发展的必然结果', contradict:'农村对资源和发展的需要 vs 资本和劳动力向城市单向集中', cite:{q:'经济政治发展不平衡是资本主义的绝对规律。',s:'列宁《论欧洲联邦口号》'}, critique:'新自由主义', stage:'激化阶段——城乡二元结构的固化与加深'},
+    {keys:['通勤','地铁','挤地铁','堵车','上班路程','通勤时间'], lens:'历史结构', aspect:'长通勤是劳动者为居住成本付出的时间代价', contradict:'劳动者对体面居住的需要 vs 城市空间资本化导致的居住与工作空间分离', cite:{q:'工人只有在劳动之外才感到自在。',s:'马克思《1844年经济学哲学手稿》'}, critique:'新自由主义', stage:'激化阶段——通勤时间侵蚀本已稀缺的自由时间'},
+    {keys:['烂尾楼','断供','开发商','预售','停工','维权'], lens:'政治经济学', aspect:'烂尾楼是金融资本掠夺居民储蓄的系统性欺诈', contradict:'居民对居住安全的基本需要 vs 资本通过金融杠杆将风险全部转嫁给购房者', cite:{q:'资本来到世间从头到脚每个毛孔都滴着血和肮脏的东西。',s:'马克思《资本论》第一卷'}, critique:'新自由主义', stage:'激化阶段——金融资本对基本民生的系统性掠夺'},
+    {keys:['物业','业委会','业主','维权','物业费','停车费'], lens:'矛盾分析', aspect:'物业矛盾是居住空间中资本权力与居民权利的冲突', contradict:'居民对居住品质和自治的需要 vs 物业管理公司将居住空间作为盈利工具', cite:{q:'公社的真正秘密就在于它实质上是工人阶级的政府。',s:'马克思《法兰西内战》——自治精神的启示'}, critique:'新自由主义', stage:'激化阶段——居住空间中的权力斗争'},
+
+    // ============ 健康与身体 ============
+    {keys:['看病','医院','医疗','医保','挂号','排队','医患关系'], lens:'矛盾分析', aspect:'医疗市场化将健康变为商品', contradict:'公众对健康保障的基本需要 vs 医疗系统以利润为导向的运行逻辑', cite:{q:'权利永远不能超出社会的经济结构。',s:'马克思《哥达纲领批判》'}, critique:'新自由主义', stage:'激化阶段——健康从权利变为消费'},
+    {keys:['健身','减脂','增肌','私教','健身房','身材管理'], lens:'自我优化', aspect:'健身产业将身体焦虑转化为持续的消费需求', contradict:'人对健康的合理追求 vs 资本将健康身体标准无限拔高以制造持续消费', cite:{q:'人是人的最高本质——但资本把人的身体变成了可投资的资产和可优化的机器。',s:'批判方法论 §2.8'}, critique:'自我优化与新自由主义主体', stage:'发展阶段——从健康追求到身体焦虑的商品化'},
+
+    // ============ 科技与数字生活 ============
+    {keys:['AI写作','AI绘画','AI替代','ChatGPT','AIGC','人工智能取代'], lens:'联系与发展', aspect:'AI对知识劳动者的替代是在现有生产关系下发生的', contradict:'AI解放人类劳动的技术潜力 vs 资本利用AI压低劳动力价值和强化控制', cite:{q:'财富的尺度决不再是劳动时间而是可以自由支配的时间。',s:'马克思《政治经济学批判大纲》'}, critique:'技术决定论', stage:'发生阶段——新技术引入，阶级影响尚未充分显现'},
+    {keys:['数字遗产','数字死亡','账号','社交账号','云存储','数字记忆'], lens:'商品拜物教', aspect:'人的数字痕迹被平台永久占有', contradict:'个人对自己数据和记忆的自主权 vs 平台对用户数据的永久商业利用', cite:{q:'这些观念、这些范畴也同它们所表现的关系一样不是永恒的。',s:'马克思《哲学的贫困》'}, critique:'数据拜物教', stage:'发生阶段——数字所有权的新矛盾'},
+    {keys:['微信群','工作群','下班消息','已读不回','随时在线','隐形加班'], lens:'矛盾分析', aspect:'通讯技术使资本的触角延伸到劳动者的全部时间', contradict:'劳动者对私人时间的基本需要 vs 工作群将全部时间转化为潜在劳动时间', cite:{q:'工人只有在劳动之外才感到自在而在劳动中则感到不自在。',s:'马克思《1844年经济学哲学手稿》'}, critique:'敏捷与效率意识形态', stage:'激化阶段——劳动时间与生活时间的边界彻底消失'},
+  ]
+};
+
+function matchPatterns(input) {
+  const matches = [];
+  const lower = input.toLowerCase();
+  analysisKB.patterns.forEach(p => {
+    const score = p.keys.filter(k => lower.includes(k)).length;
+    if (score > 0) matches.push({...p, score});
+  });
+  matches.sort((a,b) => b.score - a.score);
+  return matches;
+}
+
+function autoAnalyze() {
+  const input = document.getElementById('wsInput').value.trim();
+  if (input.length < 10) {
+    document.getElementById('quickInsight').style.display = 'none';
+    return;
+  }
+  const matches = matchPatterns(input);
+  if (matches.length === 0) return;
+
+  const top = matches[0];
+  const insight = document.getElementById('quickInsight');
+  insight.style.display = 'block';
+  insight.innerHTML = `
+    <strong style="color:var(--red-dark);">⚡ 实时速览</strong>
+    <div style="margin-top:8px;line-height:1.8;">
+      <div>🔍 适用透镜：<strong>${top.lens}</strong></div>
+      <div>⚡ 初步矛盾：<strong>${top.contradict}</strong></div>
+      <div>📖 相关经典：<em>"${top.cite.q.slice(0,60)}…"</em> —— ${top.cite.s}</div>
+      <div>🎯 关联批判：<strong>${top.critique}</strong></div>
+      ${matches.length > 1 ? `<div style="margin-top:4px;font-size:0.85em;color:var(--text-light);">还检测到：${matches.slice(1,4).map(m => m.contradict.split(' vs ')[0]).join('、')}</div>` : ''}
+    </div>
+    <p style="margin-top:8px;font-size:0.8em;color:var(--text-light);">点击「完整分析」查看八步详细报告 ↓</p>
+  `;
+}
+
+function runFullAnalysis() {
+  const input = document.getElementById('wsInput').value.trim();
+  if (input.length < 10) { showToast('⚠️ 请先描述你面对的事件，至少写一两句话'); return; }
+
+  const matches = matchPatterns(input);
+  if (matches.length === 0) {
+    document.getElementById('analysisResult').style.display = 'block';
+    document.getElementById('analysisResult').innerHTML = `
+      <div class="card" style="border-left:4px solid var(--gold);">
+        <h3>⚠️ 未检测到明确的关键矛盾</h3>
+        <p style="color:var(--text-light);">你的描述中暂未匹配到内置分析模式。试试补充更多细节：</p>
+        <ul style="padding-left:20px;color:var(--text-light);line-height:2;">
+          <li>涉及哪些人？什么角色？</li>
+          <li>什么时候开始的？持续多久了？</li>
+          <li>有什么具体后果或症状？</li>
+          <li>谁受益？谁受损？</li>
+        </ul>
+      </div>`;
+    return;
+  }
+
+  const top = matches[0];
+  const secondary = matches.slice(1, Math.min(matches.length, 4));
+  const inputLower = input.toLowerCase();
+
+  // 推断发展阶段
+  let stageGuess = top.stage;
+  if (inputLower.includes('越来越') || inputLower.includes('越来越严重') || inputLower.includes('恶化')) stageGuess = '激化阶段——矛盾正在加剧';
+  if (inputLower.includes('刚开始') || inputLower.includes('最近') || inputLower.includes('新')) stageGuess = '发生阶段——矛盾初步显现';
+  if (inputLower.includes('一直') || inputLower.includes('长期') || inputLower.includes('多年')) stageGuess = '发展阶段——矛盾持续存在';
+  if (inputLower.includes('转变') || inputLower.includes('改革') || inputLower.includes('调整后')) stageGuess = '转化阶段——矛盾形态发生变化';
+
+  // 生成次要矛盾
+  let secondaryText = '';
+  if (secondary.length > 0) {
+    secondaryText = secondary.map((m,i) => `${i+1}. ${m.contradict}（检测到关键词：${m.keys.filter(k => inputLower.includes(k)).slice(0,3).join('、')}）`).join('<br>');
+  } else {
+    secondaryText = '需进一步调查确认。建议追问：除了表面的问题，还存在哪些受主要矛盾制约但不应主导行动的次要约束？';
+  }
+
+  // 推断涉及方面
+  const actors = [];
+  if (inputLower.includes('老板') || inputLower.includes('领导') || inputLower.includes('管理')) actors.push('管理层（利益代表：组织绩效、成本控制）');
+  if (inputLower.includes('产品') || inputLower.includes('pm')) actors.push('产品方（利益代表：功能交付、用户满意度）');
+  if (inputLower.includes('开发') || inputLower.includes('程序员') || inputLower.includes('工程师') || inputLower.includes('团队')) actors.push('执行团队（利益代表：工作负荷、代码质量、职业发展）');
+  if (inputLower.includes('用户') || inputLower.includes('客户') || inputLower.includes('消费者')) actors.push('用户/客户（利益代表：产品体验、服务质量）');
+  if (inputLower.includes('hr') || inputLower.includes('人事')) actors.push('HR/人事（利益代表：人员稳定、合规）');
+  if (actors.length === 0) actors.push('需进一步明确。追问：谁在推动变化？谁在承受代价？谁有决策权？');
+
+  // Build the analysis
+  let html = '';
+  const sections = [
+    {num:1, title:'客观实际（事实描述）', icon:'🔬', content:input, editable:true, id:'as1'},
+    {num:2, title:'涉及的主要方面', icon:'👥', content:actors.join('<br>'), editable:true, id:'as2'},
+    {num:3, title:'现象判断（表面症状）', icon:'👁️', content:`检测到的主要症状：${top.keys.filter(k => inputLower.includes(k)).join('、')}。这些是表面现象——需要进一步追问：这些症状背后是什么机制在持续产生它们？${secondary.length > 0 ? '同时检测到关联症状：' + secondary.map(m => m.keys.filter(k => inputLower.includes(k)).join('、')).join('；') : ''}`, editable:true, id:'as3'},
+    {num:4, title:'本质判断（深层机制）', icon:'🧠', content:`表面上看是"${top.keys.filter(k => inputLower.includes(k))[0] || '个体'}的问题"，但本质上是<strong>${top.contradict}</strong>。该问题的物质根源在于：<strong>${top.aspect}</strong>。不是个体选择或偶然事件——是在当前结构下必然会重复产生的系统性矛盾。`, editable:true, id:'as4'},
+    {num:5, title:'主要矛盾', icon:'⚡', content:`<strong>${top.contradict}</strong><br><br>矛盾的主要方面：<strong>${top.aspect}</strong>——它当前处于支配地位，决定了矛盾的走向。解决问题的关键在于改变这一方面的条件或削弱其支配力。`, editable:true, id:'as5'},
+    {num:6, title:'次要矛盾', icon:'🔗', content:secondaryText, editable:true, id:'as6'},
+    {num:7, title:'联系与影响', icon:'🌐', content:`该矛盾不是孤立的。它与以下方面相互联系、相互制约：<br>1. 上游：${actors.length > 0 ? actors[0].split('（')[0] : '决策层'}的激励机制和考核标准<br>2. 下游：执行团队的工作状态、产出质量和留存率<br>3. 外部环境：行业惯例、劳动力市场状况、经济周期<br>4. 反馈回路：当前的应对方式是否在加剧而非解决问题？（比如：加班→效率下降→更多加班→离职→更少人→更多加班）`, editable:true, id:'as7'},
+    {num:8, title:'阶段判断', icon:'📊', content:`<strong>${stageGuess}</strong><br><br>判断依据：${inputLower.includes('越来越') || inputLower.includes('恶化') ? '矛盾正在从量变逼近质变的关节点。当前的应对措施如果只是表面修补而不触及矛盾的主要方面，可能在短期内引发更剧烈的爆发。' : inputLower.includes('刚开始') || inputLower.includes('最近') ? '矛盾处于初期，尚有调整和预防的窗口。关键是在矛盾固化之前改变条件。' : '矛盾已经持续了一段时间，各方的行为模式正在固化。如果不进行结构性干预，矛盾将继续在现有轨道上发展直至激化。'}`, editable:true, id:'as8'},
+    {num:9, title:'实践方案', icon:'🔧', content:`基于以上分析，建议的最小可行步骤：<br><br>1. <strong>调查确认</strong>：收集客观数据验证以上判断——矛盾是否确实如分析所述？涉及的各方实际诉求是什么？<br>2. <strong>改变矛盾主要方面的条件</strong>：针对"${top.aspect}"——可以具体做什么来削弱它的支配力或改变它的运作方式？<br>3. <strong>建立反馈机制</strong>：设立可观测的指标来追踪矛盾的变化，定期复盘调整。<br>4. <strong>联合力量</strong>：识别有共同利益的相关方，从个体应对走向集体解决。<br><br>💡 理论指导：${top.cite.q}`, editable:true, id:'as9'},
+    {num:10, title:'验证标准（可观测的通过/失败规则）', icon:'✅', content:`<strong>通过标准（可观测的正面变化）：</strong><br>1. [请根据实际情况填写具体指标，例如]：加班时长连续两周下降<br>2. 团队成员在1对1沟通中主动提出建议而非沉默<br><br><strong>失败信号（需要调整方案）：</strong><br>1. 同样的症状在一个月内再次出现<br>2. 出现了新的更严重的症状（如核心成员离职）`, editable:true, id:'as10'},
+  ];
+
+  sections.forEach(s => {
+    html += `<div class="card" style="border-left:4px solid ${s.num <= 4 ? 'var(--red)' : s.num <= 8 ? 'var(--gold)' : '#333'};margin-bottom:12px;">
+      <h3 style="margin:0 0 8px;font-size:1em;">${s.icon} ${s.num}. ${s.title}</h3>
+      <div class="analysis-content" id="${s.id}" contenteditable="${s.editable}" style="font-size:0.9em;line-height:1.9;color:#444;${s.editable ? 'padding:8px;border-radius:4px;background:#fefefb;border:1px dashed transparent;' : ''}" ${s.editable ? `onfocus="this.style.borderColor='var(--red)';this.style.background='#fff'" onblur="this.style.borderColor='transparent';this.style.background='#fefefb'"` : ''}>${s.content}</div>
+      ${s.editable ? '<div style="font-size:0.75em;color:var(--text-light);margin-top:4px;">✏️ 点击上方文字可直接编辑</div>' : ''}
+    </div>`;
+  });
+
+  // Add related references
+  html += `<div class="card" style="border-left:4px solid var(--red);background:#fef9f0;">
+    <h3 style="margin:0 0 8px;font-size:1em;">📖 相关理论与经典</h3>
+    <div style="font-size:0.88em;line-height:1.9;">
+      <div>🎯 <strong>批判框架</strong>：${top.critique}</div>
+      <div>🔍 <strong>分析透镜</strong>：${top.lens}</div>
+      <div>📖 <strong>经典引文</strong>：<em>"${top.cite.q}"</em> —— ${top.cite.s}</div>
+      ${secondary.length > 0 ? '<div style="margin-top:4px;">🔗 <strong>关联批判</strong>：' + secondary.map(m => m.critique).filter((v,i,a) => a.indexOf(v)===i).join('、') + '</div>' : ''}
+    </div>
+  </div>`;
+
+  document.getElementById('analysisResult').style.display = 'block';
+  document.getElementById('analysisResult').innerHTML = html;
+  document.getElementById('analysisResult').scrollIntoView({behavior:'smooth'});
+
+  // Save to history
+  saveToHistory(input, top);
+  // Show web search button
+  document.getElementById('btnWebSearch').style.display = 'inline-block';
+  // Store analysis context for web search
+  window._lastAnalysis = { input, top, matches };
+}
+
+// ==================== 联网搜索 (Wikipedia API) ====================
+
+async function webSearch() {
+  const ctx = window._lastAnalysis;
+  if (!ctx) { showToast('⚠️ 请先完成分析'); return; }
+
+  const resultDiv = document.getElementById('webResult');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `<div class="card" style="border-left:4px solid var(--gold);text-align:center;padding:24px;">
+    <div style="font-size:1.2em;">🌐 正在搜索相关资料...</div>
+    <div style="color:var(--text-light);margin-top:8px;">查询 Wikipedia 中文版和英文版</div>
+    <div id="webProgress" style="margin-top:12px;color:var(--text-light);font-size:0.85em;"></div>
+  </div>`;
+  resultDiv.scrollIntoView({behavior:'smooth'});
+
+  // Generate search queries from analysis
+  const queries = generateSearchQueries(ctx);
+  const results = [];
+
+  document.getElementById('webProgress').textContent = '搜索: ' + queries.map(q => q.label).join(' | ');
+
+  for (const q of queries) {
+    try {
+      const summary = await fetchWikipediaSummary(q.query, q.lang);
+      if (summary) results.push({...q, ...summary});
+    } catch(e) { /* skip failed queries */ }
+  }
+
+  // Also open a web search in new tab (DuckDuckGo)
+  const mainQuery = encodeURIComponent(ctx.input.slice(0, 100));
+  const ddgUrl = 'https://duckduckgo.com/?q=' + mainQuery;
+
+  // Render results
+  let html = `<div class="card" style="border-left:4px solid var(--red);">
+    <h3>🌐 联网搜索结果</h3>
+    <p style="font-size:0.85em;color:var(--text-light);margin-bottom:14px;">来自 Wikipedia 的资料，辅助充实分析</p>`;
+
+  if (results.length === 0) {
+    html += `<p style="color:var(--text-light);">Wikipedia 查询无结果（可能在网络受限环境）。</p>`;
+  } else {
+    results.forEach(r => {
+      html += `<div style="margin:14px 0;padding:14px;background:#fefefb;border-radius:8px;border:1px solid var(--border);">
+        <div style="font-weight:700;color:var(--red-dark);margin-bottom:4px;">📖 ${r.title} <span style="font-weight:400;color:var(--text-light);font-size:0.8em;">(${r.lang})</span></div>
+        <div style="font-size:0.88em;line-height:1.8;color:#444;">${r.extract || '无摘要'}</div>
+        ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;color:var(--red);font-size:0.85em;text-decoration:none;">🔗 在 Wikipedia 阅读全文 →</a>` : ''}
+      </div>`;
+    });
+  }
+
+  html += `<div style="margin-top:16px;padding:14px;background:#fef9f0;border-radius:8px;text-align:center;">
+    <a href="${ddgUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 24px;background:#333;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">🔍 在 DuckDuckGo 搜索更多</a>
+    <span style="margin-left:12px;font-size:0.8em;color:var(--text-light);">（自动在新标签页打开）</span>
+  </div>`;
+
+  html += `</div>`;
+  resultDiv.innerHTML = html;
+  resultDiv.scrollIntoView({behavior:'smooth'});
+}
+
+function generateSearchQueries(ctx) {
+  const queries = [];
+  const input = ctx.input;
+  const top = ctx.top;
+
+  // Always add the main contradiction concepts
+  const conceptMap = {
+    '加班': [{q:'996 working hour system China', l:'zh', label:'996工作制'}, {q:'working time regulation China labor law', l:'zh', label:'中国劳动法'}],
+    '996': [{q:'996 working hour system', l:'en', label:'996制度(英文)'}],
+    '内卷': [{q:'involution China sociology', l:'en', label:'内卷(社会学)'}, {q:'躺平', l:'zh', label:'躺平现象'}],
+    '躺平': [{q:'lying flat movement China', l:'en', label:'躺平运动'}, {q:'tang ping', l:'en', label:'Tang Ping'}],
+    'AI': [{q:'artificial intelligence labor displacement', l:'en', label:'AI替代劳动'}, {q:'人工智能 就业 影响', l:'zh', label:'AI就业影响'}],
+    '房价': [{q:'China housing bubble real estate', l:'en', label:'中国房地产'}, {q:'住房 中国 房价', l:'zh', label:'中国住房问题'}],
+    '考公': [{q:'civil service examination China', l:'en', label:'中国公务员考试'}, {q:'公务员 考试 中国', l:'zh', label:'公务员考试'}],
+    '外卖': [{q:'food delivery workers China gig economy', l:'en', label:'中国外卖骑手'}, {q:'外卖骑手 平台经济', l:'zh', label:'外卖骑手'}],
+    '教育': [{q:'education inequality China', l:'en', label:'中国教育不平等'}, {q:'gaokao China', l:'en', label:'中国高考'}],
+    '性别': [{q:'gender inequality China workplace', l:'en', label:'中国职场性别'}, {q:'feminism China', l:'en', label:'中国女性主义'}],
+    '消费': [{q:'consumerism China economy', l:'en', label:'中国消费主义'}, {q:'消费降级', l:'zh', label:'消费降级'}],
+    '离婚': [{q:'divorce rate China', l:'en', label:'中国离婚率'}, {q:'marriage China trend', l:'en', label:'中国婚姻趋势'}],
+    '算法': [{q:'algorithm control labor platform', l:'en', label:'算法控制劳动'}, {q:'算法 外卖 骑手', l:'zh', label:'算法与外卖'}],
+    'chatgpt': [{q:'ChatGPT impact labor market', l:'en', label:'ChatGPT劳动市场'}],
+    '裁员': [{q:'layoff China tech industry', l:'en', label:'中国科技裁员'}, {q:'unemployment China', l:'en', label:'中国失业'}],
+    '宠物': [{q:'pet economy China', l:'en', label:'中国宠物经济'}, {q:'single economy China', l:'en', label:'中国单身经济'}],
+    '短视频': [{q:'short video addiction China TikTok Douyin', l:'en', label:'短视频成瘾'}, {q:'social media impact mental health', l:'en', label:'社交媒体心理健康'}],
+    '老龄化': [{q:'aging population China pension', l:'en', label:'中国老龄化'}, {q:'elderly care China', l:'en', label:'中国养老'}],
+    '网贷': [{q:'online lending China debt', l:'en', label:'中国网贷'}, {q:'consumer debt China youth', l:'en', label:'中国消费贷'}],
+    '直播': [{q:'live streaming ecommerce China', l:'en', label:'中国直播电商'}, {q:'livestream shopping China', l:'en', label:'直播购物'}],
+  };
+
+  // Match concepts from input
+  for (const [key, qs] of Object.entries(conceptMap)) {
+    if (input.includes(key)) {
+      queries.push(...qs);
+      if (queries.length >= 5) break; // Limit to 5 queries
+    }
+  }
+
+  // If no specific match, use the top contradiction
+  if (queries.length === 0) {
+    queries.push({q: top.contradict.split(' vs ')[0], l:'zh', label:'主要矛盾'});
+    queries.push({q: top.critique, l:'zh', label:'相关批判'});
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  return queries.filter(q => { const k = q.q + q.l; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+
+async function fetchWikipediaSummary(query, lang) {
+  const base = lang === 'zh' ? 'zh.wikipedia.org' : 'en.wikipedia.org';
+  // First search for the page
+  const searchUrl = `https://${base}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=3`;
+  try {
+    const resp = await fetch(searchUrl);
+    const data = await resp.json();
+    const pages = data.query?.search;
+    if (!pages || pages.length === 0) return null;
+
+    // Get summary of the first result
+    const title = pages[0].title;
+    const summaryUrl = `https://${base}/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+    const summaryResp = await fetch(summaryUrl);
+    const summary = await summaryResp.json();
+
+    return {
+      title: summary.title || title,
+      extract: (summary.extract || '').slice(0, 500),
+      url: summary.content_urls?.desktop?.page || `https://${base}/wiki/${encodeURIComponent(title)}`,
+      lang: lang === 'zh' ? '中文' : 'English'
+    };
+  } catch(e) {
+    return null;
+  }
+}
+
+function clearAnalysis() {
+  document.getElementById('wsInput').value = '';
+  document.getElementById('quickInsight').style.display = 'none';
+  document.getElementById('analysisResult').style.display = 'none';
+  document.getElementById('analysisResult').innerHTML = '';
+  document.getElementById('webResult').style.display = 'none';
+  document.getElementById('webResult').innerHTML = '';
+  document.getElementById('btnWebSearch').style.display = 'none';
+  window._lastAnalysis = null;
+  showToast('✅ 已清空');
+}
+
+function exportAnalysis() {
+  const sections = document.querySelectorAll('#analysisResult .card');
+  if (sections.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
+  let text = '═══════════════ 矛盾分析报告 ═══════════════\n\n';
+  text += '【事件描述】\n' + document.getElementById('wsInput').value.trim() + '\n\n';
+  sections.forEach((card, i) => {
+    const title = card.querySelector('h3');
+    const content = card.querySelector('.analysis-content');
+    if (title) text += `【${title.textContent.trim()}】\n`;
+    if (content) text += (content.textContent.trim() || '(待补充)') + '\n\n';
+    if (!title && !content && card.querySelector('div')) {
+      text += '【相关理论与经典】\n' + card.querySelector('div').textContent.trim() + '\n\n';
+    }
+  });
+  text += `═══════════════ 导出时间：${new Date().toLocaleString()} ═══════════════`;
+  const blob = new Blob([text], { type: 'text/plain;charset=UTF-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '矛盾分析报告_' + new Date().toISOString().slice(0, 10) + '.txt';
+  a.click();
+  showToast('📥 报告已导出');
+}
+
+function saveToHistory(input, analysis) {
+  try {
+    const history = JSON.parse(localStorage.getItem('marx-analysis-history') || '[]');
+    history.unshift({ date: new Date().toISOString(), input: input.slice(0,200), topContradiction: analysis.contradict, topCritique: analysis.critique });
+    if (history.length > 20) history.length = 20;
+    localStorage.setItem('marx-analysis-history', JSON.stringify(history));
+  } catch(e) { /* localStorage may be unavailable */ }
+}
+
+// ==================== Toast ====================
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ==================== 经典著作数据 ====================
+
+let currentLitId = 0;
+const literature = [
+  // 马克思 (22部)
+  { id:1, author:'marx', authorName:'马克思', year:'1841', title:'博士论文：德谟克利特的自然哲学和伊壁鸠鲁的自然哲学的差别', theme:'自我意识的自由；哲学与现实的紧张关系', use:'理解马克思思想起源', detail:'青年马克思的哲学起点。通过对比德谟克利特（强调必然性）与伊壁鸠鲁（强调原子偏斜与自由意志）的自然哲学，论证自我意识的自由和哲学介入现实的必要性。核心命题：哲学必须"世界的哲学化"与"哲学的世界化"相统一。', link:`https://www.marxists.org/chinese/marx/06.htm` },
+  { author:'marx', authorName:'马克思', year:'1843', title:'黑格尔法哲学批判', theme:'市民社会决定国家；从唯心主义向唯物主义转变', use:'国家与市民社会关系分析', detail:`马克思从唯心主义转向唯物主义的关键环节。颠倒黑格尔"国家决定市民社会"的命题，指出市民社会决定国家。揭示了政治国家与市民社会的分裂是现代人的根本困境，为经济基础决定上层建筑理论奠基。`, link:`https://www.marxists.org/chinese/marx-engels/01/03.htm` },
+  { author:'marx', authorName:'马克思', year:'1843', title:'论犹太人问题', theme:'政治解放与人类解放的区分', use:'宗教批判、公民权利分析', detail:`区分"政治解放"与"人类解放"。政治解放（国家从宗教中解放、公民获平等权利）不等于人类解放——人在政治国家中是平等公民，在市民社会中是不平等的利己个人。金钱成为现实的神。`, link:`https://www.marxists.org/chinese/marx-engels/01/01.htm` },
+  { author:'marx', authorName:'马克思', year:'1844', title:'〈黑格尔法哲学批判〉导言', theme:'无产阶级历史使命；批判的武器与武器的批判；宗教是人民的鸦片', use:'理论与实践的辩证关系', detail:`马克思从唯心主义转向唯物主义的关键环节。颠倒黑格尔"国家决定市民社会"的命题，指出市民社会决定国家。揭示了政治国家与市民社会的分裂是现代人的根本困境，为经济基础决定上层建筑理论奠基。`, link:`https://www.marxists.org/chinese/marx-engels/01/02.htm` },
+  { author:'marx', authorName:'马克思', year:'1844', title:'1844年经济学哲学手稿', theme:'异化劳动四重规定；私有财产的积极扬弃；人的类本质', use:'劳动异化分析、消费主义批判', detail:`又称巴黎手稿，马克思26岁时早期著作。核心是异化劳动四重规定：劳动者与产品异化（创造越多被剥夺越多）、与劳动过程异化（被迫劳动）、与类本质异化（自由活动降格为谋生）、人与人异化。共产主义是"私有财产的积极扬弃"。`, link:`https://www.marxists.org/chinese/marx-engels/42.htm` },
+  { author:'marx', authorName:'马克思', year:'1845', title:'神圣家族（与恩格斯合著）', theme:'批判思辨唯心主义；人民群众是历史的创造者', use:'反对空谈、群众史观', detail:`与恩格斯合著，清算青年黑格尔派。历史什么事情也没有做——创造一切的正是现实的人。思想不能实现什么东西，要实现思想就要有使用实践力量的人。确立了人民群众是历史创造者的观点。`, link:`https://www.marxists.org/chinese/marx-engels/02/` },
+  { author:'marx', authorName:'马克思', year:'1845', title:'关于费尔巴哈的提纲', theme:'实践观确立；人的本质是社会关系的总和；改变世界', use:'认识论、人性论批判', detail:`被恩格斯称为"天才世界观的第一份文件"全文仅11条。"哲学家们只是用不同的方式解释世界，而问题在于改变世界。""人的本质是一切社会关系的总和。""全部社会生活在本质上是实践的。"确立实践是检验真理的标准。`, link:`https://www.marxists.org/chinese/marx-engels/01/04.htm` },
+  { author:'marx', authorName:'马克思', year:'1846', title:'德意志意识形态（与恩格斯合著）', theme:'历史唯物主义第一次系统表述；统治阶级思想；意识形态批判', use:'意识形态分析、分工批判', detail:`与恩格斯合著，历史唯物主义第一次系统表述。不是意识决定生活而是生活决定意识。统治阶级的思想在每一时代都是占统治地位的思想。意识形态是"颠倒的意识"。论述分工与所有制发展阶段。共产主义不是理想而是消灭现存状况的现实运动。`, link:`https://www.marxists.org/chinese/marx-engels/03/` },
+  { author:'marx', authorName:'马克思', year:'1847', title:'哲学的贫困', theme:'经济范畴是生产关系的理论表现；手推磨产生封建主社会', use:'反"永恒化"论证', detail:`批判蒲鲁东。经济范畴只是生产关系的理论表现。这些范畴不是永恒的是历史的暂时的产物。手推磨产生封建主社会，蒸汽磨产生工业资本家的社会。整个历史无非是人类本性的不断改变。`, link:`https://www.marxists.org/chinese/marx-engels/04/` },
+  { author:'marx', authorName:'马克思', year:'1848', title:'共产党宣言（与恩格斯合著）', theme:'阶级斗争；资产阶级的进步与灭亡；全世界无产者联合起来', use:'阶级分析总纲、革命判断', detail:`马克思主义最著名的纲领性文献，与恩格斯合著。"至今一切社会的历史都是阶级斗争的历史。""无产者失去的只是锁链，获得的将是整个世界。""全世界无产者，联合起来！""每个人的自由发展是一切人的自由发展的条件。"`, link:`https://www.marxists.org/chinese/marx-engels/01/05.htm` },
+  { author:'marx', authorName:'马克思', year:'1849', title:'雇佣劳动与资本', theme:'工资是劳动力商品的价格；资本是生产关系', use:'工资问题、剥削入门', detail:`剩余价值理论初步阐述。"资本不是物，而是一定的社会生产关系。"工资不是劳动价格而是劳动力价格。区分实际工资与相对工资。是《资本论》的通俗入门读物。`, link:`https://www.marxists.org/chinese/marx-engels/06/` },
+  { author:'marx', authorName:'马克思', year:'1852', title:'路易·波拿巴的雾月十八日', theme:'人们自己创造历史但不是随心所欲；国家机器本质', use:'政治事件分析、国家批判', detail:`历史唯物主义应用于当代政治分析的典范。"人们自己创造自己的历史但并不是随心所欲地创造。"分析小农阶级"不能代表自己一定要别人代表他们"。揭露国家机器的官僚军事本质。一切已死先辈的传统像梦魇一样纠缠着活人的头脑。`, link:`https://www.marxists.org/chinese/marx-engels/08/` },
+  { author:'marx', authorName:'马克思', year:'1856', title:'在〈人民报〉创刊纪念会上的演说', theme:'技术的两面性——机器减少劳动却引起饥饿和疲劳', use:'技术批判、AI分析', detail:`技术批判经典。"机器具有减少人类劳动的神奇力量却引起了饥饿和过度的疲劳。""每一种事物好像都包含有自己的反面。"技术本身不能解放人——关键是技术被谁控制、为谁服务。`, link:`https://www.marxists.org/chinese/marx-engels/12/03.htm` },
+  { author:'marx', authorName:'马克思', year:'1858', title:'政治经济学批判大纲（Grundrisse）', theme:'前资本主义形态；一般智力；财富尺度是自由时间', use:'AI时代劳动分析、自由时间', detail:`又称Grundrisse，《资本论》庞大预备手稿。"财富的尺度决不再是劳动时间，而是可以自由支配的时间。"提出"一般智力"（general intellect）——"一般社会知识正在变成直接生产力"——对AI时代极具预见性。论述前资本主义形态。`, link:`https://www.marxists.org/chinese/marx-engels/46/` },
+  { author:'marx', authorName:'马克思', year:'1859', title:'政治经济学批判·序言', theme:'唯物史观经典公式；两个绝不会', use:'变革时机判断', detail:`唯物史观最精炼的公式化表述。"物质生活的生产方式制约着整个社会生活政治生活和精神生活。""无论哪一个社会形态在它所能容纳的全部生产力发挥出来以前是决不会灭亡的。""人类始终只提出自己能够解决的任务。"`, link:`https://www.marxists.org/chinese/marx-engels/13/01.htm` },
+  { author:'marx', authorName:'马克思', year:'1863', title:'剩余价值理论（资本论第四卷）', theme:'政治经济学史批判；对斯密和李嘉图的批判', use:'经济学说史研究', detail:`即《资本论》第四卷。对政治经济学史的系统批判。梳理从重农学派到斯密李嘉图再到庸俗经济学的剩余价值理论发展，揭露古典政治经济学的成就与局限及庸俗经济学如何从科学蜕变为辩护。`, link:`https://www.marxists.org/chinese/marx-engels/26/` },
+  { author:'marx', authorName:'马克思', year:'1865', title:'工资、价格和利润', theme:'剩余价值来源；雇佣劳动制=奴隶制', use:'工资斗争分析', detail:`1865年在第一国际演说。"在雇佣劳动制基础上要求平等的报酬就犹如在奴隶制基础上要求自由。"劳动创造的价值大于劳动力价值——这就是剩余价值来源。批判工资铁律——工资提高不会消灭利润。`, link:`https://www.marxists.org/chinese/marx-engels/16/` },
+  { author:'marx', authorName:'马克思', year:'1867', title:'资本论 第一卷', theme:'商品拜物教；剩余价值；资本积累；原始积累', use:'政治经济学批判、剥削分析', detail:`马克思毕生最重要著作。从商品分析出发——商品二因素与劳动二重性（"理解政治经济学的枢纽"）→价值形式→商品拜物教→剩余价值论（绝对与相对）→资本积累（财富一极积累贫困另一极积累）→原始积累（"资本来到世间每个毛孔都滴着血"）。"资本主义私有制的丧钟就要响了。"`, link:`https://www.marxists.org/chinese/marx-engels/23/` },
+  { author:'marx', authorName:'马克思', year:'1871', title:'法兰西内战', theme:'巴黎公社经验；打碎旧国家机器；公社原则', use:'国家理论、民主形式', detail:`巴黎公社经验总结。"工人阶级不能简单地掌握现成国家机器"——必须打碎它。公社原则：普选产生随时罢免、公职人员工资不超过熟练工人、常备军由武装人民替代。公社实质上是工人阶级的政府。`, link:`https://www.marxists.org/chinese/marx-engels/17/` },
+  { author:'marx', authorName:'马克思', year:'1872', title:'论土地国有化', theme:'土地私有制与资本主义', use:'农业问题、土地政策', detail:`土地私有制不是永恒的而是资本主义生产方式的基础。论证土地国有化的历史必要性和实施条件。`, link:`https://www.marxists.org/chinese/marx-engels/18/` },
+  { author:'marx', authorName:'马克思', year:'1875', title:'哥达纲领批判', theme:'共产主义两阶段；按劳分配到按需分配；过渡时期与无产阶级专政', use:'社会主义阶段判断', detail:`科学社会主义纲领性文献。"劳动不是一切财富的源泉。"共产主义两阶段：第一阶段按劳分配（"资产阶级权利"仍存在）、高级阶段"各尽所能按需分配"。过渡时期即无产阶级专政时期。"权利永远不能超出社会的经济结构。"`, link:`https://www.marxists.org/chinese/marx-engels/19/03.htm` },
+  { author:'marx', authorName:'马克思', year:'1881', title:'给维·伊·查苏利奇的复信', theme:'俄国公社与跨越"卡夫丁峡谷"；不能把西欧道路当作一般历史哲学', use:'非西方发展道路', detail:`回复俄国革命者关于农村公社命运的询问。核心结论：不能把西欧资本主义发展道路当作"一般历史哲学"；俄国农村公社在特定条件下可跳过资本主义阶段直接过渡到社会主义——"跨越卡夫丁峡谷"的可能性。`, link:`https://www.marxists.org/chinese/marx-engels/19/04.htm` },
+
+  // 恩格斯 (15部)
+  { author:'engels', authorName:'恩格斯', year:'1844', title:'国民经济学批判大纲', theme:'私有制是一切经济矛盾的基础；"天才的大纲"', use:'经济学批判入门', detail:`被马克思称为"天才的大纲"。指出私有制是一切经济矛盾的基础——导致劳动与资本分离，进而导致竞争、垄断和周期性危机。是马克思主义政治经济学的第一篇文献。`, link:`https://www.marxists.org/chinese/marx-engels/01/08.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1845', title:'英国工人阶级状况', theme:'产业革命与无产阶级形成；马克思主义社会调查范本', use:'阶级调查方法论', detail:`马克思主义社会调查经典范本。实地考察曼彻斯特等工业城市，记录工人阶级骇人处境——不仅是物质贫困更是人的全面堕落。揭示了产业革命如何创造工业无产阶级。大城市阶级隔离是"社会战争"。`, link:`https://www.marxists.org/chinese/marx-engels/02/` },
+  { author:'engels', authorName:'恩格斯', year:'1847', title:'共产主义原理', theme:'以问答形式阐述共产主义；宣言草案', use:'共产主义入门', detail:`以问答形式写成的《共产党宣言》草案。"共产主义是关于无产阶级解放的条件的学说。"用25个问答简洁阐述废除私有制的具体步骤和共产主义的根本主张。`, link:`https://www.marxists.org/chinese/marx-engels/01/06.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1850', title:'德国农民战争', theme:'宗教改革的阶级基础', use:'宗教与阶级关系分析', detail:`用唯物史观分析16世纪德国农民战争。揭示宗教改革（路德和闵采尔）背后的阶级基础——不同阶级对宗教改革有完全不同的利益诉求。农民与市民阶级短暂联合后分裂导致失败。`, link:`https://www.marxists.org/chinese/marx-engels/07/` },
+  { author:'engels', authorName:'恩格斯', year:'1873', title:'论权威', theme:'大工业要求权威；反权威主义者背叛无产阶级', use:'组织管理、反无政府主义', detail:`批判无政府主义。"想消灭大工业中的权威就等于想消灭工业本身。"现代大工业铁路航运都要求权威和服从——不是由人的意志决定而是由物质条件决定。反权威主义者实质是"背叛无产阶级运动"。`, link:`https://www.marxists.org/chinese/marx-engels/18/07.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1878', title:'反杜林论', theme:'马克思主义百科全书；辩证法三规律；平等的历史性', use:'理论体系全貌', detail:`"马克思主义的百科全书"，系统阐述三个组成部分。哲学编：辩证法三规律（对立统一、量变质变、否定之否定），"自由是对必然的认识"。政治经济学编：暴力论批判——不是暴力创造私有制而是私有制产生暴力。社会主义编："无产阶级的平等要求是消灭阶级本身。"`, link:`https://www.marxists.org/chinese/marx-engels/20/` },
+  { author:'engels', authorName:'恩格斯', year:'1883', title:'自然辩证法（未完成）', theme:'劳动创造人；自然界的辩证规律；物质运动形式', use:'科学哲学、生态批判', detail:`未完成手稿。"劳动创造了人本身"——从猿到人的关键不是纯生物进化而是劳动。自然界是辩证法的试金石。物质运动基本形式：机械→物理→化学→生物→社会。`, link:`https://www.marxists.org/chinese/marx-engels/20/` },
+  { author:'engels', authorName:'恩格斯', year:'1880', title:'社会主义从空想到科学的发展', theme:'两大发现使社会主义成为科学；从必然王国到自由王国', use:'社会主义入门首选', detail:`马克思主义入门首选读物。两大发现使社会主义成为科学：唯物史观和剩余价值理论。资本主义基本矛盾：生产社会化与私人占有。"人类从必然王国进入自由王国的飞跃。"国家"不是被废除的，它是自行消亡的。"`, link:`https://www.marxists.org/chinese/marx-engels/19/02.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1883', title:'在马克思墓前的讲话', theme:'两大发现——唯物史观和剩余价值理论', use:'马克思生平总论', detail:`"正像达尔文发现有机界的发展规律一样，马克思发现了人类历史的发展规律。""马克思还发现了现代资本主义生产方式的特殊运动规律——剩余价值。""马克思首先是一个革命家。"恩格斯在马克思葬礼上的悼词，是对马克思一生最精炼、最权威的评价。`, link:`https://www.marxists.org/chinese/marx-engels/19/05.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1884', title:'家庭、私有制和国家的起源', theme:'两种生产理论；国家起源；妇女受压迫的物质根源', use:'性别问题、家庭批判', detail:`唯物史观的人类早期社会史。两种生产理论：生活资料生产+人类自身生产。婚姻演变：群婚→对偶婚→专偶制。"最初的阶级压迫同男性对女性的压迫同时发生。""母权制被推翻是女性具有世界历史意义的失败。"国家是阶级矛盾不可调和的产物。妇女解放前提：家务劳动社会化。`, link:`https://www.marxists.org/chinese/marx-engels/21/` },
+  { author:'engels', authorName:'恩格斯', year:'1886', title:'路德维希·费尔巴哈和德国古典哲学的终结', theme:'哲学基本问题；半截子唯物主义批判', use:'哲学基础问题', detail:`马克思主义与德国古典哲学的关系清算。哲学基本问题——思维与存在。费尔巴哈"半截子唯物主义"——下半截唯物主义上半截唯心主义。马克思主义哲学是"关于外部世界和人类思维运动一般规律的科学"。`, link:`https://www.marxists.org/chinese/marx-engels/21/03.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1894', title:'法德农民问题', theme:'农民是未来的无产者；区分大农中农小农', use:'农民问题、工农联盟', detail:`农民问题经典。"农民是未来的无产者"——不能剥夺他们，要通过示范引导走向合作化。区分大农中农小农采取不同策略。"我们预见到小农必然灭亡，但不要以自己的干预去加速其灭亡。"`, link:`https://www.marxists.org/chinese/marx-engels/22/06.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1894', title:'恩格斯晚年关于历史唯物主义的书信', theme:'经济归根到底的决定作用；历史是无数力的平行四边形', use:'纠正经济决定论', detail:`纠正对唯物史观的机械理解。经济因素是"归根到底"决定因素但不是唯一因素。历史是"无数个力的平行四边形"的合力。上层建筑反作用——"并非只有经济状况才是原因。"意识形态有相对独立性。` },
+  { author:'engels', authorName:'恩格斯', year:'1868', title:'〈资本论〉第一卷书评', theme:'用通俗语言介绍剩余价值', use:'《资本论》普及', detail:`用通俗语言向工人介绍《资本论》核心。剩余价值就是资本家不付等价而占有的那部分价值。剩余价值率是剥削程度的精确表达。`, link:`https://www.marxists.org/chinese/marx-engels/16/02.htm` },
+  { author:'engels', authorName:'恩格斯', year:'1895', title:'致韦尔纳·桑巴特', theme:'马克思的整个世界观不是教义而是方法', use:'反对教条主义', detail:`"马克思的整个世界观不是教义而是方法。它提供的不是现成的教条，而是进一步研究的出发点和供这种研究使用的方法。"是整个马克思主义方法论的总纲。`, link:`https://www.marxists.org/chinese/marx-engels/39/09.htm` },
+
+  // 列宁 (24部)
+  { author:'lenin', authorName:'列宁', year:'1894', title:'什么是"人民之友"', theme:'唯物史观是科学的社会学；批判民粹派英雄与群氓理论', use:'社会学批判', detail:`批判俄国民粹派。"只有把社会关系归结于生产关系，把生产关系归结于生产力水平，才能有可靠的根据。"批判民粹派"英雄与群氓"理论——人民群众是历史的创造者。唯物史观是"科学的社会学"。`, link:`https://www.marxists.org/chinese/lenin-cworks/01/` },
+  { author:'lenin', authorName:'列宁', year:'1899', title:'俄国资本主义的发展', theme:'农民分化与国内市场形成', use:'农业资本主义分析', detail:`运用《资本论》方法分析俄国现实。论证资本主义在俄国已确立——农民分化为农业资产阶级和农村无产阶级，国内市场因此形成。驳斥民粹派"俄国可以绕过资本主义"的观点。`, link:`https://www.marxists.org/chinese/lenin-cworks/03/` },
+  { author:'lenin', authorName:'列宁', year:'1902', title:'怎么办？', theme:'没有革命的理论就没有革命的运动；灌输论；职业革命家', use:'组织建设、政党理论', detail:`革命政党建设经典。"没有革命的理论就不会有革命的运动。"工人阶级单靠自己只能产生工联意识——社会主义意识需"从外部灌输"。论证职业革命家组织的必要性。自发性与自觉性的辩证关系。`, link:`https://www.marxists.org/chinese/lenin-cworks/05/` },
+  { author:'lenin', authorName:'列宁', year:'1904', title:'进一步，退两步', theme:'党是无产阶级有组织的先锋队；组织是唯一武器', use:'民主集中制论证', detail:`民主集中制经典论证。"无产阶级在争取政权的斗争中除了组织以外没有别的武器。"党是无产阶级有组织的先锋队。铁的纪律是胜利的基本条件——先有组织统一才有行动力量。`, link:`https://www.marxists.org/chinese/lenin-cworks/07/` },
+  { author:'lenin', authorName:'列宁', year:'1905', title:'社会民主党在民主革命中的两种策略', theme:'无产阶级领导民主革命；工农联盟；不断革命', use:'革命阶段分析', detail:`无产阶级领导权问题。无产阶级应领导资产阶级民主革命——不是推开资产阶级而是推着它前进。工农联盟是"革命民主专政"的阶级基础。民主革命胜利后不间断地向社会主义革命转变。`, link:`https://www.marxists.org/chinese/lenin-cworks/09/` },
+  { author:'lenin', authorName:'列宁', year:'1908', title:'唯物主义和经验批判主义', theme:'反映论；绝对真理与相对真理；哲学的党性', use:'认识论、主观主义批判', detail:`认识论系统论证。物/世界/环境不依赖于我们存在，感觉只是外部世界的映象。绝对真理由相对真理总和构成。生活/实践的观点是认识论首先的基本的观点。哲学有党性——各派哲学斗争归根是阶级利益斗争反映。`, link:`https://www.marxists.org/chinese/lenin-cworks/14/` },
+  { author:'lenin', authorName:'列宁', year:'1913', title:'马克思主义的三个来源和三个组成部分', theme:'德国古典哲学+英国古典政治经济学+法国空想社会主义', use:'马克思主义入门总览', detail:`三个理论来源：德国古典哲学、英国古典政治经济学、法国空想社会主义。三个组成部分：辩证唯物主义哲学、以剩余价值为核心的政治经济学、科学社会主义。是马克思主义入门最佳导读。`, link:`https://www.marxists.org/chinese/lenin-cworks/19/01.htm` },
+  { author:'lenin', authorName:'列宁', year:'1916', title:'哲学笔记', theme:'辩证法实质是对立统一；辩证法十六要素', use:'辩证法深入研究', detail:`列宁研读黑格尔等人著作的笔记。"统一物之分为两个部分以及对它的矛盾着的部分的认识是辩证法的实质。""从生动的直观到抽象的思维并从抽象的思维到实践——就是认识真理的辩证途径。"提出辩证法十六要素。人的意识不仅反映客观世界并且创造客观世界。`, link:`https://www.marxists.org/chinese/lenin-cworks/38/` },
+  { author:'lenin', authorName:'列宁', year:'1914', title:'卡尔·马克思（百科词条）', theme:'马克思学说全面概述', use:'马克思全景速览', detail:`为百科全书撰写的马克思词条。分哲学唯物主义、辩证法、唯物史观、阶级斗争、经济学说（价值与剩余价值）、社会主义、无产阶级斗争策略等部分，是马克思生平与学说最全面的概述之一。`, link:`https://www.marxists.org/chinese/lenin-cworks/21/03.htm` },
+  { author:'lenin', authorName:'列宁', year:'1915', title:'论欧洲联邦口号', theme:'一国胜利论首次提出；不平衡是资本主义绝对规律', use:'帝国主义时代革命策略', detail:`"经济政治发展不平衡是资本主义绝对规律。社会主义可能首先在少数甚至单独一个资本主义国家内获得胜利。"一国胜利论首次提出，突破了马恩关于革命在主要资本主义国家同时爆发的设想。`, link:`https://www.marxists.org/chinese/lenin-cworks/21/12.htm` },
+  { author:'lenin', authorName:'列宁', year:'1916', title:'帝国主义是资本主义的最高阶段', theme:'帝国主义五大特征；寄生的腐朽的资本主义；工人贵族', use:'全球资本分析、中美关系', detail:`帝国主义五大经济特征：生产集中与垄断→金融资本与金融寡头→资本输出→国际垄断同盟→世界领土瓜分完毕。"帝国主义是寄生的或腐朽的资本主义""是无产阶级社会革命的前夜"。帝国主义超额利润收买工人上层形成"工人贵族"——机会主义的经济根源。`, link:`https://www.marxists.org/chinese/lenin-cworks/22/` },
+  { author:'lenin', authorName:'列宁', year:'1916', title:'无产阶级革命的军事纲领', theme:'社会主义可能在一国胜利', use:'革命武装问题', detail:`社会主义不能在所有国家同时胜利——首先在一个或几个国家胜利。论证被压迫民族解放战争是正义的。批判"废除武装"的和平主义口号。`, link:`https://www.marxists.org/chinese/lenin-cworks/23/03.htm` },
+  { author:'lenin', authorName:'列宁', year:'1917', title:'四月提纲', theme:'全部政权归苏维埃；从民主革命过渡到社会主义革命', use:'革命阶段转变分析', detail:`从资产阶级民主革命过渡到社会主义革命的路线图。"全部政权归苏维埃"——不给临时政府任何支持。土地国有化、银行国有化、建立苏维埃共和国而非议会制共和国。`, link:`https://www.marxists.org/chinese/lenin-cworks/24/01.htm` },
+  { author:'lenin', authorName:'列宁', year:'1917', title:'国家与革命', theme:'国家是阶级矛盾不可调和的产物；打碎旧国家机器；国家消亡', use:'国家理论、民主专政', detail:`马克思主义国家学说最系统阐述。"国家是阶级矛盾不可调和的产物"——必须打碎旧国家机器废除官僚和常备军。无产阶级专政是"新型民主和新型专政"。完全的民主等于没有任何民主。国家的自行消亡——当不再有需要镇压的阶级时就不再需要国家。`, link:`https://www.marxists.org/chinese/lenin-cworks/25/` },
+  { author:'lenin', authorName:'列宁', year:'1918', title:'苏维埃政权的当前任务', theme:'工作重心从夺取转向管理；提高劳动生产率', use:'从革命到建设的转型', detail:`从"夺取俄国"转向"管理俄国"。社会主义革命根本任务是建设性的工作。提高劳动生产率是根本任务。对产品生产和分配实行严格统计监督。组织竞赛——社会主义第一次为竞赛提供真正广泛可能。`, link:`https://www.marxists.org/chinese/lenin-cworks/27/04.htm` },
+  { author:'lenin', authorName:'列宁', year:'1918', title:'无产阶级革命和叛徒考茨基', theme:'捍卫无产阶级专政；纯粹民主是资产阶级虚伪口号', use:'修正主义批判', detail:`捍卫无产阶级专政。专政是一个阶级对另一个阶级的暴力统治。苏维埃是比议会更高的民主形式。"纯粹民主"是资产阶级虚伪口号——"只要有不同的阶级存在就不能说纯粹民主。"`, link:`https://www.marxists.org/chinese/lenin-cworks/28/` },
+  { author:'lenin', authorName:'列宁', year:'1919', title:'伟大的创举', theme:'星期六义务劳动的意义；阶级定义', use:'劳动态度转变、阶级定义', detail:`高度评价"共产主义星期六义务劳动"——工人自愿无报酬加班。"这是比推翻资产阶级更困难更重大更深刻的开端。"劳动生产率是保证新社会制度胜利最重要最主要的东西。给出阶级的经典定义。`, link:`https://www.marxists.org/chinese/lenin-cworks/29/06.htm` },
+  { author:'lenin', authorName:'列宁', year:'1919', title:'论国家（在斯维尔德洛夫大学的讲演）', theme:'国家学说的通俗介绍', use:'国家学说入门', detail:`在斯维尔德洛夫大学的通俗讲演。国家不是从来就有的——从无国家到有国家再到国家消亡是历史必然。马克思主义国家学说最佳入门读物。`, link:`https://www.marxists.org/chinese/lenin-cworks/29/07.htm` },
+  { author:'lenin', authorName:'列宁', year:'1920', title:'共产主义运动中的"左派"幼稚病', theme:'先锋队与群众；铁的纪律；在反动工会工作', use:'策略讨论、宗派主义批判', detail:`革命策略的辩证法。"单靠先锋队不能胜利"——必须与群众建立最紧密联系。"哪里有群众就到哪里去工作"——即使在反动工会里也工作。铁的纪律。妥协与不妥协的辩证法。"政治是经济的集中表现""政治同经济相比不能不占首位。"`, link:`https://www.marxists.org/chinese/lenin-cworks/31/` },
+  { author:'lenin', authorName:'列宁', year:'1921', title:'论粮食税', theme:'新经济政策理论；国家资本主义是中间环节', use:'过渡时期经济政策', detail:`新经济政策（NEP）理论阐述。从战时共产主义战略退却。"我们比敌人更有力量因为我们在学习。"国家资本主义是"小生产条件下走向社会主义的中间环节"。利用商品交换和私人资本恢复经济巩固工农联盟。`, link:`https://www.marxists.org/chinese/lenin-cworks/32/06.htm` },
+  { author:'lenin', authorName:'列宁', year:'1923', title:'论合作社', theme:'通过合作社引导农民走上社会主义', use:'农业合作化', detail:`"在生产资料公有制条件下文明的合作社工作者的制度就是社会主义制度。"合作制是"使农民感到简便易行和容易接受的方法过渡到新制度"。论证小农国家通过合作社引导农民走社会主义道路的可行性。`, link:`https://www.marxists.org/chinese/lenin-cworks/33/08.htm` },
+  { author:'lenin', authorName:'列宁', year:'1922', title:'论战斗唯物主义的意义', theme:'结成唯物主义与自然科学的联盟', use:'科学与唯物主义', detail:`马克思主义哲学战斗纲领。结成战斗唯物主义者与现代自然科学联盟。不进行战斗唯物主义就没有战斗性。应当学习黑格尔辩证法——系统研究和从唯物主义立场改造它。`, link:`https://www.marxists.org/chinese/lenin-cworks/33/12.htm` },
+  { author:'lenin', authorName:'列宁', year:'1923', title:'宁肯少些，但要好些', theme:'国家机关改革；宁肯数量少些但质量高些', use:'反官僚主义', detail:`列宁最后文章之一。"宁肯数量少些但要质量高些。"国家机关改革纲领——克服官僚主义，把真正优秀人才选拔到国家机关。学习与检查相结合。`, link:`https://www.marxists.org/chinese/lenin-cworks/33/14.htm` },
+  { author:'lenin', authorName:'列宁', year:'1923', title:'我们怎样改组工农检查院', theme:'落后农业国建设社会主义的可能性', use:'社会主义制度建设', detail:`在落后农业国建设社会主义的可能性。改造国家机关：缩减人员、提高质量、加强检查。把国家机关建设成为真正模范的机关。`, link:`https://www.marxists.org/chinese/lenin-cworks/33/13.htm` },
+
+  // 斯大林 (9部)
+  { author:'stalin', authorName:'斯大林', year:'1907', title:'无政府主义还是社会主义？', theme:'辩证唯物主义基本原理', use:'无政府主义批判', detail:`用马克思主义哲学系统批判无政府主义。阐述辩证唯物主义基本原理：世界是物质的、运动是有规律的。指出无政府主义是小资产阶级反动思潮，其社会基础是破产小资产阶级。`, link:`https://www.marxists.org/chinese/stalin/1-2.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1913', title:'马克思主义和民族问题', theme:'民族定义——四个特征', use:'民族问题分析', detail:`民族理论经典。民族是"人们历史上形成的有共同语言共同地域共同经济生活以及共同文化心理素质的稳定共同体"——四个特征缺一不可。反对"民族文化自治"，主张民族自决权。`, link:`https://www.marxists.org/chinese/stalin/2-8.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1924', title:'论列宁主义基础', theme:'列宁主义是帝国主义时代的马克思主义', use:'列宁主义入门', detail:`列宁主义系统教科书。"列宁主义是帝国主义和无产阶级革命时代的马克思主义。"核心：无产阶级专政是列宁主义基本问题；农民问题是最迫切问题之一；民族殖民地问题；新型政党特点。`, link:`https://www.marxists.org/chinese/stalin/6-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1926', title:'论列宁主义的几个问题', theme:'无产阶级专政三个主要方面', use:'列宁主义深入研究', detail:`对《论列宁主义基础》补充深化。无产阶级专政三个主要方面：镇压剥削者反抗、领导劳动群众建设社会主义、利用政权组织社会主义社会。批判季诺维也夫对列宁主义的曲解。`, link:`https://www.marxists.org/chinese/stalin/8-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1936', title:'关于苏联宪法草案', theme:'社会主义基本实现后的宪法原则', use:'社会主义法制', detail:`1936年新宪法说明。宣布苏联已基本实现社会主义——剥削阶级已被消灭。新宪法是"已经争取到和已经实现的东西的登记而不是纲领"。`, link:`https://www.marxists.org/chinese/stalin/13-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1938', title:'论辩证唯物主义和历史唯物主义', theme:'辩证法四特征+唯物主义三特征', use:'哲学入门', detail:`马克思主义哲学通俗教科书。辩证法四特征：普遍联系、运动发展、量变质变、矛盾斗争。唯物主义三特征：世界物质性、物质第一性、世界可知性。优点是通俗易懂，不足是有机械化倾向。`, link:`https://www.marxists.org/chinese/stalin/14-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1950', title:'马克思主义和语言学问题', theme:'语言不属于上层建筑；语言无阶级性', use:'语言与阶级关系', detail:`语言不属于上层建筑——不随经济基础改变而改变，旧制度语言可为新制度服务。语言没有阶级性——为全社会一视同仁服务。经济基础与上层建筑辩证关系。`, link:`https://www.marxists.org/chinese/stalin/15-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1952', title:'苏联社会主义经济问题', theme:'经济规律客观性；社会主义下商品生产仍存在', use:'社会主义政治经济学', detail:`斯大林最后著作。经济规律具有不以人的意志为转移的客观性——不能"创造"或"消灭"规律。社会主义下商品生产仍存在——不应混淆商品生产与资本主义生产。社会主义基本经济规律：保证最大限度地满足整个社会增长的物质文化需要。`, link:`https://www.marxists.org/chinese/stalin/16-1.htm` },
+  { author:'stalin', authorName:'斯大林', year:'1931', title:'论列宁（多篇汇编）', theme:'列宁的人格与革命品质', use:'理解列宁革命风格', detail:`多篇关于列宁的演讲和文章汇编。刻画列宁的革命品格：山鹰般的英勇无畏、不因失败灰心不因胜利骄傲、原则性的政策是唯一正确的政策。既是人物传记也是革命品格教科书。`, link:`https://www.marxists.org/chinese/stalin/6-2.htm` },
+
+  // 毛泽东 (34部)
+  { author:'mao', authorName:'毛泽东', year:'1925', title:'中国社会各阶级的分析', theme:'谁是敌人谁是朋友是首要问题；民族资产阶级两面性', use:'阶级分析入门', detail:`"谁是我们的敌人？谁是我们的朋友？这是革命的首要问题。"以经济地位和政治态度划分阶级：地主买办是敌人；民族资产阶级有两面性；小资产阶级和半无产阶级是朋友；工业无产阶级是领导力量。阶级分析经典范本。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19251201.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1927', title:'湖南农民运动考察报告', theme:'农民成就了革命事业；革命是暴动；矫枉必须过正', use:'社会调查、群众运动', detail:`32天实地调查报告。"农民成就了多年未曾成就的革命事业。""革命不是请客吃饭，是暴动。""没有贫农便没有革命。""矫枉必须过正，不过正不能矫枉。"批驳对农民运动的污蔑。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-192703.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1928', title:'中国的红色政权为什么能够存在？', theme:'工农武装割据；红色政权存在的五个条件', use:'革命根据地分析', detail:`工农武装割据理论首次提出。红色政权存在五条件：帝国主义间接统治的半殖民地（经济发展不平衡）、良好群众基础、全国革命形势发展、相当力量正式红军、共产党组织有力量政策正确。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19281005.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1928', title:'井冈山的斗争', theme:'支部建在连上；土地革命政策', use:'组织建设、军队政治工作', detail:`根据地建设经验。"支部建在连上"——党对军队绝对领导。土地革命政策。军队内部民主主义——"官长不打士兵官兵待遇平等。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19281125.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1929', title:'关于纠正党内的错误思想（古田会议决议）', theme:'纠正八种非无产阶级思想', use:'思想政治工作', detail:`古田会议决议核心，军队思想政治建设纲领。纠正八种非无产阶级思想：单纯军事观点、极端民主化、非组织意识、绝对平均主义、主观主义、个人主义、流寇思想、盲动主义。红军决不是单纯打仗的还要宣传组织群众。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-192912.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1930', title:'星星之火，可以燎原', theme:'看事情必须看实质；革命高潮快要到来', use:'形势判断', detail:`革命低潮时论证高潮必然到来。"我们看事情必须要看它的实质，而把现象只看作入门向导。"以"航船桅杆""朝日""婴儿"三比喻描绘革命高潮。形势判断与本质分析经典范例。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19300105.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1930', title:'反对本本主义', theme:'没有调查就没有发言权；一切结论产生于调查末尾', use:'调查研究方法论', detail:`实事求是思想路线开创。"没有调查就没有发言权。""调查就像十月怀胎，解决问题就像一朝分娩。""一切结论产生于调查末尾而非先头。""中国革命斗争的胜利要靠中国同志了解中国情况。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193005.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1934', title:'关心群众生活，注意工作方法', theme:'解决群众实际生活问题；群众是真正的铜墙铁壁', use:'群众工作', detail:`群众路线经典。"解决群众穿衣吃饭住房柴米油盐问题——一切群众实际生活问题都应关注。""群众是真正的铜墙铁壁。"工作方法是"过河"的"桥"和"船"。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19340127.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1935', title:'论反对日本帝国主义的策略', theme:'民族矛盾上升为主要矛盾；统一战线', use:'主要矛盾转换分析', detail:`主要矛盾转换时的策略转变。"工农共和国"改"人民共和国"——扩大统一战线。"组织千千万万民众调动浩浩荡荡革命军。"批判关门主义。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19351227.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1936', title:'中国革命战争的战略问题', theme:'战争规律是发展的；积极防御与消极防御', use:'战略思维、竞争分析', detail:`战争规律是发展的。"打得赢就打打不赢就走。"积极防御与消极防御区分。战略退却——"将欲取之必先与之。"中国革命战争四特点分析。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193612.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1937', title:'实践论', theme:'实践是认识来源；两个飞跃；实践认识再实践再认识', use:'认识论、迭代方法论', detail:`认识论中国化阐述。实践是认识来源动力目的和检验标准。两飞跃：感性→理性→实践。"实践认识再实践再认识循环往复以至无穷。"批判教条主义和经验主义。"改造客观世界也改造自己的主观世界。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193707.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1937', title:'矛盾论', theme:'对立统一是根本规律；主要矛盾与矛盾主要方面', use:'矛盾分析、问题诊断', detail:`辩证法中国化阐述，marx-lm 技能哲学基石。对立统一是根本规律。普遍性寓于特殊性。主要矛盾与矛盾主要方面——"捉住主要矛盾一切问题迎刃而解。"同一性与斗争性。对抗与非对抗——"不同质矛盾用不同质方法解决。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193708.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1938', title:'论持久战', theme:'三个阶段；兵民是胜利之本；能动性', use:'长期斗争策略', detail:`辩证唯物主义分析战争典范。三阶段：防御→相持→反攻。战争是政治的继续。能动性——力量在战争过程中变化其原来形态。兵民是胜利之本。批判速胜论与亡国论。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193805.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1938', title:'中国共产党在民族战争中的地位', theme:'爱国主义与国际主义结合；四个服从', use:'党建、纪律建设', detail:`党建与党员修养。爱国主义与国际主义结合。学习——从"不自满"开始。四个服从——个人服从组织少数服从多数下级服从上级全党服从中央。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193810.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1938', title:'战争和战略问题', theme:'枪杆子里面出政权', use:'武装斗争理论', detail:`"枪杆子里面出政权"——每个共产党员都应懂得。在中国主要斗争形式是战争主要组织形式是军队。党的军事战略转变。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19381106.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1939', title:'中国革命和中国共产党', theme:'半殖民地半封建社会性质；革命两重任务', use:'社会性质判断', detail:`半殖民地半封建社会性质系统分析。帝国主义与中华民族矛盾、封建主义与人民大众矛盾是主要矛盾。革命两重任务：新民主主义革命与社会主义革命。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-193912.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1940', title:'新民主主义论', theme:'革命两步走；民族的科学的大众的文化', use:'文化政治分析', detail:`理论体系完整阐述。两步走：新民主主义→社会主义。政治——各革命阶级联合专政。经济——耕者有其田+节制资本。文化——民族的科学的大众的。一定文化是一定社会政治经济在观念形态上的反映。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-194001.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1941', title:'改造我们的学习', theme:'实事求是；有的放矢；主观主义是人民大敌', use:'反对教条主义', detail:`整风运动纲领。"实事"客观事物"是"规律性"求"去研究。主观主义是人民的大敌。三种主观主义：不研究现状、不研究历史、不应用马列。"有的放矢"——的指中国革命矢指马列主义。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-194105.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1942', title:'整顿党的作风', theme:'反对主观主义宗派主义党八股；惩前毖后治病救人', use:'作风整顿', detail:`反主观主义整顿学风，反宗派主义整顿党风，反党八股整顿文风。"惩前毖后治病救人"——批评目的团结非打击。真正理论从客观实际抽出又在实际中证明。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19420201.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1942', title:'反对党八股', theme:'党八股八大罪状', use:'文风批判', detail:`批判形式主义文风。八条罪状：空话连篇、装腔作势、无的放矢、语言无味、甲乙丙丁开中药铺、不负责任、流毒全党、祸国殃民。文风即党风。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19420208.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1942', title:'在延安文艺座谈会上的讲话', theme:'为什么人的问题是根本问题；生活是文艺唯一源泉', use:'文艺批评、文化分析', detail:`马克思主义文艺理论经典。"为什么人的问题是根本问题原则问题。"文艺为工农兵服务。普及与提高——先"雪中送炭"。政治标准第一艺术标准第二。生活是文艺唯一源泉。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-194205.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1944', title:'为人民服务', theme:'为人民利益而死重于泰山；不怕批评', use:'人生观教育', detail:`"人固有一死或重于泰山或轻于鸿毛。为人民利益而死就比泰山还重。""因为我们是为人民服务的所以我们如果有缺点就不怕别人批评指出。"无产阶级人生观经典。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19440908.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1945', title:'论联合政府', theme:'人民创造历史；三大作风', use:'群众路线', detail:`七大政治报告。"人民只有人民才是创造世界历史的动力。"三大作风：理论实践结合、紧密联系群众、自我批评——共产党区别于其他政党的显著标志。一般纲领与具体纲领区分。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19450424.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1947', title:'目前形势和我们的任务', theme:'三大经济纲领；十大军事原则', use:'经济纲领、军事战略', detail:`解放战争转折点。三大经济纲领：没收地主土地归农民、没收垄断资本归国家、保护民族工商业。十大军事原则。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19471225.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1949', title:'七届二中全会报告', theme:'工作重心从农村到城市；两个务必', use:'战略重心转移', detail:`战略转折。"夺取全国胜利只是万里长征第一步。"两个务必：谦虚谨慎不骄不躁、艰苦奋斗。工作重心从乡村到城市。"不但善于破坏旧世界还将善于建设新世界。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19490305.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1949', title:'论人民民主专政', theme:'对人民民主对敌人专政；我们要消灭国家权力', use:'国家理论', detail:`新中国国家学说奠基。对人民民主对敌人专政结合即人民民主专政。我们要消灭国家权力——国家终将消亡。资产阶级民主主义让位给人民民主主义。严重经济建设任务摆在面前。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19490630.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1955', title:'关于农业合作化问题', theme:'相信群众相信党', use:'农业合作化', detail:`相信群众相信党是两条根本原理。合作化高潮是群众要求非主观强加。强调运动群众性和自觉性。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19550731.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1956', title:'论十大关系', theme:'十大关系即十大矛盾；调动一切积极因素', use:'组织治理、系统分析', detail:`社会主义建设矛盾分析。"世界由矛盾组成没有矛盾就没有世界。"十大关系即十大矛盾——重工业与农业轻工业、沿海与内地、中央与地方等。"一切民族长处都学但必须有分析有批判地学。"`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19560425.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1956', title:'关于无产阶级专政的历史经验（两篇）', theme:'斯大林功大于过；反对全盘否定', use:'苏联教训分析', detail:`对斯大林问题系统表态。功大于过——七分功三分过。反对全盘否定斯大林——利用反斯大林主义反苏反共。十月革命道路具普遍意义。区分具体错误与制度本质。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19560405.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1957', title:'关于正确处理人民内部矛盾的问题', theme:'区分两类矛盾；团结批评团结；百花齐放百家争鸣', use:'矛盾性质判断', detail:`社会主义社会矛盾学说创立。基本矛盾仍是生产力与生产关系、经济基础与上层建筑。区分敌我矛盾（对抗）与人民内部矛盾（非对抗）。"团结—批评—团结"公式。百花齐放百家争鸣。社会主义社会还存在阶级斗争。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19570227.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1957', title:'在中国共产党全国宣传工作会议上的讲话', theme:'知识分子与工农结合；世界观改造', use:'知识分子问题', detail:`知识分子必须与工农结合。百花齐放发展艺术百家争鸣发展科学。世界观改造长期性艰巨性。知识分子不改造就不能担负教育别人的任务。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-19570312.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1958', title:'工作方法六十条（草案）', theme:'两条腿走路；群众路线工作方法', use:'领导方法', detail:`社会主义建设时期领导方法和工作方法。"两条腿走路"方针。群众路线工作方法。调查研究。把辩证法应用于具体领导工作。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-195801.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1963', title:'人的正确思想是从哪里来的？', theme:'正确思想从社会实践中来；物质变精神精神变物质', use:'认识论教育', detail:`认识论通俗阐述。"正确思想只能从社会实践中来。""物质可以变成精神精神可以变成物质"——两变理论。一个正确认识需多次反复才能完成。`, link:`https://www.marxists.org/chinese/maozedong/marxist.org-chinese-mao-196305.htm` },
+  { author:'mao', authorName:'毛泽东', year:'1965', title:'五篇哲学著作（整体）', theme:'毛泽东哲学思想完整体系', use:'马克思主义哲学中国化', detail:`毛泽东哲学思想完整体系：《实践论》《矛盾论》《关于正确处理人民内部矛盾的问题》《人的正确思想是从哪里来的？》《在中国共产党全国宣传工作会议上的讲话》。构成马克思主义哲学中国化系统理论。`, link:`https://www.marxists.org/chinese/maozedong/` },
+];
+
+const litPassages = {
+  [`共产党宣言`]: [
+    {q:`至今一切社会的历史都是阶级斗争的历史。自由民和奴隶、贵族和平民、领主和农奴、行会师傅和帮工，一句话，压迫者和被压迫者，始终处于相互对立的地位，进行不断的、有时隐蔽有时公开的斗争。`,c:`第一章 资产者和无产者 —— 开篇点题`},
+    {q:`资产阶级在它的不到一百年的阶级统治中所创造的生产力，比过去一切世代创造的全部生产力还要多，还要大。`,c:`第一章 —— 资产阶级的革命性作用`},
+    {q:`代替那存在着阶级和阶级对立的资产阶级旧社会的，将是这样一个联合体，在那里，每个人的自由发展是一切人的自由发展的条件。`,c:`第二章 无产者和共产党人 —— 共产主义社会的基本原则`},
+    {q:`无产者在这个革命中失去的只是锁链。他们获得的将是整个世界。全世界无产者，联合起来！`,c:`第四章 —— 结尾口号`},
+  ],
+  [`关于费尔巴哈的提纲`]: [
+    {q:`哲学家们只是用不同的方式解释世界，而问题在于改变世界。`,c:`第十一条 —— 全文总结`},
+    {q:`人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。`,c:`第六条 —— 对费尔巴哈人本学的批判`},
+    {q:`全部社会生活在本质上是实践的。凡是把理论引向神秘主义的神秘东西，都能在人的实践中以及对这种实践的理解中得到合理的解决。`,c:`第八条 —— 实践是社会生活的本质`},
+  ],
+  [`资本论 第一卷`]: [
+    {q:`资本主义生产方式占统治地位的社会的财富，表现为"庞大的商品堆积"，单个的商品表现为这种财富的元素形式。因此，我们的研究就从分析商品开始。`,c:`第一篇第一章 ——《资本论》的开端`},
+    {q:`商品形式的奥秘不过在于：商品形式在人们面前把人们本身劳动的社会性质反映成劳动产品本身的物的性质……因此，要找一个比喻，我们就得逃到宗教世界的幻境中去。在那里，人脑的产物表现为赋有生命的、彼此发生关系并同人发生关系的独立存在的东西。`,c:`第一篇第一章第4节 —— 商品拜物教`},
+    {q:`资本来到世间，从头到脚，每个毛孔都滴着血和肮脏的东西。`,c:`第二十四章 —— 所谓原始积累`},
+    {q:`生产资料的集中和劳动的社会化，达到了同它们的资本主义外壳不能相容的地步。这个外壳就要炸毁了。资本主义私有制的丧钟就要响了。剥夺者就要被剥夺了。`,c:`第二十四章第7节 —— 资本主义积累的历史趋势`},
+  ],
+  [`哥达纲领批判`]: [
+    {q:`在资本主义社会和共产主义社会之间，有一个从前者变为后者的革命转变时期。同这个时期相适应的也有一个政治上的过渡时期，这个时期的国家只能是无产阶级的革命专政。`,c:`第四章 —— 过渡时期与无产阶级专政`},
+    {q:`在共产主义社会高级阶段，在迫使个人奴隶般地服从分工的情形已经消失，从而脑力劳动和体力劳动的对立也随之消失之后……只有在那个时候，才能完全超出资产阶级权利的狭隘眼界，社会才能在自己的旗帜上写上：各尽所能，按需分配！`,c:`第一章 —— 共产主义高级阶段`},
+    {q:`权利永远不能超出社会的经济结构以及由经济结构所制约的社会的文化发展。`,c:`第一章 —— 平等的限度`},
+  ],
+  [`帝国主义是资本主义的最高阶段`]: [
+    {q:`帝国主义是作为一般资本主义基本特性的发展和直接继续而生长起来的。但是，只有在资本主义发展到一定的、很高的阶段，资本主义的某些基本特性开始转化成自己的对立面……在经济方面，这一过程中的基本现象，就是资本主义的自由竞争为资本主义的垄断所代替。`,c:`第七章 —— 帝国主义的历史地位`},
+    {q:`帝国主义是寄生的或腐朽的资本主义……帝国主义是无产阶级社会革命的前夜。`,c:`第八章/第十章`},
+    {q:`经济政治发展的不平衡是资本主义的绝对规律。由此就应得出结论：社会主义可能首先在少数甚至单独一个资本主义国家内获得胜利。`,c:`—— 一国胜利论的经典表述`},
+  ],
+  [`国家与革命`]: [
+    {q:`国家是阶级矛盾不可调和的产物和表现。在阶级矛盾客观上不能调和的地方、时候和条件下，便产生国家。反过来说，国家的存在证明阶级矛盾不可调和。`,c:`第一章 —— 作为阶级统治机关的国家`},
+    {q:`无产阶级需要国家政权，集中的强力组织，暴力组织，既为的是镇压剥削者的反抗，也为的是领导广大民众即农民、小资产阶级和半无产阶级来"调整"社会主义经济。`,c:`第五章 —— 无产阶级专政的经济基础`},
+    {q:`实际上，只有从社会主义实现时起，社会生活和私人生活的各个方面才会开始真正地迅速地向前推进，形成一个有大多数居民然后是全体居民参加的真正群众性的运动。`,c:`第五章 —— 社会主义民主`},
+  ],
+  [`怎么办？`]: [
+    {q:`没有革命的理论，就不会有革命的运动。`,c:`第一章 —— 理论的重要性`},
+    {q:`工人本来也不可能有社会民主主义的意识。这种意识只能从外面灌输进去。各国的历史都证明：工人阶级单靠自己的力量，只能形成工联主义的意识。`,c:`第二章 ——"灌输"论`},
+    {q:`我们应当以理论家的身分，又以宣传员的身分，又以鼓动员的身分，又以组织者的身分"到居民的一切阶级中去"。`,c:`第三章 —— 全面的政治鼓动`},
+  ],
+  [`矛盾论`]: [
+    {q:`事物的矛盾法则，即对立统一的法则，是唯物辩证法的最根本的法则。`,c:`第一节 —— 两种宇宙观`},
+    {q:`在复杂的事物的发展过程中，有许多的矛盾存在，其中必有一种是主要的矛盾，由于它的存在和发展，规定或影响着其他矛盾的存在和发展。`,c:`第四节 —— 主要矛盾和主要的矛盾方面`},
+    {q:`矛盾着的主要和非主要的方面互相转化着，事物的性质也就随着起变化。`,c:`第四节 —— 矛盾方面的转化`},
+    {q:`不同质的矛盾，只有用不同质的方法才能解决。`,c:`第五节 —— 矛盾的特殊性与解决方式`},
+  ],
+  [`实践论`]: [
+    {q:`你要有知识，你就得参加变革现实的实践。你要知道梨子的滋味，你就得变革梨子，亲口吃一吃。`,c:`—— 实践是认识的来源`},
+    {q:`理性认识依赖于感性认识，感性认识有待于发展到理性认识，这就是辩证唯物论的认识论。`,c:`—— 认识的两个阶段`},
+    {q:`实践、认识、再实践、再认识，这种形式，循环往复以至无穷，而实践和认识之每一循环的内容，都比较地进到了高一级的程度。`,c:`—— 认识的循环发展`},
+  ],
+  [`论持久战`]: [
+    {q:`战争是政治的继续。战争就是政治，战争本身就是政治性质的行动。`,c:`—— 战争与政治的关系`},
+    {q:`武器是战争的重要的因素，但不是决定的因素，决定的因素是人不是物。`,c:`—— 人的因素`},
+    {q:`战争的伟力之最深厚的根源，存在于民众之中。`,c:`—— 兵民是胜利之本`},
+    {q:`我们的战略是"以一当十"，我们的战术是"以十当一"，这是我们制胜敌人的根本法则之一。`,c:`—— 战略与战术的辩证关系`},
+  ],
+  [`新民主主义论`]: [
+    {q:`一定的文化（当作观念形态的文化）是一定社会的政治和经济的反映，又给予伟大影响和作用于一定社会的政治和经济。`,c:`第三章 —— 新民主主义的文化`},
+    {q:`我们不但要把一个政治上受压迫、经济上受剥削的中国，变为一个政治上自由和经济上繁荣的中国，而且要把一个被旧文化统治因而愚昧落后的中国，变为一个被新文化统治因而文明先进的中国。`,c:`—— 新民主主义文化的目的`},
+    {q:`真理只有一个，而究竟谁发现了真理，不依靠主观的夸张，而依靠客观的实践。只有千百万人民的革命实践，才是检验真理的尺度。`,c:`—— 实践与真理`},
+  ],
+  [`德意志意识形态`]: [
+    {q:`统治阶级的思想在每一时代都是占统治地位的思想。这就是说，一个阶级是社会上占统治地位的物质力量，同时也是社会上占统治地位的精神力量。`,c:`—— 意识形态的阶级本质`},
+    {q:`共产主义对我们来说不是应当确立的状况，不是现实应当与之相适应的理想。我们所称为共产主义的是那种消灭现存状况的现实的运动。`,c:`—— 共产主义是现实运动而非空想`},
+  ],
+  [`家庭、私有制和国家的起源`]: [
+    {q:`根据唯物主义观点，历史中的决定性因素，归根结蒂是直接生活的生产和再生产。但是，生产本身又有两种。一方面是生活资料即食物、衣服、住房以及为此所必需的工具的生产；另一方面是人自身的生产，即种的繁衍。`,c:`第一版序言 —— 两种生产理论`},
+    {q:`母权制的被推翻，乃是女性的具有世界历史意义的失败。丈夫在家中也掌握了权柄，而妻子则被贬低，被奴役，变成丈夫淫欲的奴隶，变成单纯的生孩子的工具了。`,c:`第二章 —— 性别压迫的起源`},
+    {q:`国家决不是从外部强加于社会的一种力量。国家是社会在一定发展阶段上的产物；国家是承认：这个社会陷入了不可解决的自我矛盾，分裂为不可调和的对立面而又无力摆脱这些对立面。`,c:`第九章 —— 国家的起源`},
+  ],
+  [`1844年经济学哲学手稿`]: [
+    {q:`工人生产的财富越多，他的产品的力量和数量越大，他就越贫穷。工人创造的商品越多，他就越变成廉价的商品。物的世界的增值同人的世界的贬值成正比。`,c:`第一手稿 —— 异化劳动的第一个规定`},
+    {q:`因此，结果是，人（工人）只有在运用自己的动物机能——吃、喝、生殖，至多还有居住、修饰等等——的时候，才觉得自己在自由活动，而在运用人的机能时，觉得自己只不过是动物。动物的东西成为人的东西，而人的东西成为动物的东西。`,c:`第一手稿 —— 劳动的外在性`},
+    {q:`共产主义是私有财产即人的自我异化的积极的扬弃，因而是通过人并且为了人而对人的本质的真正占有。`,c:`第三手稿 —— 共产主义定义`},
+  ],
+  [`社会主义从空想到科学的发展`]: [
+    {q:`这两个伟大的发现——唯物主义历史观和通过剩余价值揭开资本主义生产的秘密，都应当归功于马克思。由于这些发现，社会主义变成了科学。`,c:`—— 两大发现使社会主义成为科学`},
+    {q:`一旦社会占有了生产资料，商品生产就将被消除，而产品对生产者的统治也将随之消除。社会生产内部的无政府状态将为有计划的自觉的组织所代替。`,c:`第三章 —— 社会主义的基本特征`},
+    {q:`人终于成为自己的社会结合的主人，从而也就成为自然界的主人，成为自身的主人——自由的人。`,c:`第三章 —— 从必然王国到自由王国`},
+  ],
+  [`关于正确处理人民内部矛盾的问题`]: [
+    {q:`在我们的面前有两类社会矛盾，这就是敌我之间的矛盾和人民内部的矛盾。这是性质完全不同的两类矛盾。`,c:`第一部分 —— 两类不同性质的矛盾`},
+    {q:`凡属于思想性质的问题，凡属于人民内部的争论问题，只能用民主的方法去解决，只能用讨论的方法、批评的方法、说服教育的方法去解决，而不能用强制的、压服的方法去解决。`,c:`—— 人民内部矛盾的解决方法`},
+    {q:`艺术上不同的形式和风格可以自由发展，科学上不同的学派可以自由争论。利用行政力量，强制推行一种风格，一种学派，禁止另一种风格，另一种学派，我们认为会有害于艺术和科学的发展。`,c:`第八部分 —— 百花齐放、百家争鸣`},
+  ],
+  [`中国社会各阶级的分析`]: [
+    {q:`谁是我们的敌人？谁是我们的朋友？这个问题是革命的首要问题。中国过去一切革命斗争成效甚少，其基本原因就是因为不能团结真正的朋友，以攻击真正的敌人。`,c:`—— 文章开篇`},
+    {q:`那动摇不定的中产阶级，其右翼可能是我们的敌人，其左翼可能是我们的朋友——但我们要时常提防他们，不要让他们扰乱了我们的阵线。`,c:`—— 中产阶级（民族资产阶级）的两面性`},
+  ],
+  [`反对本本主义`]: [
+    {q:`没有调查，就没有发言权。`,c:`第一节 —— 经典口号`},
+    {q:`调查就像"十月怀胎"，解决问题就像"一朝分娩"。调查就是解决问题。`,c:`—— 调查与解决问题的关系`},
+    {q:`马克思主义的"本本"是要学习的，但是必须同我国的实际情况相结合。我们需要"本本"，但是一定要纠正脱离实际情况的本本主义。`,c:`—— 反对教条主义`},
+  ],
+  [`改造我们的学习`]: [
+    {q:`"实事"就是客观存在着的一切事物，"是"就是客观事物的内部联系，即规律性，"求"就是我们去研究。`,c:`—— 实事求是的经典解释`},
+    {q:`这种作风，拿了律己，则害了自己；拿了教人，则害了别人；拿了指导革命，则害了革命。总之，这种反科学的反马克思列宁主义的主观主义的方法，是共产党的大敌，是工人阶级的大敌，是人民的大敌，是民族的大敌，是党性不纯的一种表现。`,c:`—— 对主观主义的批判`},
+  ],
+};
+
+
+const litChapters = {
+  [`资本论 第一卷`]: [
+    {t:`第一篇 商品和货币`,s:`第一章商品（商品二因素、劳动二重性、价值形式、商品拜物教）；第二章交换过程；第三章货币或商品流通。揭示价值实体是抽象人类劳动，货币是价值形式的完成形态。`},
+    {t:`第二篇 货币转化为资本`,s:`第四章。劳动力成为商品是资本主义生产的前提——劳动力价值由再生产劳动力所需生活资料决定，劳动力的使用价值（劳动）创造超过自身价值的价值。`},
+    {t:`第三篇 绝对剩余价值的生产`,s:`第五至九章。劳动过程与价值增殖过程的统一。不变资本c与可变资本v的区分。剩余价值率m/v揭示剥削程度。工作日长度斗争——正常工作日是阶级斗争的产物。`},
+    {t:`第四篇 相对剩余价值的生产`,s:`第十至十三章。协作→分工和工场手工业→机器和大工业。通过提高劳动生产率缩短必要劳动时间从而延长剩余劳动时间。机器排斥工人、延长工作日、强化劳动。`},
+    {t:`第五篇 绝对剩余价值和相对剩余价值的生产`,s:`第十四至十六章。劳动力价格与剩余价值量的关系。剩余价值率的各种公式。`},
+    {t:`第六篇 工资`,s:`第十七至二十章。工资不是劳动的价格而是劳动力价值的转化形式。计时工资、计件工资——都掩盖必要劳动与剩余劳动的划分。`},
+    {t:`第七篇 资本的积累过程`,s:`第二十一至二十五章。简单再生产→扩大再生产→资本有机构成提高→相对过剩人口（产业后备军）→资本积累的一般规律（财富一极积累、贫困另一极积累）→原始积累→资本主义积累的历史趋势。"剥夺者就要被剥夺了"。`},
+  ],
+  [`共产党宣言`]: [
+    {t:`一、资产者和无产者`,s:`一切历史都是阶级斗争史。资产阶级的革命作用——摧毁封建关系、创造巨大生产力。但周期性的商业危机证明资本主义生产关系已容纳不了它所创造的生产力。无产阶级是大工业的产物，是真正革命的阶级。`},
+    {t:`二、无产者和共产党人`,s:`共产党人没有任何同整个无产阶级不同的利益。消灭私有制。反驳对共产主义的各种污蔑——消灭个性、消灭家庭、消灭民族。无产阶级专政的十项措施。共产主义社会："每个人的自由发展是一切人的自由发展的条件"。`},
+    {t:`三、社会主义的和共产主义的文献`,s:`批判三种非无产阶级的"社会主义"：反动的社会主义（封建的、小资产阶级的、德国的）、保守的或资产阶级的社会主义、批判的空想的社会主义。`},
+    {t:`四、共产党人对各种反对党派的态度`,s:`支持一切反对现存制度的革命运动。在当前运动中同时代表运动的未来。"无产者失去的只是锁链，获得的将是整个世界。全世界无产者，联合起来！"`},
+  ],
+  [`矛盾论`]: [
+    {t:`一、两种宇宙观`,s:`形而上学的宇宙观（孤立静止片面）与唯物辩证法的宇宙观（联系发展矛盾）。对立统一规律是辩证法的根本规律。`},
+    {t:`二、矛盾的普遍性`,s:`矛盾存在于一切事物的发展过程中，贯穿于每一事物发展过程的始终。否认矛盾就是否认辩证法。`},
+    {t:`三、矛盾的特殊性`,s:`不同事物包含不同质的矛盾。一个事物在其发展的不同阶段矛盾也不同。研究问题忌带主观性、片面性、表面性。列宁说马克思主义活的灵魂：具体地分析具体的情况。`},
+    {t:`四、主要的矛盾和主要的矛盾方面`,s:`众多矛盾中必有一主要矛盾，它的存在规定和影响其他矛盾。矛盾两方面中必有一主要方面，决定事物的性质。主次矛盾、矛盾主次方面在一定条件下互相转化。新陈代谢是普遍的不可抵抗的规律。`},
+    {t:`五、矛盾诸方面的同一性和斗争性`,s:`同一性：矛盾双方互为存在前提，在一定条件下互相转化。斗争性：矛盾双方互相排斥、互相对立。同一性是有条件的相对的，斗争性是无条件的绝对的。有条件的相对的同一性和无条件的绝对的斗争性相结合构成一切事物的矛盾运动。`},
+    {t:`六、对抗在矛盾中的地位`,s:`对抗是矛盾斗争的一种形式而非一切形式。不同质的矛盾用不同质的方法解决——对抗性矛盾用革命方法，非对抗性矛盾用批评自我批评方法。矛盾性质在一定条件下会转化。`},
+    {t:`七、结论`,s:`事物矛盾的法则即对立统一的法则，是自然和社会的根本法则，也是思维的根本法则。`},
+  ],
+  [`实践论`]: [
+    {t:`一、认识来源于实践`,s:`生产活动是最基本的实践活动，决定其他一切活动。人的认识主要依赖于物质生产活动。离开实践的认识是不可能的。`},
+    {t:`二、认识的感性阶段`,s:`人在实践过程中开始看到事物的现象、片面、外部联系——这是认识的感性阶段。感觉材料积累到一定程度产生飞跃。`},
+    {t:`三、认识的理性阶段`,s:`综合感觉材料，经过去粗取精、去伪存真、由此及彼、由表及里的加工改造——形成概念、判断、推理，这是认识的理性阶段。理性认识依赖于感性认识，感性认识有待于发展到理性认识。`},
+    {t:`四、认识回到实践`,s:`理论是否正确，不是依主观感觉而定，而是依客观上社会实践的结果而定。理论回到实践是检验真理和发展真理的过程。许多理论的真理性是不完全的，经过实践的检验而纠正其不完全性。`},
+    {t:`五、认识循环`,s:`实践、认识、再实践、再认识，循环往复以至无穷。改造客观世界也改造主观世界——改造自己的认识能力，改造主观世界同客观世界的关系。`},
+  ],
+  [`国家与革命`]: [
+    {t:`第一章 阶级社会和国家`,s:`国家是阶级矛盾不可调和的产物。特殊的武装队伍（常备军、警察）是国家的主要强力工具。国家是剥削被压迫阶级的工具。`},
+    {t:`第二章 国家与革命 1848-1851年的经验`,s:`马克思在《路易·波拿巴的雾月十八日》中总结：无产阶级革命不能简单掌握现成国家机器，必须打碎它。打碎官僚军事机器是大陆上任何一次真正人民革命的先决条件。`},
+    {t:`第三章 国家与革命 1871年巴黎公社的经验 马克思的分析`,s:`公社是无产阶级专政的形式。废除常备军代之以武装的人民。一切公职人员由选举产生并可随时撤换，其薪金不超过熟练工人的工资。不是议会式的而是同时兼管立法和行政的工作机关。`},
+    {t:`第四章 续前 恩格斯的补充说明`,s:`恩格斯论住宅问题——住房短缺是资本主义的必然产物。论权威——革命是天下最权威的东西。国家自行消亡的经济基础——生产资料归全社会所有。`},
+    {t:`第五章 国家消亡的经济基础`,s:`共产主义第一阶段：按劳分配——仍然存在"资产阶级权利"和形式上平等实际上不平等的现象。国家正在消亡但尚未完全消亡——还需要国家保卫生产资料公有制和劳动平等。共产主义高级阶段：按需分配——那时国家完全消亡。`},
+    {t:`第六章 马克思主义被机会主义者庸俗化了`,s:`批判考茨基对马克思主义国家学说的歪曲。考茨基与机会主义者的论战只是在非本质问题上争论，而在必须打碎旧国家机器这一根本问题上向机会主义让步。`},
+  ],
+  [`帝国主义是资本主义的最高阶段`]: [
+    {t:`一至四章 生产集中和垄断`,s:`自由竞争产生生产集中，集中发展到一定阶段导致垄断。垄断组织：卡特尔、辛迪加、托拉斯。垄断代替自由竞争是帝国主义的经济实质。`},
+    {t:`五至六章 金融资本和金融寡头`,s:`工业垄断资本与银行垄断资本融合形成金融资本。极少数金融寡头通过"参与制"控制社会经济命脉。第一次世界大战前夜，德法英美的金融资本控制了全世界。`},
+    {t:`七章 资本输出`,s:`自由竞争资本主义的特征是商品输出，垄断资本主义的特征是资本输出。过剩资本输出到落后国家获取高额利润——"帝国主义者从一头牛身上剥下两张皮来"。`},
+    {t:`八章 国际垄断同盟瓜分世界`,s:`最大的垄断资本之间形成瓜分世界市场的国际卡特尔。但这种瓜分是"按资本""按实力"进行的——实力变化必然导致重新瓜分，战争不可避免。`},
+    {t:`九章 列强瓜分世界领土`,s:`金融资本统治的时代世界已被瓜分完毕。重新瓜分只能从别人手中夺取——帝国主义战争不可避免。殖民地对金融资本的极端重要性。`},
+    {t:`十章 帝国主义的历史地位`,s:`帝国主义是垄断的、寄生的、腐朽的资本主义。食利国和食利者阶层的出现。工人贵族——被超额利润收买的无产阶级上层是机会主义的社会基础。帝国主义是无产阶级社会革命的前夜。`},
+  ],
+  [`论持久战`]: [
+    {t:`问题的根据（1-7）`,s:`中日战争的基本特点：敌强我弱、敌小我大、敌退步我进步、敌寡助我多助。速胜论和亡国论都是错误的——持久战是唯一的正确结论。`},
+    {t:`三个阶段（8-20）`,s:`第一阶段：敌之战略进攻、我之战略防御；第二阶段：战略相持（最艰苦但也是转变枢纽）；第三阶段：我之战略反攻、敌之战略退却。犬牙交错的战争形态。`},
+    {t:`能动性在战争中（21-29）`,s:`自觉的能动性是人类的特点。战争是力量的竞赛，但力量在战争过程中变化其原来的形态——主观的努力可以改变客观的力量对比。战争的计划性和灵活性。`},
+    {t:`兵民是胜利之本（30-39）`,s:`武器是战争的重要因素但不是决定因素，决定因素是人不是物。战争的伟力之最深厚根源存在于民众之中。政治动员是头等重要的大事。军队政治工作三大原则：官兵一致、军民一致、瓦解敌军。`},
+  ],
+  [`社会主义从空想到科学的发展`]: [
+    {t:`一、空想社会主义`,s:`圣西门、傅立叶、欧文的理论贡献——批判资本主义，提出未来社会构想。空想社会主义者的根本局限：看不到无产阶级的历史主动性，把社会主义看作天才头脑的偶然发现而非历史发展的必然产物。`},
+    {t:`二、唯物史观和剩余价值——两大发现`,s:`历史唯物主义：生产方式和交换方式是一切社会制度的基础，一切社会变迁和政治变革的终极原因在经济发展中。剩余价值理论：无偿劳动的占有是资本主义生产的基本形式。两大发现使社会主义从空想变为科学。`},
+    {t:`三、科学社会主义的基本原理`,s:`资本主义基本矛盾：生产的社会化与私人占有之间的矛盾。表现：无产阶级与资产阶级对立、个别工厂生产的有组织性与整个社会无政府状态的对立。危机周期性地证明资本主义的局限性。解决：无产阶级革命夺取政权，生产资料归社会所有。人类从必然王国进入自由王国的飞跃。`},
+  ],
+  [`1844年经济学哲学手稿`]: [
+    {t:`第一手稿 异化劳动`,s:`工资——工人沦为商品。资本的统治与地租的资本化。异化劳动四规定：劳动者与产品异化、与劳动过程异化、与类本质异化、人与人之间异化。私有财产是异化劳动的产物和手段。`},
+    {t:`第二手稿 私有财产的关系`,s:`私有财产的运动——劳动与资本的对立从表面统一到尖锐对立。土地所有者与资本家、工人三者之间的经济关系。`},
+    {t:`第三手稿 共产主义与黑格尔辩证法批判`,s:`粗陋的共产主义（否定个性、否定文明）与真正的共产主义（私有财产的积极扬弃、人的本质的真正占有）。"社会主义是人向自身、向社会的即合乎人性的人的复归。"对黑格尔辩证法的批判——黑格尔抓住了劳动的本质，但他只承认抽象的精神劳动。`},
+  ],
+  [`德意志意识形态`]: [
+    {t:`第一卷 对费尔巴哈、布·鲍威尔和施蒂纳所代表的现代德国哲学的批判`,s:`唯物史观的前提是现实的人、他们的物质生活条件。生产力决定交往形式（生产关系），交往形式成为生产力发展的桎梏时社会革命就到来了。分工是私有制的同义语。意识形态没有独立的历史——颠倒的意识源于颠倒的现实。统治阶级的思想是占统治地位的思想。`},
+    {t:`第二卷 对各式各样先知所代表的德国社会主义的批判`,s:`批判"真正的社会主义"——用黑格尔和费尔巴哈的术语装扮起来的德国小资产阶级幻想。它把法国社会主义文献中的共产主义要求翻译成德国哲学的思辨语言，阉割了其中的革命内容。`},
+  ],
+  [`家庭、私有制和国家的起源`]: [
+    {t:`一至二章 家庭`,s:`摩尔根的人类学发现与唯物史观相结合。血缘家庭→普那路亚家庭→对偶家庭→专偶制家庭。母权制向父权制的过渡——"女性的具有世界历史意义的失败"。婚姻形式随经济条件变化而变化。`},
+    {t:`三至八章 氏族制度`,s:`易洛魁人和希腊人的氏族制度分析。氏族→胞族→部落→部落联盟。氏族内部的民主制——没有阶级、没有国家、靠习俗和舆论维持秩序。"这种十分单纯质朴的氏族制度是一种多么美妙的制度啊！没有士兵、宪兵和警察，没有贵族、国王、总督……一切争端和纠纷都由当事人的全体即氏族解决。"`},
+    {t:`九章 私有制和国家的起源`,s:`三次社会大分工→私有制和阶级产生→国家产生。国家是阶级矛盾不可调和的产物——由社会产生但又自居于社会之上并日益同社会脱离的力量。以地域划分国民代替血缘联系。国家随着阶级的消灭而不可避免地消失。`},
+  ],
+  [`新民主主义论`]: [
+    {t:`一至三 中国向何处去`,s:`抗战以来"中国向何处去"成为问题。建立新民主主义共和国——既不是旧的资产阶级专政，也不是苏联式的无产阶级专政，而是几个革命阶级联合专政。中国革命分两步走——新民主主义革命是社会主义革命的必要准备。`},
+    {t:`四至六 新民主主义的政治`,s:`国体——各革命阶级联合专政。政体——民主集中制。这就是新民主主义的政治。资产阶级顽固派想走"一党专政"的老路——此路不通。`},
+    {t:`七至十 新民主主义的经济`,s:`大银行大工业大商业归国家所有——但不是建立社会主义的农业。没收地主土地分给农民。节制资本——"决不能少数人所得而私"。中国的经济一定要走"节制资本"和"平均地权"的路。`},
+    {t:`十一至十五 新民主主义的文化`,s:`新民主主义文化是民族的（反对帝国主义压迫、有民族尊严和独立性）、科学的（反对一切封建迷信、主张实事求是）、大众的（为全民族百分之九十以上的工农劳苦大众服务、民主的）。革命文化对于人民大众是革命的有力武器。`},
+  ],
+  [`关于正确处理人民内部矛盾的问题`]: [
+    {t:`一 两类不同性质的矛盾`,s:`敌我矛盾对抗性，人民内部矛盾非对抗性。不同质矛盾不同方法解决。在社会主义社会，人民内部矛盾是大量的。划分敌我的六条政治标准。"团结—批评—团结"——解决人民内部矛盾的正确方法。`},
+    {t:`二至六 经济与建设问题`,s:`肃反问题——"有反必肃，有错必纠"。农业合作化问题。工商业者问题。知识分子问题——"我国的艰巨的社会主义建设事业，需要尽可能多的知识分子为它服务。"`},
+    {t:`七至八 文化方针`,s:`"百花齐放、百家争鸣"——促进艺术发展和科学进步，促进社会主义文化繁荣。辨别香花与毒草的六条政治标准。马克思主义是科学真理，不怕批评，在斗争中发展。`},
+    {t:`九至十二 社会矛盾`,s:`少数人闹事——基本原因是物质利益受损，应克服官僚主义加强思想教育。坏事可以变成好事。节约与中国工业化道路。社会主义社会基本矛盾仍然是生产力和生产关系、经济基础和上层建筑之间的矛盾。`},
+  ],
+  [`政治经济学批判·序言`]: [
+    {t:`全文（经典段落）`,s:`物质生活的生产方式制约着整个社会生活、政治生活和精神生活的过程——不是意识决定存在，而是存在决定意识。社会革命根源于生产力和生产关系的矛盾。无论哪个社会形态，在它容纳的全部生产力发挥出来以前决不会灭亡。亚细亚的、古代的、封建的、现代资产阶级的生产方式——社会经济形态演进的几个时代。资产阶级生产关系是社会生产过程的最后一个对抗形式。"人类社会的史前时期"以资本主义的终结而告终。`},
+  ],
+  [`哥达纲领批判`]: [
+    {t:`一、对拉萨尔派劳动观的批判`,s:`"劳动不是一切财富的源泉"——自然界同样是财富源泉。脱离生产资料的劳动不能创造任何财富。批判"不折不扣的劳动所得"——社会总产品在分配给个人前必须扣除积累基金和社会消费基金。按劳分配的平等权利仍然是"资产阶级的权利"——以同一尺度（劳动）衡量不同等的个人导致事实上的不平等。`},
+    {t:`二至三、对拉萨尔派国家观的批判`,s:`德国工人党要求建立"自由国家"——但国家是阶级统治的工具，不存在超阶级的"自由国家"。在资本主义和共产主义之间的过渡时期只能是无产阶级专政。批判"废除工资铁律"——真正需要废除的是雇佣劳动制度本身。`},
+    {t:`四、共产主义社会两阶段`,s:`第一阶段（刚从旧社会产生出来）按劳分配——"这里通行的就是调节商品交换的同一原则。内容和形式都变了，但原则仍然是等价交换"。高级阶段（在自身基础上发展了）按需分配——分工消失、脑体对立消失、劳动成为生活第一需要、生产力高度增长。`},
+  ],
+};
+
+function renderLiterature(data) {
+  const list = document.getElementById('literatureList');
+  const items = data || literature;
+  let html = '';
+  let currentAuthor = '';
+  items.forEach((l,i) => {
+    const idx = literature.indexOf(l);
+    if (l.authorName !== currentAuthor) {
+      currentAuthor = l.authorName;
+      const count = literature.filter(x => x.authorName === currentAuthor).length;
+      html += `<h3 style="color:var(--red-dark);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border);">${currentAuthor}（${count}部）</h3>`;
+    }
+    html += `<div class="cite-item lit-clickable" data-author="${l.author}" onclick="showLitDetail(${idx})" style="cursor:pointer;" title="点击查看详细提要">
+      <div class="quote-text" style="font-weight:600;color:#333;font-style:normal;display:flex;justify-content:space-between;align-items:center;">${l.title} <span style="color:var(--text-light);font-weight:400;font-size:0.85em;white-space:nowrap;margin-left:8px;">(${l.year})</span></div>
+      <div style="font-size:0.88em;color:#555;margin:4px 0;">📌 ${l.theme}</div>
+      <div class="use-case">🎯 ${l.use}</div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function showLitDetail(idx) {
+  const l = literature[idx];
+  if (!l) return;
+  const detailText = l.detail || ('核心主题：' + l.theme + '。适用场景：' + l.use + '。');
+
+  // Find matching passages and chapters
+  let pKey = '', cKey = '';
+  for (const k of Object.keys(litPassages)) {
+    if (l.title.includes(k) || k.includes(l.title)) { pKey = k; break; }
+  }
+  for (const k of Object.keys(litChapters)) {
+    if (l.title.includes(k) || k.includes(l.title)) { cKey = k; break; }
+  }
+  const hasPassages = pKey && litPassages[pKey] && litPassages[pKey].length > 0;
+  const hasChapters = cKey && litChapters[cKey] && litChapters[cKey].length > 0;
+  const hasLink = l.link && l.link.length > 0;
+  const hasTabs = hasPassages || hasChapters || hasLink;
+
+  let tabsHTML = '';
+  let contentHTML = '';
+
+  if (hasTabs) {
+    tabsHTML = '<div style="display:flex;gap:4px;margin-bottom:18px;border-bottom:2px solid var(--border);padding-bottom:0;flex-wrap:wrap;">';
+    tabsHTML += '<button class="lit-tab-btn active" onclick="switchLitTab(event,\'detail\')" style="background:var(--red);color:#fff;border:none;padding:10px 18px;cursor:pointer;font-size:0.9em;border-radius:6px 6px 0 0;font-family:var(--font);">📖 提要</button>';
+    if (hasPassages) tabsHTML += '<button class="lit-tab-btn" onclick="switchLitTab(event,\'passages\')" style="background:none;border:none;padding:10px 18px;cursor:pointer;font-size:0.9em;color:var(--text-light);font-family:var(--font);">💬 精选段落</button>';
+    if (hasChapters) tabsHTML += '<button class="lit-tab-btn" onclick="switchLitTab(event,\'chapters\')" style="background:none;border:none;padding:10px 18px;cursor:pointer;font-size:0.9em;color:var(--text-light);font-family:var(--font);">📑 章节提纲</button>';
+    if (hasLink) tabsHTML += '<button class="lit-tab-btn" onclick="switchLitTab(event,\'link\')" style="background:none;border:none;padding:10px 18px;cursor:pointer;font-size:0.9em;color:var(--text-light);font-family:var(--font);">🔗 阅读原文</button>';
+    tabsHTML += '</div>';
+
+    const detailTab = '<div class="lit-tab-content" id="lit-tab-detail"><div style="font-size:0.92em;line-height:1.9;margin-bottom:12px;">' + detailText + '</div></div>';
+
+    let passagesTab = '';
+    if (hasPassages) {
+      passagesTab = '<div class="lit-tab-content" id="lit-tab-passages" style="display:none;">';
+      litPassages[pKey].forEach(function(p) {
+        passagesTab += '<blockquote style="border-left:3px solid var(--red);padding:10px 16px;margin:12px 0;background:#fef9f0;border-radius:0 6px 6px 0;font-style:italic;line-height:1.8;">' + p.q + '<div style="font-size:0.82em;color:var(--text-light);margin-top:6px;font-style:normal;">—— ' + p.c + '</div></blockquote>';
+      });
+      passagesTab += '</div>';
+    }
+
+    let chaptersTab = '';
+    if (hasChapters) {
+      chaptersTab = '<div class="lit-tab-content" id="lit-tab-chapters" style="display:none;">';
+      litChapters[cKey].forEach(function(c) {
+        chaptersTab += '<div style="margin:10px 0;padding:10px 14px;background:#fefefb;border-radius:6px;border-left:3px solid var(--gold);"><strong style="color:var(--red-dark);">' + c.t + '</strong><p style="font-size:0.88em;color:#555;margin:4px 0 0;line-height:1.7;">' + c.s + '</p></div>';
+      });
+      chaptersTab += '</div>';
+    }
+
+    let linkTab = '';
+    if (hasLink) {
+      linkTab = '<div class="lit-tab-content" id="lit-tab-link" style="display:none;text-align:center;padding:24px 0;">';
+      linkTab += '<p style="margin-bottom:14px;">在 marxists.org 阅读完整原文（免费、中文）：</p>';
+      linkTab += '<a href="' + l.link + '" target="_blank" rel="noopener" style="display:inline-block;padding:12px 28px;background:var(--red);color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:1em;">📖 打开原文链接</a>';
+      linkTab += '<p style="font-size:0.8em;color:var(--text-light);margin-top:10px;">链接：' + l.link + '</p>';
+      linkTab += '</div>';
+    }
+
+    contentHTML = tabsHTML + detailTab + passagesTab + chaptersTab + linkTab;
+  } else {
+    contentHTML = '<div style="font-size:0.92em;line-height:1.9;margin-bottom:12px;">' + detailText + '</div>';
+  }
+
+  document.getElementById('modalContent').innerHTML =
+    '<button class="close" onclick="closeModal()">✕</button>' +
+    '<h2 style="color:var(--red-dark);margin-bottom:4px;">' + l.title + '</h2>' +
+    '<div style="color:var(--text-light);margin-bottom:14px;">' + l.authorName + ' · ' + l.year + '</div>' +
+    contentHTML +
+    '<div class="use-case" style="margin-top:8px;">🎯 适用场景：' + l.use + '</div>';
+
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function switchLitTab(event, tabName) {
+  // Update button styles
+  var buttons = event.target.parentElement.querySelectorAll('.lit-tab-btn');
+  buttons.forEach(function(b) { b.style.background = 'none'; b.style.color = 'var(--text-light)'; });
+  event.target.style.background = 'var(--red)'; event.target.style.color = '#fff';
+
+  // Show/hide content
+  var contents = document.getElementById('modalContent').querySelectorAll('.lit-tab-content');
+  contents.forEach(function(c) { c.style.display = 'none'; });
+  var target = document.getElementById('lit-tab-' + tabName);
+  if (target) target.style.display = 'block';
+}
+
+function filterByAuthor(author, btn) {
+  document.querySelectorAll('.lit-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const data = author === 'all' ? literature : literature.filter(l => l.author === author);
+  renderLiterature(data);
+}
+
+function filterLiterature() {
+  const val = document.getElementById('litSearch').value.trim().toLowerCase();
+  if (!val) { renderLiterature(literature); return; }
+  const filtered = literature.filter(l =>
+    l.title.includes(val) || l.theme.includes(val) || l.use.includes(val) || l.authorName.includes(val)
+  );
+  renderLiterature(filtered);
+}
+
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const tab = this.dataset.tab;
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    localStorage.setItem('marx-toolkit-tab', tab);
+  });
+});
+
+// ==================== 初始化 ====================
+
+renderCritiques();
+renderCitations();
+renderRoutes();
+renderMethods();
+renderLiterature();
+
+// 恢复上次标签
+const savedTab = localStorage.getItem('marx-toolkit-tab');
+if (savedTab) {
+  const btn = document.querySelector(`nav button[data-tab="${savedTab}"]`);
+  if (btn) btn.click();
+}
+</script>
+</body>
+</html>
