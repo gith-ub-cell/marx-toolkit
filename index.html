@@ -1058,15 +1058,17 @@ function exportComprehensive() {
   const input = document.getElementById('comprehensiveInput').value.trim();
   const sections = {};
   cards.forEach(card => {
-    const h4 = card.querySelector('h4');
-    const div = card.querySelector('div');
-    if (h4 && div) {
-      const key = h4.textContent.replace(/^[^\s]+\s*/, '').trim();
-      sections[key] = div.textContent.trim();
+    const heading = card.querySelector('h3') || card.querySelector('h4');
+    const content = card.querySelector('.analysis-content') || card.querySelector('div');
+    if (heading && content && !heading.textContent.includes('相关理论与经典')) {
+      const key = heading.textContent.replace(/^[^\s]+\s*\d*\.\s*/, '').trim();
+      sections[key] = content.textContent.trim();
     }
   });
   const s = (k) => { for (const key of Object.keys(sections)) { if (key.includes(k) || k.includes(key)) return sections[key]; } return ''; };
   const isTheory = !!s('思潮定位');
+  // Fallback detection
+  const hasReality = !!s('物质经济根源');
 
   let body = `<h2>${input.length > 30 ? input.slice(0,30) + '…' : input}——马克思主义批判分析</h2>`;
   body += `<p style="color:#888;font-size:14px;text-align:center;">—— 马列分析工具箱 · ${new Date().toLocaleString()} ——</p>`;
