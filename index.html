@@ -304,7 +304,10 @@
       <button class="btn btn-primary" onclick="runComprehensiveAnalysis()">🔍 综合分析</button>
       <button class="btn btn-outline" onclick="clearComprehensive()">🔄 清空</button>
       <button class="btn btn-export" onclick="exportComprehensive()">📥 导出</button>
+      <button class="btn btn-outline" onclick="webSearchComprehensive()" id="btnWebSearch2" style="display:none;">🌐 联网搜索</button>
     </div>
+    <div id="comprehensivePreview" style="display:none;margin-top:16px;padding:14px 18px;background:#fef9f0;border-radius:8px;border-left:4px solid var(--red);"></div>
+    <div id="webResult2" style="display:none;margin-top:16px;"></div>
     <div id="comprehensiveResult" style="display:none;margin-top:20px;"></div>
   </div>
 </section>
@@ -996,40 +999,105 @@ function clearAnalysis() {
 }
 
 function exportAnalysis() {
-  const sections = document.querySelectorAll('#analysisResult .card');
-  if (sections.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
+  const cards = document.querySelectorAll('#analysisResult .card');
+  if (cards.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
   const input = document.getElementById('wsInput').value.trim();
-  let body = '';
-  body += `<h2>矛盾分析报告</h2>`;
-  body += `<p style="color:#888;font-size:14px;">生成时间：${new Date().toLocaleString()}</p>`;
-  body += `<h3>事件描述</h3><p>${input}</p><hr>`;
-  sections.forEach(card => {
-    const title = card.querySelector('h3');
-    const content = card.querySelector('.analysis-content');
-    if (title) body += `<h3>${title.textContent.trim()}</h3>`;
-    if (content) body += `<p style="line-height:2;">${content.innerHTML}</p>`;
-    if (!title && !content && card.querySelector('div')) {
-      body += `<h3>相关理论与经典</h3><p style="line-height:2;">${card.querySelector('div').innerHTML}</p>`;
+  const sections = {};
+  cards.forEach(card => {
+    const h3 = card.querySelector('h3');
+    const div = card.querySelector('.analysis-content') || card.querySelector('div');
+    if (h3 && div) {
+      const key = h3.textContent.replace(/^[^\s]+\s*\d*\.\s*/, '').trim();
+      sections[key] = div.textContent.trim();
     }
   });
-  downloadWord(body, '矛盾分析报告');
+  const s = (k) => sections[k] || '';
+
+  let body = `<h2>${input.length > 30 ? input.slice(0,30) + '…' : input}——矛盾分析与实践路径</h2>`;
+  body += `<p style="color:#888;font-size:14px;text-align:center;">—— 马列分析工具箱 · ${new Date().toLocaleString()} ——</p>`;
+
+  // 引言
+  body += `<h3>引言</h3>`;
+  body += `<p>本文所分析的核心事件或问题是：${input}。面对这一局面，我们不应停留在表面现象或个人感受层面，而应运用唯物辩证法的基本方法，从客观实际出发，穿透现象把握本质，识别主要矛盾及其主要方面，从而找到可操作的实践方向。</p>`;
+  body += `<p>以下分析遵循"客观实际→现象与本质→矛盾分析→阶段判断→实践方案→验证标准"的基本框架，力求将马克思主义的分析方法落实为具体可操作的诊断。</p>`;
+
+  // 一、现象与本质
+  body += `<h3>一、从现象到本质</h3>`;
+  if (s('客观实际')) body += `<p>${s('客观实际')}</p>`;
+  if (s('涉及的主要方面')) body += `<p>涉及的主要方面包括：${s('涉及的主要方面')}</p>`;
+  if (s('现象判断')) body += `<p>从现象层面来看，${s('现象判断')}</p>`;
+  if (s('本质判断')) body += `<p>然而，透过现象深入本质可以发现，${s('本质判断')}。正如列宁所指出的：现象是入门的向导，一进了门就要抓住它的实质。我们不能停留在"谁对谁错""谁好谁坏"的表面判断上，而必须追问：是什么机制在持续地、系统地制造这些表面症状？</p>`;
+
+  // 二、矛盾分析
+  body += `<h3>二、矛盾结构与力量对比</h3>`;
+  if (s('主要矛盾')) body += `<p>经过分析，当前局势中的主要矛盾可以概括为：${s('主要矛盾')}</p>`;
+  if (s('次要矛盾')) body += `<p>除主要矛盾外，还存在若干次要矛盾：${s('次要矛盾')}。这些次要矛盾受到主要矛盾的制约，在主要矛盾得到解决之前不应主导我们的行动方向，但需要在实践中持续关注。</p>`;
+  if (s('联系与影响')) body += `<p>从系统的、联系的观点来看，这一矛盾并非孤立存在：${s('联系与影响')}</p>`;
+
+  // 三、阶段判断
+  body += `<h3>三、阶段特征与演变趋势</h3>`;
+  if (s('阶段判断')) body += `<p>基于现有材料，这一矛盾当前所处的阶段可以判定为：${s('阶段判断')}</p>`;
+  body += `<p>判断事物的发展阶段具有重要的实践意义——不同阶段需要不同的策略。在矛盾的萌芽期，预防和引导是主要手段；在矛盾的发展期，调节和控制是主要任务；在矛盾的激化期，则需要果断的变革措施。如果我们误判了阶段，用初期的温和手段去应对激化期的矛盾，就会错失时机甚至加速恶化。</p>`;
+
+  // 四、实践方向
+  body += `<h3>四、从分析到行动</h3>`;
+  if (s('实践方案')) body += `<p>基于以上分析，我们提出以下实践方向：${s('实践方案')}</p>`;
+  if (s('验证标准')) body += `<p>实践的效果需要通过客观的验证标准来衡量：${s('验证标准')}。验证标准必须是可以观测的、可以与现状对比的——"人应该在实践中证明自己思维的真理性。"</p>`;
+
+  // 结语
+  body += `<h3>结语</h3>`;
+  body += `<p>马克思在《关于费尔巴哈的提纲》中写道："哲学家们只是用不同的方式解释世界，而问题在于改变世界。"本文的分析不是为了分析而分析——它指向行动。矛盾是客观存在的，否认矛盾或回避矛盾都不是马克思主义的态度。关键在于：正确识别矛盾、找到矛盾的主要方面、从改变主要方面的条件入手推动矛盾的转化。</p>`;
+  body += `<p>同时必须认识到，任何分析都有其局限性——它依赖于分析者所掌握的客观材料和认知水平。本文的结论需要在实践中接受检验，在实践中修正和发展。"实践、认识、再实践、再认识，这种形式，循环往复以至无穷。"</p>`;
+
+  downloadWord(body, '矛盾分析文章');
 }
 
 function exportComprehensive() {
-  const sections = document.querySelectorAll('#comprehensiveResult .card');
-  if (sections.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
+  const cards = document.querySelectorAll('#comprehensiveResult .card');
+  if (cards.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
   const input = document.getElementById('comprehensiveInput').value.trim();
-  let body = '';
-  body += `<h2>综合批判报告</h2>`;
-  body += `<p style="color:#888;font-size:14px;">生成时间：${new Date().toLocaleString()}</p>`;
-  body += `<h3>分析对象</h3><p>${input}</p><hr>`;
-  sections.forEach(card => {
-    const title = card.querySelector('h4');
-    const content = card.querySelector('div');
-    if (title) body += `<h3>${title.textContent.trim()}</h3>`;
-    if (content) body += `<p style="line-height:2;">${content.innerHTML}</p>`;
+  const sections = {};
+  cards.forEach(card => {
+    const h4 = card.querySelector('h4');
+    const div = card.querySelector('div');
+    if (h4 && div) {
+      const key = h4.textContent.replace(/^[^\s]+\s*/, '').trim();
+      sections[key] = div.textContent.trim();
+    }
   });
-  downloadWord(body, '综合批判报告');
+  const s = (k) => sections[k] || '';
+  const isTheory = !!s('思潮定位');
+
+  let body = `<h2>${input.length > 30 ? input.slice(0,30) + '…' : input}——马克思主义批判分析</h2>`;
+  body += `<p style="color:#888;font-size:14px;text-align:center;">—— 马列分析工具箱 · ${new Date().toLocaleString()} ——</p>`;
+
+  // 引言
+  body += `<h3>引言</h3>`;
+  body += `<p>${isTheory ? '本文运用马克思主义的立场、观点和方法，对"' + input + '"这一理论/思潮进行批判性分析。批判的目的不是简单的否定——正如马克思所言，辩证法的本质是"在对现存事物的肯定的理解中同时包含对现存事物的否定的理解"。我们将追溯这一理论的物质根源和阶级基础，揭示其内在矛盾，并指明其实践指向。' : '本文运用唯物史观的基本方法，对当前社会中的"'+ input +'"这一现象/事件进行结构性分析。我们将追溯其物质经济根源，分析涉及的阶级利益，揭示其背后的矛盾运动，并探讨其发展趋势和实践启示。'}</p>`;
+
+  // 正文
+  if (isTheory) {
+    if (s('被批判的对象') || s('分析对象')) body += `<h3>一、批判对象及其定位</h3><p>${s('被批判的对象') || s('分析对象')}</p>`;
+    if (s('思潮定位')) body += `<h3>二、思潮定位与历史根源</h3><p>${s('思潮定位')}</p>`;
+    if (s('阶级基础与物质根源')) body += `<h3>三、阶级基础与物质根源</h3><p>${s('阶级基础与物质根源')}</p><p>正如马克思在《德意志意识形态》中所揭示的："统治阶级的思想在每一时代都是占统治地位的思想。"任何一个理论或思潮都不是凭空产生的——它从特定的物质条件和利益结构中生长出来。我们的任务不是仅在观念的层面上"批判"它，而是追溯它的物质根基——是谁在资助和推广这一理论？它服务于哪个阶级或群体的利益？</p>`;
+    if (s('内在矛盾')) body += `<h3>四、内在矛盾的解剖</h3><p>${s('内在矛盾')}</p><p>辩证法告诉我们，矛盾存在于一切事物的发展过程中。理论也不例外——一个理论的宣称与它的实践之间、它的核心假设与经验事实之间、它的逻辑起点与其逻辑结论之间，都存在着可以深入剖析的矛盾。抓住这些矛盾，就能揭示该理论的根本缺陷。</p>`;
+    if (s('马克思主义批判') || s('马克思主义批判方法')) body += `<h3>五、马克思主义的批判方法</h3><p>${s('马克思主义批判方法') || s('马克思主义批判')}</p>`;
+    if (s('经典引文')) body += `<h3>六、理论武器</h3><p>${s('经典引文')}</p>`;
+    if (s('实践指向')) body += `<h3>七、从理论批判到实践</h3><p>${s('实践指向')}</p>`;
+  } else {
+    if (s('客观事实') || s('分析对象')) body += `<h3>一、事实与现象</h3><p>${s('客观事实') || s('分析对象')}</p>`;
+    if (s('物质经济根源')) body += `<h3>二、物质根源——经济基础中的逻辑</h3><p>${s('物质经济根源')}</p><p>马克思在《政治经济学批判·序言》中指出："物质生活的生产方式制约着整个社会生活、政治生活和精神生活的过程。"任何社会现象——无论表面上看起来多么偶然或多么"人性"——都有其物质经济的根源。分析的任务就是穿透意识形态的迷雾，追溯到这一根基。</p>`;
+    if (s('阶级与利益分析')) body += `<h3>三、利益格局——"谁受益？谁受损？"</h3><p>${s('阶级与利益分析')}</p><p>这是马克思主义分析中最锋利的问题。在任何社会事件中，不同的群体由于他们在生产体系中所处的位置不同而有着不同的——往往是根本对立的——利益。只有理清了利益格局，才能理解为什么有人推动、有人阻碍、有人沉默。</p>`;
+    if (s('矛盾运动')) body += `<h3>四、矛盾的运动——发展的引擎</h3><p>${s('矛盾运动')}</p>`;
+    if (s('发展趋势')) body += `<h3>五、趋势与展望</h3><p>${s('发展趋势')}</p>`;
+    if (s('实践启示')) body += `<h3>六、实践的方向</h3><p>${s('实践启示')}</p>`;
+  }
+
+  // 结语
+  body += `<h3>结语</h3>`;
+  body += `<p>${isTheory ? '理论批判不是为了在书斋里获得智力上的优越感——它指向实践。"批判的武器当然不能代替武器的批判，物质力量只能用物质力量来摧毁；但是理论一经掌握群众，也会变成物质力量。"当我们揭示了一个理论的阶级基础和内在矛盾之后，下一步就是：如何让被这个理论所蒙蔽的人看清真相？如何组织起来改变制造这种意识形态的物质条件？' : '现实分析不是终点——它是行动的起点。"哲学家们只是用不同的方式解释世界，而问题在于改变世界。"当我们理清了一个社会现象的物质根源、利益格局和矛盾运动之后，实践的方向就变得清晰了。剩下的问题是：我们如何从个体的观察走向集体的行动？'}</p>`;
+
+  downloadWord(body, '综合批判文章');
 }
 
 function downloadWord(bodyHtml, filename) {
@@ -1114,7 +1182,8 @@ const comprehensiveKB = [
 function autoDetectType() {
   const input = document.getElementById('comprehensiveInput').value.trim();
   const hint = document.getElementById('typeHint');
-  if (input.length < 5) { hint.style.display = 'none'; return; }
+  const preview = document.getElementById('comprehensivePreview');
+  if (input.length < 5) { hint.style.display = 'none'; preview.style.display = 'none'; return; }
   const lower = input.toLowerCase();
   let best = null, bestScore = 0;
   comprehensiveKB.forEach(k => {
@@ -1126,11 +1195,19 @@ function autoDetectType() {
     hint.style.background = best.type === 'theory' ? '#f0f4ff' : '#fff8f0';
     hint.style.color = '#444';
     hint.innerHTML = `🔍 检测到：<strong>${best.type==='theory'?'理论/思潮':'社会事件/现象'}</strong> → ${best.label}（${best.framework}）`;
+    preview.style.display = 'block';
+    preview.innerHTML = `<strong style="color:var(--red-dark);">⚡ 实时速览</strong>
+      <div style="margin-top:6px;line-height:1.8;">
+      <div>🎯 类型：<strong>${best.type==='theory'?'理论批判':'现实研判'}</strong> · ${best.framework}</div>
+      <div>⚡ 核心矛盾：<strong>${best.contradict.split('。')[0]}</strong></div>
+      ${best.cite ? `<div>📖 <em>"${best.cite.q.slice(0,60)}…"</em> —— ${best.cite.s}</div>` : ''}
+      </div><p style="margin-top:6px;font-size:0.8em;color:var(--text-light);">点击「综合分析」查看完整报告 ↓</p>`;
   } else {
     hint.style.display = 'block';
     hint.style.background = '#f5f5f5';
     hint.style.color = '#888';
     hint.innerHTML = '未匹配到内置模式，系统将进行通用分析';
+    preview.style.display = 'none';
   }
 }
 
@@ -1144,42 +1221,55 @@ function runComprehensiveAnalysis() {
     if (score > bestScore) { bestScore = score; best = k; }
   });
   const isTheory = best && best.type === 'theory';
+  window._lastComprehensive = { input, best, isTheory };
 
-  let html = '';
+  let html = '', num = 0;
   if (isTheory) {
     const sections = [
-      {title:'📌 分析对象', content: input},
-      {title:'🎯 思潮定位', content: best.framework},
-      {title:'💰 阶级基础与物质根源', content: best.classBase},
-      {title:'⚡ 内在矛盾', content: best.contradict},
-      {title:'🔨 马克思主义批判', content: best.method},
-      {title:'📖 经典引文', content: `<em>"${best.cite.q}"</em><br>—— ${best.cite.s}`},
-      {title:'🔧 实践指向', content: '批判指向行动——每次听到这类理论就问：它服务于谁的利益？它把什么"历史现象"伪装成了"自然事实"？'},
+      {title:'📌 1. 分析对象', content: input},
+      {title:'🎯 2. 思潮定位', content: best.framework},
+      {title:'💰 3. 阶级基础与物质根源', content: best.classBase},
+      {title:'⚡ 4. 内在矛盾', content: best.contradict},
+      {title:'🔨 5. 马克思主义批判', content: best.method},
+      {title:'📖 6. 经典引文', content: `<em>"${best.cite.q}"</em><br>—— ${best.cite.s}`},
+      {title:'🔧 7. 实践指向', content: '批判指向行动——每次听到这类理论就问：它服务于谁的利益？它把什么"历史现象"伪装成了"自然事实"？'},
     ];
     sections.forEach((s,i) => {
       html += `<div class="card" style="border-left:4px solid ${i<=1?'var(--red)':i<=4?'var(--gold)':'#333'};margin-bottom:10px;">
-        <h4 style="margin:0 0 6px;font-size:1em;">${s.title}</h4><div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div></div>`;
+        <h3 style="margin:0 0 6px;font-size:1em;">${s.title}</h3><div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div></div>`;
     });
   } else if (best && best.type === 'reality') {
     const sections = [
-      {title:'📋 客观事实', content: input},
-      {title:'🏭 物质经济根源', content: best.root},
-      {title:'👥 阶级与利益分析', content: best.class},
-      {title:'⚡ 矛盾运动', content: best.contradict},
-      {title:'📈 发展趋势', content: best.trend},
+      {title:'📋 1. 客观事实', content: input},
+      {title:'🏭 2. 物质经济根源', content: best.root},
+      {title:'👥 3. 阶级与利益分析', content: best.class},
+      {title:'⚡ 4. 矛盾运动', content: best.contradict},
+      {title:'📈 5. 发展趋势', content: best.trend},
+      {title:'🔧 6. 实践启示', content: '基于以上分析：追踪客观数据变化验证判断；识别有共同利益的群体；从个体观察到集体行动。'},
     ];
     sections.forEach((s,i) => {
       html += `<div class="card" style="border-left:4px solid ${i<=1?'var(--red)':i<=3?'var(--gold)':'#333'};margin-bottom:10px;">
-        <h4 style="margin:0 0 6px;font-size:1em;">${s.title}</h4><div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div></div>`;
+        <h3 style="margin:0 0 6px;font-size:1em;">${s.title}</h3><div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div></div>`;
     });
   } else {
-    html += `<div class="card" style="border-left:4px solid var(--gold);"><p style="color:var(--text-light);">未匹配到内置模式。系统已进行通用分析——你的输入被识别为需要进一步追问的对象。</p>
-      <p style="line-height:1.9;">请补充更多关键词，或尝试描述：<br>· 如果是<strong>理论</strong>——代表人物、核心主张、影响力来源<br>· 如果是<strong>事件</strong>——谁、发生了什么、什么后果、谁受益谁受损</p></div>`;
+    html += `<div class="card" style="border-left:4px solid var(--gold);"><p style="color:var(--text-light);">未匹配到内置模式。请补充更多关键词：</p>
+      <p>· <strong>理论</strong>类——代表人物、核心主张、影响力来源<br>· <strong>事件</strong>类——谁、发生了什么、什么后果、谁受益谁受损</p></div>`;
+  }
+
+  // Add related references
+  if (best) {
+    html += `<div class="card" style="border-left:4px solid var(--red);background:#fef9f0;">
+      <h3 style="margin:0 0 8px;font-size:1em;">📖 相关理论与经典</h3>
+      <div style="font-size:0.88em;line-height:1.9;">
+      <div>🎯 <strong>分析框架</strong>：${best.framework}</div>
+      ${best.cite ? `<div>📖 <strong>经典引文</strong>：<em>"${best.cite.q}"</em> —— ${best.cite.s}</div>` : ''}
+      </div></div>`;
   }
 
   document.getElementById('comprehensiveResult').style.display = 'block';
   document.getElementById('comprehensiveResult').innerHTML = html;
   document.getElementById('comprehensiveResult').scrollIntoView({behavior:'smooth'});
+  document.getElementById('btnWebSearch2').style.display = 'inline-block';
 }
 
 function clearComprehensive() {
@@ -1187,7 +1277,43 @@ function clearComprehensive() {
   document.getElementById('comprehensiveResult').style.display = 'none';
   document.getElementById('comprehensiveResult').innerHTML = '';
   document.getElementById('typeHint').style.display = 'none';
+  document.getElementById('comprehensivePreview').style.display = 'none';
+  document.getElementById('webResult2').style.display = 'none';
+  document.getElementById('webResult2').innerHTML = '';
+  document.getElementById('btnWebSearch2').style.display = 'none';
+  window._lastComprehensive = null;
   showToast('✅ 已清空');
+}
+
+async function webSearchComprehensive() {
+  const ctx = window._lastComprehensive;
+  if (!ctx) { showToast('⚠️ 请先完成分析'); return; }
+  const resultDiv = document.getElementById('webResult2');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = `<div class="card" style="border-left:4px solid var(--gold);text-align:center;"><div>🌐 正在搜索 Wikipedia...</div></div>`;
+  const queries = [];
+  if (ctx.best) {
+    queries.push({q: ctx.best.framework, l: 'zh', label: ctx.best.framework});
+    queries.push({q: ctx.best.label || ctx.best.framework, l: 'en', label: ctx.best.label || ''});
+  }
+  queries.push({q: ctx.input.slice(0, 80), l: 'zh', label: '原始输入'});
+  const results = [];
+  for (const q of queries) {
+    try { const s = await fetchWikipediaSummary(q.q, q.l); if (s) results.push({...q, ...s}); } catch(e) {}
+  }
+  let rhtml = `<div class="card" style="border-left:4px solid var(--red);"><h3>🌐 联网搜索结果</h3>`;
+  if (results.length === 0) {
+    rhtml += `<p style="color:var(--text-light);">Wikipedia 无结果（可能网络受限）。</p>`;
+  } else {
+    results.forEach(r => {
+      rhtml += `<div style="margin:10px 0;padding:12px;background:#fefefb;border-radius:6px;border:1px solid var(--border);">
+        <strong style="color:var(--red-dark);">📖 ${r.title}</strong> <span style="color:var(--text-light);font-size:0.8em;">(${r.lang})</span>
+        <p style="font-size:0.88em;line-height:1.7;color:#444;margin:6px 0 0;">${(r.extract||'').slice(0,400)}</p>
+        ${r.url?`<a href="${r.url}" target="_blank" style="color:var(--red);font-size:0.85em;">→ Wikipedia 全文</a>`:''}</div>`;
+    });
+  }
+  rhtml += `<div style="text-align:center;margin-top:12px;"><a href="https://duckduckgo.com/?q=${encodeURIComponent(ctx.input.slice(0,100))}" target="_blank" style="display:inline-block;padding:8px 20px;background:#333;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">🔍 DuckDuckGo 搜索</a></div></div>`;
+  resultDiv.innerHTML = rhtml;
 }
 
 // ==================== 快捷填充 ====================
