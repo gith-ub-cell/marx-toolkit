@@ -252,7 +252,7 @@
     </div>
     <label>📝 描述你面对的事件或问题（一句话即可）</label>
     <textarea id="wsInput" placeholder="一句话就行，例如："加班太多想走""需求总变做不完""KPI压得喘不过气""老板画饼不给钱"…&#10;当然越详细分析越精准。"
-      style="min-height:80px;" oninput="autoAnalyze()"></textarea>
+      style="min-height:140px;" oninput="autoAnalyze()"></textarea>
 
     <div class="btn-row">
       <button class="btn btn-primary" onclick="runFullAnalysis()">🔍 完整分析</button>
@@ -1011,7 +1011,7 @@ function exportAnalysis() {
       sections[key] = div.textContent.trim();
     }
   });
-  const s = (k) => sections[k] || '';
+  const s = (k) => { for (const key of Object.keys(sections)) { if (key.includes(k) || k.includes(key)) return sections[key]; } return ''; };
 
   let body = `<h2>${input.length > 30 ? input.slice(0,30) + '…' : input}——矛盾分析与实践路径</h2>`;
   body += `<p style="color:#888;font-size:14px;text-align:center;">—— 马列分析工具箱 · ${new Date().toLocaleString()} ——</p>`;
@@ -1065,7 +1065,7 @@ function exportComprehensive() {
       sections[key] = div.textContent.trim();
     }
   });
-  const s = (k) => sections[k] || '';
+  const s = (k) => { for (const key of Object.keys(sections)) { if (key.includes(k) || k.includes(key)) return sections[key]; } return ''; };
   const isTheory = !!s('思潮定位');
 
   let body = `<h2>${input.length > 30 ? input.slice(0,30) + '…' : input}——马克思主义批判分析</h2>`;
