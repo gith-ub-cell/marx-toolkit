@@ -207,7 +207,9 @@
 
 <!-- 导航 -->
 <nav>
-  <button class="active" data-tab="worksheet">📋 矛盾分析表</button>
+  <button class="active" data-tab="worksheet">📋 矛盾分析</button>
+  <button data-tab="theory">🎓 理论批判</button>
+  <button data-tab="reality">📰 现实研判</button>
   <button data-tab="critique">🎯 思潮批判 (21种)</button>
   <button data-tab="lenses">🔍 实践透镜</button>
   <button data-tab="citations">📖 经典引文</button>
@@ -253,6 +255,42 @@
 
     <!-- 完整分析结果 -->
     <div id="analysisResult" style="display:none;margin-top:20px;"></div>
+  </div>
+</section>
+
+<!-- ====== 理论批判 ====== -->
+<section class="section" id="tab-theory">
+  <div class="card">
+    <h2><span class="icon">🎓</span> 理论批判 —— 用马克思主义解剖各种理论/思潮/观念</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">
+      输入一个理论、思潮、观念或"主义"，系统从阶级基础、内在矛盾、历史性等维度给出马克思主义批判。
+    </p>
+    <label>📝 输入你要批判的理论或观念</label>
+    <textarea id="theoryInput" placeholder="例：有效利他主义主张用数据和理性最大化全球福祉，鼓励人们去高薪行业赚钱然后捐款…&#10;例：有人认为智商主要由基因决定，所以社会不平等是自然的、无法改变的…&#10;例：Web3和区块链被宣传为能实现去中心化民主、打破大公司垄断…" style="min-height:100px;"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runTheoryAnalysis()">🔍 理论批判</button>
+      <button class="btn btn-outline" onclick="clearTheory()">🔄 清空</button>
+      <button class="btn btn-export" onclick="exportTheory()">📥 导出</button>
+    </div>
+    <div id="theoryResult" style="display:none;margin-top:20px;"></div>
+  </div>
+</section>
+
+<!-- ====== 现实研判 ====== -->
+<section class="section" id="tab-reality">
+  <div class="card">
+    <h2><span class="icon">📰</span> 现实研判 —— 用唯物史观分析社会事件/现象/新闻</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">
+      输入一个社会事件、新闻或现象，系统从物质根源、阶级利益、矛盾运动等维度给出马克思主义分析。
+    </p>
+    <label>📝 输入你要分析的社会事件或现象</label>
+    <textarea id="realityInput" placeholder="例：最近某大厂裁员30%，官方说正常优化，但被裁的都是35岁以上的老员工…&#10;例：今年国考报名人数突破300万，平均竞争比80:1，最热岗位3000:1…&#10;例：外卖平台把配送时间从45分钟压缩到28分钟，骑手交通事故率上升…" style="min-height:100px;"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runRealityAnalysis()">🔍 现实研判</button>
+      <button class="btn btn-outline" onclick="clearReality()">🔄 清空</button>
+      <button class="btn btn-export" onclick="exportReality()">📥 导出</button>
+    </div>
+    <div id="realityResult" style="display:none;margin-top:20px;"></div>
   </div>
 </section>
 
@@ -963,6 +1001,142 @@ function exportAnalysis() {
   a.download = '矛盾分析报告_' + new Date().toISOString().slice(0, 10) + '.txt';
   a.click();
   showToast('📥 报告已导出');
+}
+
+// ==================== 理论批判引擎 ====================
+
+const theoryKB = [
+  {keys:['智商','基因决定','遗传','天生聪明','天赋','智力'], framework:'生物决定论批判', classBase:'为阶级和种族不平等提供"科学"合法性——如果智商由基因决定，那么社会不平等就是"自然的"而非制度造成的', contradict:'基因决定论与历史事实的矛盾——同一基因的人类在不同社会制度下表现出完全不同的行为模式和能力分布。蚂蚁社会没有革命人类社会有', method:'历史唯物主义——人的本质是社会关系的总和，智力发展受物质条件、教育、营养等社会因素决定。追问：IQ测试本身在测量什么？谁设计的测试？测试反映的是先天能力还是后天机会？', cite:{q:'人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。',s:'马克思《关于费尔巴哈的提纲》'}, practice:'揭穿"科学"背后的意识形态功能——每次听到"基因决定"就问：这个"科学结论"的资助方是谁？它在为谁的利益辩护？'},
+  {keys:['理性选择','经济人','自利','效用最大化','看不见的手','市场规律'], framework:'自由主义人性假设批判', classBase:'将资本主义社会中特定历史条件下的人的行为模式（自利、竞争）说成是"普遍人性"，从而为私有制和市场崇拜提供"人性论"基础', contradict:'理性经济人假设与经验事实的矛盾——现实生活中大量存在的合作、利他、互助行为无法用"自利理性"解释。所谓的"理性"不过是资本需要的"理性"', method:'历史唯物主义——人性是历史的产物而非历史的前提。不是自私的人性产生了资本主义，而是资本主义的社会关系塑造了"自私的人性"', cite:{q:'整个历史也无非是人类本性的不断改变而已。',s:'马克思《哲学的贫困》'}, practice:'每次听到"人性自私"就追问：人类历史上95%的时间生活在没有私有制的原始共产主义中，那时候的人性是什么？'},
+  {keys:['技术决定','技术中性','技术进步','科技改变','创新驱动'], framework:'技术决定论批判', classBase:'将技术从社会关系中剥离——掩盖技术被谁控制、为谁的利益而开发这一根本问题', contradict:'技术的中性宣称与技术被资本垄断的现实之间的矛盾——AI大模型被少数公司垄断、算法服务于利润最大化而非人的需要', method:'历史唯物主义——技术是生产力的一部分，但生产力的发展方向由生产关系决定。同样的技术在不同生产关系下产生完全不同的社会效果', cite:{q:'机器具有减少人类劳动和使劳动更有成效的神奇力量然而却引起了饥饿和过度的疲劳。',s:'马克思《在人民报创刊纪念会上的演说》'}, practice:'追问每一项新技术：谁投资研发？谁拥有专利？谁控制数据和算力？技术带来的收益分配给谁？'},
+  {keys:['优绩','能力','努力成功','公平竞争','靠自己'], framework:'优绩主义批判', classBase:'为阶级社会提供道德合法性——如果成功=能力+努力，那么富人和资本家就是"最优秀的人"，穷人的贫困就是"自己的错"', contradict:'优绩主义的承诺与现实的反差——两个"同样努力"的人因出身不同而有完全不同的结果。阶层流动的个例被用来证明制度的公平', method:'揭露优绩主义遮蔽的起点不平等——在进入"公平竞争"之前，不同阶级的后代已经经历了完全不同的资源条件。教育系统不是公平的筛选器而是阶级再生产的工具', cite:{q:'在资产阶级社会里资本具有独立性和个性而活动着的个人却没有独立性和个性。',s:'马克思、恩格斯《共产党宣言》'}, practice:'每次听到"成功靠自己"就问：你的起点是什么？谁为你的成功付出了不被承认的劳动？同样的努力换一个出身会是什么结果？'},
+  {keys:['有效利他','长期主义','理性利他','earn to give','全球福祉'], framework:'有效利他主义批判', classBase:'硅谷精英用"理性计算"将社会问题去政治化——贫困不是剥削的结果而是可以被"优化"的技术问题', contradict:'关注遥远未来的"数万亿潜在生命"与对当下具体苦难的冷漠——这种"远视"恰是对近处不公的政治性失明', method:'不追问"如何最有效地施舍"而追问"为什么需要施舍"——贫困的根源不在分配环节而在生产环节，不在个体而在制度', cite:{q:'哲学家们只是用不同的方式解释世界而问题在于改变世界。',s:'马克思《关于费尔巴哈的提纲》'}, practice:'与其计算如何最有效地施舍，不如追问为什么需要施舍——改变制造贫困的制度比优化施舍方案更根本。'},
+  {keys:['去中心化','区块链','Web3','DAO','代码即法律','token'], framework:'去中心化意识形态批判', classBase:'将政治问题交给代码——表面上消除人治的任意性，实际上冻结创立者的意志并排除民主改变的路径', contradict:'去中心化的宣传与新中心化的现实——比特币算力和财富高度集中、以太坊早期投资者掌握实际治理权。Token越多投票权越大=股份公司的投票机制=富豪统治不是民主', method:'形式平等掩盖实质不平等——代码是人的产物（人写规则、人决定经济模型）却声称是"中性的数学法则"。', cite:{q:'这种剥夺是通过资本主义生产本身的内在规律的作用即通过资本的集中进行的。一个资本家打倒许多资本家。',s:'马克思《资本论》'}, practice:'对任何声称"技术实现民主"的方案追问：谁写代码？谁定规则？投票权重怎么分配？规则可以被谁改变？'},
+  {keys:['加速','加速主义','奇点','崩溃','资本主义崩溃'], framework:'加速主义批判', classBase:'左翼加速主义等待资本主义自动崩溃——忽略了崩溃时受害最深的是无产阶级而非资本家。右翼加速主义不过是技术决定论的激进版本', contradict:'希望矛盾自动解决与矛盾需要人（阶级）主动解决的矛盾——历史不是自动运行的技术/经济过程', method:'低估了阶级在历史中的主体作用——"历史什么事情也没有做……创造这一切的正是人。"不是等待崩溃，而是在当下组织起来改变物质条件', cite:{q:'历史什么事情也没有做……创造这一切、拥有这一切并为这一切而斗争的，不是历史，而正是人，现实的、活生生的人。',s:'马克思、恩格斯《神圣家族》'}, practice:'不等待不加速灭亡——在当下组织起来在实践中改变物质条件。'},
+  {keys:['后现代','解构','宏大叙事','话语','没有真理'], framework:'后现代主义批判', classBase:'1968年革命失败后左翼知识分子从改造世界撤退到学院里解构文本——如果改变不了物质世界至少可以颠覆意义', contradict:'解构一切（启蒙理性、科学、国家、家庭、性别）却从未解构到资本——因为解构在学院里而学院由资本资助。安全地激进——话语层面挑战一切物质层面什么也不挑战', method:'否定客观真理最终服务于权力——如果一切都是"话语建构"，那么剥削也只是"一种观点"，谁的"话语"最终胜出？有权力的。',cite:{q:'哲学家们只是用不同的方式解释世界而问题在于改变世界。',s:'马克思《关于费尔巴哈的提纲》'}, practice:'学习后现代对权力的敏感，拒绝它对真理的解构——从被压迫者立场看到的东西更接近真理。'},
+  {keys:['民主','自由民主','议会','选举','普选','宪政'], framework:'资产阶级民主批判', classBase:'民主的形式（投票）掩盖了民主的实质（权力仍掌握在资本手中）——"普选权是统治阶级手中的玩物"', contradict:'政治领域的"一人一票"与经济领域的"一美元一票"——在工厂里工人没有民主，在市场里资本说了算', method:'区分形式民主与实质民主——议会是"清谈馆"，真正的决策在银行、大公司和军队中做出。', cite:{q:'在雇佣劳动制基础上要求平等的报酬就犹如在奴隶制基础上要求自由。',s:'马克思《工资、价格和利润》'}, practice:'追问：投票能改变生产资料的私有制吗？如果不能，这种民主的边界在哪里？'},
+  {keys:['改良','渐进','议会道路','福利国家','北欧模式'], framework:'改良主义批判', classBase:'改良在资本主义框架内的调整——每一次改良都可以被资本的应对抵消，改良的成果不具有不可逆性', contradict:'改良安抚阶级意识——让工人觉得"系统还行不必推翻它"与改良成果在新自由主义下被系统性吞噬', method:'"改良是革命的副产品"——支持一切改善处境的改良但不因改良而放弃革命的目标。当改良被挫败时证明的不是"努力不够"而是改良的限度本身指向了革命', cite:{q:'改良是革命的副产品。',s:'列宁'}, practice:'支持改良但追问改良的限度——改善处境后更要追问：不变革根本制度这些改善能持续吗？战后福利国家的成果现在还剩多少？'},
+];
+
+function runTheoryAnalysis() {
+  const input = document.getElementById('theoryInput').value.trim();
+  if (input.length < 20) { showToast('⚠️ 请输入你要批判的理论或观念，至少写一两句话描述'); return; }
+
+  const lower = input.toLowerCase();
+  let match = null;
+  theoryKB.forEach(t => {
+    const score = t.keys.filter(k => lower.includes(k)).length;
+    if (score > 0 && (!match || score > match._score)) { match = {...t, _score: score}; }
+  });
+
+  let html = '';
+  const sections = [
+    {title:'📌 被批判的对象', content: input},
+    {title:'🎯 思潮定位', content: match ? match.framework : '根据你的描述，该理论属于需要马克思主义批判的当代意识形态。建议补充：该理论的代表人物是谁？在什么历史条件下兴起？在哪些领域有影响力？'},
+    {title:'💰 阶级基础与物质根源', content: match ? match.classBase : '请追问：这个理论从什么样的物质条件和利益结构中产生？它服务于哪个阶级/群体的利益？谁在为这个理论的研究、传播和推广提供资金？'},
+    {title:'⚡ 内在矛盾', content: match ? match.contradict : '请追问：该理论自己的宣称与它的实践之间有什么矛盾？它的核心假设是否经得起经验的检验？它是否把自己的论证建立在不可证伪的前提上？'},
+    {title:'🔨 马克思主义批判方法', content: match ? match.method : '运用历史唯物主义：不要从观念出发解释实践，而是从物质实践出发解释观念。将该理论还原到它产生的历史条件中去——"不是意识决定生活，而是生活决定意识。"'},
+    {title:'📖 经典引文', content: match ? `<em>"${match.cite.q}"</em><br>—— ${match.cite.s}` : '人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。——马克思《关于费尔巴哈的提纲》'},
+    {title:'🔧 实践指向', content: match ? match.practice : '理论批判的目的是实践——批判不是为批判而批判，而是为行动扫清障碍。"批判的武器不能代替武器的批判，物质力量只能用物质力量摧毁。"'},
+  ];
+
+  sections.forEach((s,i) => {
+    html += `<div class="card" style="border-left:4px solid ${i <= 1 ? 'var(--red)' : i <= 4 ? 'var(--gold)' : '#333'};margin-bottom:10px;">
+      <h4 style="margin:0 0 6px;font-size:1em;">${s.title}</h4>
+      <div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div>
+    </div>`;
+  });
+
+  document.getElementById('theoryResult').style.display = 'block';
+  document.getElementById('theoryResult').innerHTML = html;
+  document.getElementById('theoryResult').scrollIntoView({behavior:'smooth'});
+}
+
+function clearTheory() {
+  document.getElementById('theoryInput').value = '';
+  document.getElementById('theoryResult').style.display = 'none';
+  document.getElementById('theoryResult').innerHTML = '';
+  showToast('✅ 已清空');
+}
+
+function exportTheory() {
+  const input = document.getElementById('theoryInput').value.trim();
+  const sections = document.querySelectorAll('#theoryResult .card');
+  let text = '═══ 理论批判报告 ═══\n\n【被批判对象】\n' + input + '\n\n';
+  sections.forEach(c => { text += '【' + (c.querySelector('h4')?.textContent || '') + '】\n' + (c.querySelector('div')?.textContent || '') + '\n\n'; });
+  downloadText(text, '理论批判_' + new Date().toISOString().slice(0,10));
+}
+
+// ==================== 现实研判引擎 ====================
+
+const realityKB = [
+  {keys:['裁员','失业','下岗','优化','毕业','解雇'], framework:'资本积累与产业后备军', root:'资本有机构成提高→对劳动力的需求相对减少→相对过剩人口（产业后备军）形成。裁员不是"经营不善"而是资本积累的常态机制——产业后备军的存在压低在业工人的工资和议价能力', class:'资本方（降低成本、提高利润）vs 被裁劳动者（失去收入来源、再就业困难）vs 在业劳动者（工作不安全感激增、被迫接受更差条件）', contradict:'资本追求利润最大化需要灵活用工 vs 劳动者需要稳定就业和体面生活。主要方面：资本方——在劳动力买方市场中资本掌握决定权', trend:'短期：裁员潮随经济周期波动但结构性失业加剧。长期：资本积累的内在趋势是制造相对过剩人口——只要资本主义存在裁员就不会消失'},
+  {keys:['考公','考编','公务员','国考','省考','体制内'], framework:'劳动力市场的系统性失灵', root:'私营部门就业质量的全面恶化（不稳定、高强度、低保障）→大量劳动者逃离市场化就业→涌向仍保留一定稳定性的体制内。这不是个体偏好的问题而是市场化就业系统性失效的反映', class:'涌向体制内的大批青年劳动者 vs 体制内有限的吸纳能力 vs 推动就业市场化的政策制定者', contradict:'劳动者对安全稳定体面生活的需要 vs 市场化改革对就业稳定性的系统性破坏。主要方面：资本逻辑主导的市场化——它在摧毁就业安全的同时没有创造足够的高质量就业', trend:'短期：考公热持续升温，竞争比进一步攀升。长期：如果私营部门就业质量不根本改善，体制内外差距不缩小，这种结构性逃离将持续'},
+  {keys:['房价','买房','房贷','房地产','楼盘','开发商'], framework:'住房的商品化与金融化', root:'住房从基本生活需要→商品→金融资产→阶级分化工具。土地财政使地方政府深度绑定房地产→房价不能降。住房不仅是消费品而是阶级地位的标志和财富转移的工具', class:'有房者（依靠房产升值的食利者）vs 无房者（被迫高位接盘的劳动者）vs 开发商和银行（从两端获利）vs 地方政府（依赖土地财政）', contradict:'住房的基本居住功能 vs 住房作为资本积累工具的功能。主要方面：住房的资本积累功能——在社会财富分配中它压倒了居住功能', trend:'短期：市场进入调整期但系统性风险限制了下跌空间。长期：住房矛盾是资本主义城市化中的普遍矛盾——只要住房是商品而非常识权利，住房焦虑就不会消失'},
+  {keys:['算法','外卖系统','配送','骑手','平台','派单'], framework:'算法控制——数字时代的泰勒制', root:'平台通过算法将劳动过程的每一个细节都纳入精确管控——从接单、路线到送达时间。算法以"效率"为名实则实现了对劳动者前所未有的精准控制。看似灵活实则被系统困住', class:'平台资本（通过算法提取剩余价值并转嫁风险）vs 骑手（出卖劳动力但被剥夺了劳动过程的自主权）vs 消费者（享受低价便利但间接参与了对骑手的剥削）', contradict:'技术提高效率的潜力 vs 技术被资本用于强化对劳动者控制的现实。主要方面：资本——算法由资本设计、为资本的利润最大化服务', trend:'短期：平台继续优化算法压缩配送时间。长期：劳动者反抗（集体投诉、拒绝接单、组织化）与监管介入将形成新的力量对比——但根本改变需要挑战平台的所有权结构'},
+  {keys:['躺平','摆烂','佛系','低欲望','不婚不生','断亲'], framework:'对资本主义生活方式的总体性不合作', root:'长期高强度的"内卷"→劳动者的身心耗竭→对"努力就能成功"的系统性不信任→退出竞争。"躺平"不是懒惰——是对"你不够努力"这一意识形态的系统性质疑', class:'选择躺平/退出的劳动者（消极抵抗的主体）vs 需要劳动者继续"高效运转"以维持剩余价值生产的资本', contradict:'个体退出作为消极抵抗 vs 改变制度的集体行动需要。主要方面：个体化——躺平目前仍然是分散的个人行为而非联合的集体行动', trend:'短期：躺平话语在网络空间传播但难以转化为实际的集体行动。长期：从"我不干了"到"我们不干了"是躺平转向积极变革的关键节点——这取决于劳动者能否意识到共同的处境和共同的利益'},
+  {keys:['AI替代','人工智能取代','ChatGPT','AIGC','自动化','机器换人'], framework:'技术发展在资本主义条件下的矛盾形态', root:'AI在现有生产关系下被开发——由资本驱动、服务于利润最大化而非人的解放。AI替代的目标不是"让人自由"而是"让人可以被替代"——降低劳动力成本、削弱劳动者的议价能力', class:'掌握AI技术和算力的资本巨头 vs 知识劳动者（白领群体首次面临大规模技术性替代）vs 体力劳动者（继续承受自动化压力）', contradict:'AI解放人类的巨大潜力 vs 资本利用AI强化对人的控制和替代。主要方面：资本——AI的研发方向和应用场景由资本决定', trend:'短期：特定行业的就业冲击和恐慌。长期：如果生产关系不变，AI带来的不是"所有人的解放"而是大规模的劳动力贬值——除非劳动者组织起来争夺对AI的控制权'},
+  {keys:['消费降级','省钱','平替','拼多多','消费主义退潮'], framework:'实际购买力下降的消费行为映射', root:'工资增长停滞+房价教育医疗等刚性支出上升+经济增速放缓→实际可支配收入下降→消费降级。拼多多等平台的崛起不是"商业模式创新"而是顺应了劳动大众的贫困化趋势', class:'劳动大众（被迫降级消费）vs 资本（开拓低价市场维持利润）vs 少数富裕阶层（消费升级继续）', contradict:'资本需要消费者持续消费以维持增长 vs 劳动者的实际购买力持续下降。主要方面：劳动者的购买力下降——它从根本上限制了消费驱动型增长的可持续性', trend:'短期：消费"K型分化"加剧——富裕阶层消费升级、底层消费降级、中间层被挤压。长期：消费驱动型增长模式触及天花板'},
+  {keys:['双十一','618','购物节','直播带货','321上链接'], framework:'消费异化的节日化集中爆发', root:'购物节将消费从"满足需要"异化为"制造需求"——不是我需要所以买，而是"不买就亏了"所以买。商品拜物教在购物节中得到最集中的展现', class:'电商平台资本（制造消费狂欢提取利润）vs 消费者（被诱导过度消费）vs 中小商家（被迫参与价格战）', contradict:'消费者的实际需要 vs 资本人为制造的消费冲动。主要方面：资本——通过算法和营销精准操控消费欲望', trend:'短期：购物节GMV增速持续放缓——消费主义疲劳显现。长期：购物节式的消费狂欢是不可持续的——它透支未来消费力并制造大量浪费'},
+  {keys:['鸡娃','教育焦虑','补习','学区房','兴趣班','育儿成本'], framework:'教育作为阶级再生产的竞技场', root:'教育不平等不是教育系统的问题而是阶级不平等的反映。优质教育资源稀缺→家长被迫投资→教育变成军备竞赛。这不是"家长焦虑"的问题——是结构迫使每个人参战', class:'不同阶级的家长（在教育市场上竞争）vs 教育资本（从焦虑中获利）vs 孩子（承受竞争的全部压力）', contradict:'教育作为阶层上升的希望 vs 教育作为阶层固化的工具。主要方面：阶层固化——当教育回报率下降、学历贬值时教育的筛选功能压倒了培养功能', trend:'短期：生育率持续下降→学龄人口减少→教育竞争可能缓解。长期：只要阶级不平等存在教育就永远是阶级再生产的工具——改变教育需要改变阶级'},
+  {keys:['老龄化','养老','退休金','延迟退休','独居老人','养老金'], framework:'劳动力再生产的系统性危机', root:'人口老龄化+家庭小型化+养老责任私有化=养老危机。养老不是个人或家庭的问题——它是社会性的劳动力再生产问题。当个体家庭无力承担时暴露的是制度性缺陷', class:'老龄人口（需要社会支持但被推向市场和个人）vs 劳动年龄人口（承受越来越重的养老负担）vs 资本（从养老产业中获利）', contradict:'老龄人口对体面养老的需要 vs 养老责任的私有化和市场化。主要方面：私有化——谁出钱谁养老的逻辑在根本上无法解决社会性的养老问题', trend:'短期：延迟退休+个人养老金+商业保险的多层修补方案。长期：养老问题是社会性的——根本解决需要社会化养老而非市场化和个人化'},
+];
+
+function runRealityAnalysis() {
+  const input = document.getElementById('realityInput').value.trim();
+  if (input.length < 20) { showToast('⚠️ 请输入你要分析的社会事件或现象，至少写一两句话描述'); return; }
+
+  const lower = input.toLowerCase();
+  let match = null;
+  realityKB.forEach(r => {
+    const score = r.keys.filter(k => lower.includes(k)).length;
+    if (score > 0 && (!match || score > match._score)) { match = {...r, _score: score}; }
+  });
+
+  let html = '';
+  const sections = [
+    {title:'📋 客观事实', content: input},
+    {title:'🏭 物质经济根源', content: match ? match.root : '请追问：这个现象是在什么样的物质条件和经济结构下产生的？是什么力量推动了它的出现和持续？不要把现象归结为个人选择或文化——追溯其物质根源。'},
+    {title:'👥 阶级与利益分析', content: match ? match.class : '请追问：这个事件中涉及哪些阶级或利益群体？谁推动、谁受益、谁受损？不同群体之间的利益关系是怎样的？'},
+    {title:'⚡ 矛盾运动', content: match ? match.contradict : '请追问：这个现象背后的根本矛盾是什么？矛盾的主要方面是谁（谁掌握主动权）？这个矛盾是如何运动和发展的？'},
+    {title:'📈 发展趋势', content: match ? match.trend : '请追问：这个现象在短期（一年内）和长期（三到五年）会如何发展？什么因素会加速或减缓它的发展？有没有可能发生质的转化？'},
+    {title:'🔧 实践启示', content: match ? '基于以上分析，建议的行动方向：1. 追踪该现象的客观数据变化以验证分析判断；2. 识别在这一矛盾中有共同利益的群体；3. 从个体观察到集体行动——"问题不在于解释世界而在于改变世界。"' : '分析的目的指向行动。"批判的武器不能代替武器的批判。"从分析中得出什么可操作的实践方向？'},
+  ];
+
+  sections.forEach((s,i) => {
+    html += `<div class="card" style="border-left:4px solid ${i <= 1 ? 'var(--red)' : i <= 3 ? 'var(--gold)' : '#333'};margin-bottom:10px;">
+      <h4 style="margin:0 0 6px;font-size:1em;">${s.title}</h4>
+      <div style="font-size:0.9em;line-height:1.9;color:#444;">${s.content}</div>
+    </div>`;
+  });
+
+  document.getElementById('realityResult').style.display = 'block';
+  document.getElementById('realityResult').innerHTML = html;
+  document.getElementById('realityResult').scrollIntoView({behavior:'smooth'});
+}
+
+function clearReality() {
+  document.getElementById('realityInput').value = '';
+  document.getElementById('realityResult').style.display = 'none';
+  document.getElementById('realityResult').innerHTML = '';
+  showToast('✅ 已清空');
+}
+
+function exportReality() {
+  const input = document.getElementById('realityInput').value.trim();
+  const sections = document.querySelectorAll('#realityResult .card');
+  let text = '═══ 现实研判报告 ═══\n\n【分析对象】\n' + input + '\n\n';
+  sections.forEach(c => { text += '【' + (c.querySelector('h4')?.textContent || '') + '】\n' + (c.querySelector('div')?.textContent || '') + '\n\n'; });
+  downloadText(text, '现实研判_' + new Date().toISOString().slice(0,10));
+}
+
+function downloadText(text, filename) {
+  const blob = new Blob([text], {type:'text/plain;charset=UTF-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename + '.txt';
+  a.click();
+  showToast('📥 已导出');
 }
 
 function saveToHistory(input, analysis) {
