@@ -252,7 +252,7 @@
     </div>
     <label>📝 描述你面对的事件或问题（一句话即可）</label>
     <textarea id="wsInput" placeholder="一句话就行，例如："加班太多想走""需求总变做不完""KPI压得喘不过气""老板画饼不给钱"…&#10;当然越详细分析越精准。"
-      style="min-height:140px;" oninput="autoAnalyze()"></textarea>
+      style="min-height:180px;" oninput="autoAnalyze()"></textarea>
 
     <div class="btn-row">
       <button class="btn btn-primary" onclick="runFullAnalysis()">🔍 完整分析</button>
@@ -306,7 +306,7 @@
     </div>
     <label>📝 输入理论/观念 或 社会事件/现象（一句话即可）</label>
     <textarea id="comprehensiveInput" placeholder="一句话就行，例如：&#10;· 理论 → "智商由基因决定"&#10;· 事件 → "大厂裁员优化老员工"&#10;· 现象 → "年轻人都在考公""
-      style="min-height:140px;" oninput="autoDetectType()"></textarea>
+      style="min-height:180px;" oninput="autoDetectType()"></textarea>
     <p style="font-size:0.8em;color:var(--text-light);margin-top:4px;">💡 系统自动识别类型——输入时实时显示匹配结果。</p>
     <div id="typeHint" style="display:none;margin-top:4px;font-size:0.82em;"></div>
     <div class="btn-row">
@@ -1011,58 +1011,102 @@ function exportAnalysis() {
   const cards = document.querySelectorAll('#analysisResult .card');
   if (cards.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
   const input = document.getElementById('wsInput').value.trim();
-
-  // Simply collect all card content
   let sections = [];
   cards.forEach(card => {
     const heading = card.querySelector('h3');
-    const body = card.querySelector('.analysis-content') || card.querySelector('div');
-    if (heading && body) {
-      sections.push({ title: heading.textContent.replace(/^\S+\s*\d*\.\s*/, '').trim(), content: body.textContent.trim() });
-    } else if (!heading && body) {
-      sections.push({ title: '相关理论', content: body.textContent.trim() });
+    const contentDiv = card.querySelector('.analysis-content') || card.querySelector('div');
+    if (heading && contentDiv) sections.push({ title: heading.textContent.replace(/^\S+\s*\d*\.\s*/, '').trim(), content: contentDiv.textContent.trim() });
+    else if (!heading && contentDiv) sections.push({ title: '理论参考', content: contentDiv.textContent.trim() });
+  });
+
+  const now = new Date().toLocaleString();
+  const h = (t) => `<h3>${t}</h3>`;
+  const p = (t) => `<p>${t}</p>`;
+  let b = `<h2>${input.slice(0,40)}——矛盾分析与实践路径</h2><p style="color:#888;text-align:center;">马列分析工具箱 · ${now}</p><hr>`;
+
+  // Rich introduction
+  b += h('引言');
+  b += p(`本文围绕"${input}"这一具体事件或问题，运用马克思主义的唯物辩证法，进行系统的矛盾分析。分析的出发点是客观实际——不是从愿望出发，不是从道德判断出发，而是从事实和物质条件出发。`);
+  b += p(`马克思主义分析的核心方法是矛盾分析法。毛泽东在《矛盾论》中指出："在复杂的事物的发展过程中，有许多的矛盾存在，其中必有一种是主要的矛盾，由于它的存在和发展规定或影响着其他矛盾的存在和发展。"本文的任务就是：从纷繁的现象中识别出这一主要矛盾，分析其主要方面，判断矛盾的发展阶段，并在此基础上提出可操作的实践方案。`);
+  b += p(`分析的最终目的不是解释世界，而是为改变世界提供指南。"哲学家们只是用不同的方式解释世界，而问题在于改变世界。"（马克思《关于费尔巴哈的提纲》）因此，本文的每一部分分析都指向一个具体的实践方向。`);
+
+  // Output all sections with rich commentary
+  sections.forEach((sec, i) => {
+    b += h(sec.title);
+    b += p(sec.content);
+    // Add bridging commentary between key sections
+    if (sec.title.includes('现象判断') && sections.some(s => s.title.includes('本质判断'))) {
+      b += p(`以上是表面现象。但正如马克思在《资本论》中指出的："如果事物的表现形式和事物的本质会直接合而为一，一切科学就都成为多余的了。"分析的任务恰恰在于穿透现象的迷雾，抵达本质的层面。下面我们将追问：在这些表面症状的背后，是什么样的深层机制在持续地、系统地制造它们？`);
+    }
+    if (sec.title.includes('本质判断') && sections.some(s => s.title.includes('主要矛盾'))) {
+      b += p(`揭示了本质之后，下一个问题是：推动这一本质机制运转的根本动力是什么？这就进入了矛盾分析的层面。任何事物的发展都是由其内在矛盾推动的，而在一组矛盾中，必有一个是主导性的。`);
+    }
+    if (sec.title.includes('主要矛盾') && sections.some(s => s.title.includes('阶段判断'))) {
+      b += p(`识别了主要矛盾之后，还需要判断矛盾当前所处的阶段。同样的矛盾，在发生期、发展期、激化期和转化期，需要的应对策略截然不同。正如毛泽东在《矛盾论》中所强调的："不同质的矛盾，只有用不同质的方法才能解决。"`);
+    }
+    if (sec.title.includes('实践方案')) {
+      b += p(`实践方案不是凭空想象的——它必须基于前面的矛盾分析和阶段判断。每一个实践步骤都应该指向矛盾的主要方面，旨在改变当前的力量对比和条件约束。方案的可行性取决于对客观条件的准确判断：在现有的资源和力量格局下，什么是可以推动的、什么是需要等待时机的、什么是需要联合更多力量才能实现的。`);
+    }
+    if (sec.title.includes('验证标准')) {
+      b += p(`验证标准是将分析从理论推向实践的关键环节。"人应该在实践中证明自己思维的真理性。"（马克思《关于费尔巴哈的提纲》）没有可观测的验证标准，分析就只是假设而非科学判断。验证标准应当是具体的、可测量的、有时间节点的——"通过"还是"失败"可以在实践中得到明确的回答。`);
     }
   });
 
-  // Build article
-  const title = (input.length > 30 ? input.slice(0,30) + '…' : input) + '——矛盾分析与实践路径';
-  let body = `<h2>${title}</h2><p style="color:#888;text-align:center;">马列分析工具箱 · ${new Date().toLocaleString()}</p>`;
-  body += `<h3>引言</h3><p>本文分析的核心事件：${input}。以下运用唯物辩证法，从客观实际出发，穿透现象把握本质，识别主要矛盾及其主要方面，寻找可操作的实践方向。</p>`;
-
-  sections.forEach((sec, i) => {
-    body += `<h3>${sec.title}</h3><p>${sec.content}</p>`;
-  });
-
-  body += `<h3>结语</h3><p>马克思说："哲学家们只是用不同的方式解释世界，而问题在于改变世界。"本文的分析指向行动。矛盾客观存在，关键在于正确识别矛盾、找到矛盾的主要方面、从改变主要方面的条件入手推动矛盾的转化。分析需要在实践中检验和发展。</p>`;
-  downloadWord(body, '矛盾分析文章');
+  // Rich conclusion
+  b += h('结语：从分析到行动');
+  b += p(`本文的分析遵循了"客观实际→现象→本质→矛盾→阶段→方案→验证"的完整链条。这一方法论的核心在于：不回避矛盾、不粉饰太平、不空谈理论——而是直面现实，抓住要害，落实到行动。`);
+  b += p(`马克思在《资本论》第二版跋中写道："辩证法在对现存事物的肯定的理解中同时包含对现存事物的否定的理解，即对现存事物的必然灭亡的理解。"任何现状都不是永恒的——矛盾运动推动着事物不断发展变化。我们分析矛盾，不是为了被动地接受它，而是为了主动地推动它的转化——从不利于大多数人的状态转向有利于大多数人的状态。`);
+  b += p(`最后需要强调的是：任何分析都有其历史局限性。本文的判断基于当前所掌握的材料和认知水平，需要在实践中不断检验、修正和发展。"实践、认识、再实践、再认识，这种形式，循环往复以至无穷，而实践和认识之每一循环的内容，都比较地进到了高一级的程度。"（毛泽东《实践论》）`);
+  b += p(`因此，本文不是终点——它是行动的起点。下一步，就是将分析转化为实践，在实践中验证分析，在验证中深化认识。`);
+  downloadWord(b, '矛盾分析文章');
 }
 
 function exportComprehensive() {
   const cards = document.querySelectorAll('#comprehensiveResult .card');
   if (cards.length === 0) { showToast('⚠️ 请先完成分析再导出'); return; }
   const input = document.getElementById('comprehensiveInput').value.trim();
-
   let sections = [];
   cards.forEach(card => {
     const heading = card.querySelector('h3') || card.querySelector('h4');
-    const body = card.querySelector('.analysis-content') || card.querySelector('div');
-    if (heading && body) {
+    const contentDiv = card.querySelector('.analysis-content') || card.querySelector('div');
+    if (heading && contentDiv) {
       const t = heading.textContent.replace(/^\S+\s*\d*\.\s*/, '').trim();
-      if (t && !t.includes('相关理论与经典')) sections.push({ title: t, content: body.textContent.trim() });
-    } else if (!heading && body) {
-      sections.push({ title: '参考', content: body.textContent.trim() });
-    }
+      if (t && !t.includes('相关理论与经典')) sections.push({ title: t, content: contentDiv.textContent.trim() });
+    } else if (!heading && contentDiv) sections.push({ title: '理论参考', content: contentDiv.textContent.trim() });
   });
 
   const isTheory = sections.some(s => s.title.includes('思潮') || s.title.includes('阶级基础') || s.title.includes('内在矛盾'));
-  const title = (input.length > 30 ? input.slice(0,30) + '…' : input) + (isTheory ? '——马克思主义批判分析' : '——唯物史观分析');
-  let body = `<h2>${title}</h2><p style="color:#888;text-align:center;">马列分析工具箱 · ${new Date().toLocaleString()}</p>`;
-  body += `<h3>引言</h3><p>${isTheory ? '本文运用马克思主义立场观点方法，对"'+input+'"进行批判性分析。追溯物质根源和阶级基础，揭示内在矛盾，指明实践指向。' : '本文运用唯物史观，对"'+input+'"进行结构性分析。追溯物质经济根源，分析阶级利益，揭示矛盾运动，探讨发展趋势。'}</p>`;
+  const now = new Date().toLocaleString();
+  const h = (t) => `<h3>${t}</h3>`;
+  const p = (t) => `<p>${t}</p>`;
+  let b = `<h2>${input.slice(0,40)}${isTheory ? '——马克思主义批判分析' : '——唯物史观分析'}</h2><p style="color:#888;text-align:center;">马列分析工具箱 · ${now}</p><hr>`;
 
-  sections.forEach(sec => { body += `<h3>${sec.title}</h3><p>${sec.content}</p>`; });
+  if (isTheory) {
+    b += h('引言');
+    b += p(`本文运用马克思主义的立场、观点和方法，对"${input}"这一理论/思潮进行系统的批判性分析。`);
+    b += p(`马克思主义批判不同于一般的"学术批评"。它不是站在所谓"中立"的立场上进行"客观比较"——马克思主义从无产阶级和劳动人民的立场出发，揭示理论背后的物质根源、阶级基础和利益结构。正如马克思在《德意志意识形态》中所揭示的："统治阶级的思想在每一时代都是占统治地位的思想。"一个理论之所以流行，从来不是因为它"正确"，而是因为它服务于某种现实的社会力量和阶级利益。`);
+    b += p(`批判的框架包括三个递进的层次：现象批判——指出"它有什么问题"；本质批判——揭示"为什么它必然如此"；实践批判——指明"怎么改变它"。三者缺一不可，而最终的落脚点始终是实践——"批判的武器当然不能代替武器的批判，物质力量只能用物质力量来摧毁。"（马克思《〈黑格尔法哲学批判〉导言》）`);
+  } else {
+    b += h('引言');
+    b += p(`本文运用唯物史观的基本方法，对"${input}"这一社会现象或事件进行结构性分析。`);
+    b += p(`唯物史观的核心命题是："物质生活的生产方式制约着整个社会生活、政治生活和精神生活的过程。不是人们的意识决定人们的存在，相反，是人们的社会存在决定人们的意识。"（马克思《政治经济学批判·序言》）因此，本文不满足于描述"发生了什么"，而是追问"为什么会发生"——追溯其物质经济根源，分析背后的阶级关系和利益格局。`);
+    b += p(`分析的最终目的不是旁观者式的"评论"，而是为实践提供方向。"哲学家们只是用不同的方式解释世界，而问题在于改变世界。"（马克思《关于费尔巴哈的提纲》）当我们看清一个现象的物质根源和矛盾运动之后，改变它的路径也就变得清晰起来。`);
+  }
 
-  body += `<h3>结语</h3><p>${isTheory ? '理论批判指向实践。"批判的武器不能代替武器的批判。"揭示理论的阶级基础和内在矛盾之后，下一步是组织起来改变制造这种意识形态的物质条件。' : '现实分析是行动的起点。当我们理清物质根源、利益格局和矛盾运动之后，实践方向就清晰了。从个体观察走向集体行动。'}</p>`;
-  downloadWord(body, '综合批判文章');
+  // Output sections with rich transitions
+  sections.forEach((sec, i) => {
+    b += h(sec.title);
+    b += p(sec.content);
+    if (sec.title.includes('物质经济根源') || sec.title.includes('阶级基础')) {
+      b += p(`这一层分析是马克思主义方法区别于其他分析方法的核心所在。大多数分析停留在现象描述或道德评判层面，而马克思主义要求追溯到物质利益这个"归根到底"的决定因素。"不是从观念出发来解释实践，而是从物质实践出发来解释各种观念形态。"（马克思、恩格斯《德意志意识形态》）`);
+    }
+  });
+
+  b += h('结语');
+  b += p(isTheory ?
+    `理论的批判最终指向实践的变革。当我们揭示了一个理论的阶级基础、物质根源和内在矛盾之后，理论批判的任务就完成了——但实践的任务才刚刚开始。"理论一经掌握群众，也会变成物质力量。"下一步不是写更多的批判文章，而是让被这种理论所蒙蔽的人看清真相，让被压迫者意识到自己的共同利益，组织起来改变制造这种意识形态的物质条件。` :
+    `现实的分析是行动的起点而非终点。当我们理清了一个社会现象的物质根源、利益格局和矛盾运动之后，实践的方向就已经在我们的分析中显现了。剩下的问题是：如何从个体的观察走向集体的行动？如何将理论的分析转化为现实的变革力量？"问题在于改变世界。"`);
+  downloadWord(b, '综合批判文章');
 }
 
 function downloadWord(bodyHtml, filename) {
