@@ -210,17 +210,15 @@
 
 <!-- 导航 -->
 <nav>
-  <button class="active" data-tab="worksheet">📋 矛盾分析</button>
-  <button data-tab="comprehensive">🎯 综合批判</button>
-  <button data-tab="class">🏛️ 阶级分析</button>
-  <button data-tab="polecon">💰 政治经济学</button>
-  <button data-tab="philosophy">🧠 哲学</button>
-  <button data-tab="socialism">🚩 科学社会主义</button>
+  <button class="active" data-tab="analysis">🔍 现实分析</button>
+  <button data-tab="theory">📚 理论体系</button>
   <button data-tab="library">📖 经典文库</button>
-  <button data-tab="lenses">🔍 实践透镜</button>
 </nav>
 
 <main>
+
+<!-- 子导航栏（JS动态显示） -->
+<div id="subNav" style="display:none;gap:4px;margin-bottom:20px;flex-wrap:wrap;border-bottom:2px solid var(--border);padding-bottom:8px;"></div>
 
 <!-- ====== 矛盾分析工作表 ====== -->
 <section class="section active" id="tab-worksheet">
@@ -2050,31 +2048,103 @@ function filterLiterature() {
   renderLiterature(filtered);
 }
 
+// ==================== 精简导航系统 ====================
+
+// Tab definitions: which sections belong to which main tab, and their sub-tab labels
+const tabDefs = {
+  analysis: {
+    subs: [
+      { id:'tab-worksheet', label:'📋 矛盾分析' },
+      { id:'tab-comprehensive', label:'🎯 综合批判' },
+      { id:'tab-class', label:'🏛️ 阶级分析' },
+      { id:'tab-lenses', label:'🔍 实践透镜' },
+    ]
+  },
+  theory: {
+    subs: [
+      { id:'tab-philosophy', label:'🧠 哲学' },
+      { id:'tab-polecon', label:'💰 政治经济学' },
+      { id:'tab-socialism', label:'🚩 科学社会主义' },
+    ]
+  },
+  library: {
+    subs: [
+      { id:'tab-library', label:'📖 经典文库' },
+    ]
+  }
+};
+
+function switchMainTab(tabName) {
+  // Update main nav buttons
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelector('nav button[data-tab="' + tabName + '"]').classList.add('active');
+
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+  // Build sub-nav
+  var def = tabDefs[tabName];
+  var subNav = document.getElementById('subNav');
+  var html = '';
+  def.subs.forEach(function(sub, i) {
+    html += '<button class="subnav-btn' + (i===0?' active':'') + '" onclick="switchSubTab(&quot;' + tabName + '&quot;,&quot;' + sub.id + '&quot;,this)" style="' + (i===0?'background:var(--red);color:#fff;':'background:none;color:var(--text-light);') + 'border:none;padding:8px 16px;cursor:pointer;border-radius:6px 6px 0 0;font-size:0.88em;font-family:var(--font);">' + sub.label + '</button>';
+  });
+  subNav.innerHTML = html;
+  subNav.style.display = def.subs.length > 1 ? 'flex' : 'none';
+
+  // Show first sub-tab
+  switchSubTab(tabName, def.subs[0].id, null);
+
+  localStorage.setItem('marx-toolkit-tab', tabName);
+}
+
+function switchSubTab(tabName, sectionId, btn) {
+  // Update sub-nav button styles
+  if (btn) {
+    var buttons = btn.parentElement.querySelectorAll('.subnav-btn');
+    buttons.forEach(function(b) { b.style.background = 'none'; b.style.color = 'var(--text-light)'; });
+    btn.style.background = 'var(--red)'; btn.style.color = '#fff';
+  }
+
+  // Hide all sections that belong to this tab
+  var def = tabDefs[tabName];
+  def.subs.forEach(function(sub) {
+    var el = document.getElementById(sub.id);
+    if (el) el.classList.remove('active');
+  });
+
+  // Show selected section
+  var target = document.getElementById(sectionId);
+  if (target) target.classList.add('active');
+
+  // Trigger renders
+  if (sectionId === 'tab-library') {
+    setTimeout(function() {
+      if (typeof renderCitations === 'function') renderCitations();
+      if (typeof renderMethods === 'function') renderMethods();
+      if (typeof renderRoutes === 'function') renderRoutes();
+      if (typeof renderLiterature === 'function') renderLiterature();
+      if (typeof renderRoadmap === 'function') renderRoadmap();
+    }, 50);
+  }
+  if (sectionId === 'tab-philosophy') {
+    setTimeout(function() { if (typeof renderPhilosophy === 'function') renderPhilosophy(); }, 50);
+  }
+  if (sectionId === 'tab-polecon') {
+    setTimeout(function() { if (typeof renderPolecon === 'function') renderPolecon(); }, 50);
+  }
+  if (sectionId === 'tab-socialism') {
+    setTimeout(function() { if (typeof renderSocialism === 'function') renderSocialism(); }, 50);
+  }
+  if (sectionId === 'tab-comprehensive') {
+    setTimeout(function() { if (typeof renderCritiques === 'function') renderCritiques(); }, 50);
+  }
+}
+
+// Bind main nav buttons
 document.querySelectorAll('nav button').forEach(btn => {
   btn.addEventListener('click', function() {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    const tab = this.dataset.tab;
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    var target = document.getElementById('tab-' + tab);
-    if (target) target.classList.add('active');
-    localStorage.setItem('marx-toolkit-tab', tab);
-    // Trigger renders for library tab
-    if (tab === 'philosophy') {
-      setTimeout(function() { if (typeof renderPhilosophy === 'function') renderPhilosophy(); }, 50);
-    }
-    if (tab === 'socialism') {
-      setTimeout(function() { if (typeof renderSocialism === 'function') renderSocialism(); }, 50);
-    }
-    if (tab === 'library') {
-      setTimeout(function() {
-        if (typeof renderCitations === 'function') renderCitations();
-        if (typeof renderMethods === 'function') renderMethods();
-        if (typeof renderRoutes === 'function') renderRoutes();
-        if (typeof renderLiterature === 'function') renderLiterature();
-        if (typeof renderRoadmap === 'function') renderRoadmap();
-      }, 50);
-    }
+    switchMainTab(this.dataset.tab);
   });
 });
 
@@ -2170,11 +2240,35 @@ renderRoutes();
 renderMethods();
 renderLiterature();
 
-// 恢复上次标签
-const savedTab = localStorage.getItem('marx-toolkit-tab');
+// 恢复上次标签（兼容旧版tab名）
+var savedTab = localStorage.getItem('marx-toolkit-tab');
+// Map old tab names to new structure
+var tabMap = {
+  'worksheet':'analysis','comprehensive':'analysis','class':'analysis','lenses':'analysis',
+  'polecon':'theory','philosophy':'theory','socialism':'theory',
+  'citations':'library','routes':'library','method':'library','literature':'library','roadmap':'library',
+  'library':'library'
+};
 if (savedTab) {
-  const btn = document.querySelector(`nav button[data-tab="${savedTab}"]`);
-  if (btn) btn.click();
+  var mainTab = tabMap[savedTab] || savedTab;
+  switchMainTab(mainTab);
+  // Try to restore specific sub-tab
+  if (tabMap[savedTab] && savedTab !== mainTab) {
+    setTimeout(function() {
+      var target = document.getElementById('tab-' + savedTab);
+      if (target) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        target.classList.add('active');
+        // Update sub-nav buttons
+        var buttons = document.querySelectorAll('.subnav-btn');
+        buttons.forEach(function(b) {
+          if (b.textContent.includes(savedTab) || (savedTab==='worksheet' && b.textContent.includes('矛盾'))) {
+            b.style.background = 'var(--red)'; b.style.color = '#fff';
+          }
+        });
+      }
+    }, 100);
+  }
 }
 
 // ==================== 阶级分析引擎 ====================
