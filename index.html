@@ -396,8 +396,8 @@
   </div>
 </section>
 
-<!-- ====== 经典引文 ====== -->
-<section class="section" id="tab-library">
+<!-- ====== 经典文库：引文方法 ====== -->
+<section class="section" id="tab-library-cite">
   <div class="card">
     <h2><span class="icon">📖</span> 经典引文速查（100+条）</h2>
     <div class="search-box">
@@ -405,27 +405,15 @@
     </div>
     <div class="citation-list" id="citationList"></div>
   </div>
-
   <div class="card">
     <h2><span class="icon">⚙️</span> 方法论映射</h2>
     <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">马克思主义基本原理 → 具体操作对应</p>
     <div class="citation-list" id="methodListInline"></div>
   </div>
+</section>
 
-  <div class="card">
-    <h2><span class="icon">🗺️</span> 场景路由表</h2>
-    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">面对不同问题，快速定位分析工具</p>
-    <div style="overflow-x:auto;">
-      <table class="route-table" id="routeTableInline"></table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2><span class="icon">🗺️</span> 学习路线图 —— 从零开始学马列</h2>
-    <p style="color:var(--text-light);margin-bottom:12px;">为自学者设计的阶段性阅读路线</p>
-    <div id="roadmapContentInline"></div>
-  </div>
-
+<!-- ====== 经典文库：经典著作 ====== -->
+<section class="section" id="tab-library-works">
   <div class="card">
     <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（134部）</h2>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
@@ -447,6 +435,24 @@
     <div class="citation-list" id="literatureListInline"></div>
   </div>
 </section>
+
+<!-- ====== 经典文库：学习指南 ====== -->
+<section class="section" id="tab-library-guide">
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 场景路由表</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">面对不同问题，快速定位分析工具</p>
+    <div style="overflow-x:auto;">
+      <table class="route-table" id="routeTableInline"></table>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 学习路线图 —— 从零开始学马列</h2>
+    <p style="color:var(--text-light);margin-bottom:12px;">为自学者设计的阶段性阅读路线</p>
+    <div id="roadmapContentInline"></div>
+  </div>
+</section>
+
+
 
 <!-- ====== 场景路由 ====== -->
 <section class="section" id="tab-routes" style="display:none !important;">
@@ -2069,7 +2075,9 @@ const tabDefs = {
   },
   library: {
     subs: [
-      { id:'tab-library', label:'📖 经典文库' },
+      { id:'tab-library-cite', label:'📖 引文方法' },
+      { id:'tab-library-works', label:'📚 经典著作' },
+      { id:'tab-library-guide', label:'🗺️ 学习指南' },
     ]
   }
 };
@@ -2118,12 +2126,20 @@ function switchSubTab(tabName, sectionId, btn) {
   if (target) target.classList.add('active');
 
   // Trigger renders
-  if (sectionId === 'tab-library') {
+  if (sectionId === 'tab-library-cite') {
     setTimeout(function() {
       if (typeof renderCitations === 'function') renderCitations();
       if (typeof renderMethods === 'function') renderMethods();
-      if (typeof renderRoutes === 'function') renderRoutes();
+    }, 50);
+  }
+  if (sectionId === 'tab-library-works') {
+    setTimeout(function() {
       if (typeof renderLiterature === 'function') renderLiterature();
+    }, 50);
+  }
+  if (sectionId === 'tab-library-guide') {
+    setTimeout(function() {
+      if (typeof renderRoutes === 'function') renderRoutes();
       if (typeof renderRoadmap === 'function') renderRoadmap();
     }, 50);
   }
