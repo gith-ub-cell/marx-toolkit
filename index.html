@@ -487,9 +487,6 @@
 
   <div class="card">
     <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（134部）</h2>
-    <div class="search-box">
-      <input type="text" id="litSearch" placeholder="🔍 搜索著作——输入关键词如"资本论""矛盾""国家""帝国主义"…" oninput="filterLiterature()">
-    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
       <button class="btn btn-outline lit-filter active" data-author="all" onclick="filterByAuthor('all',this)">全部</button>
       <button class="btn btn-outline lit-filter" data-author="marx" onclick="filterByAuthor('marx',this)">马克思</button>
@@ -498,7 +495,7 @@
       <button class="btn btn-outline lit-filter" data-author="stalin" onclick="filterByAuthor('stalin',this)">斯大林</button>
       <button class="btn btn-outline lit-filter" data-author="mao" onclick="filterByAuthor('mao',this)">毛泽东</button>
     </div>
-    <div class="citation-list" id="literatureList"></div>
+    <div class="citation-list" id="literatureListLegacy"></div>
   </div>
 </section>
 
