@@ -212,12 +212,10 @@
 <nav>
   <button class="active" data-tab="worksheet">📋 矛盾分析</button>
   <button data-tab="comprehensive">🎯 综合批判</button>
-  <button data-tab="critique">🎯 思潮批判 (21种)</button>
+  <button data-tab="class">🏛️ 阶级分析</button>
+  <button data-tab="polecon">💰 政治经济学</button>
+  <button data-tab="library">📖 经典文库</button>
   <button data-tab="lenses">🔍 实践透镜</button>
-  <button data-tab="citations">📖 经典引文</button>
-  <button data-tab="routes">🗺️ 场景路由</button>
-  <button data-tab="method">⚙️ 方法论</button>
-  <button data-tab="literature">📚 经典著作</button>
 </nav>
 
 <main>
@@ -225,9 +223,9 @@
 <!-- ====== 矛盾分析工作表 ====== -->
 <section class="section active" id="tab-worksheet">
   <div class="stats-row">
-    <div class="stat-card"><div class="num">21</div><div class="label">批判对象</div></div>
+    <div class="stat-card"><div class="num">31</div><div class="label">批判对象</div></div>
     <div class="stat-card"><div class="num">5</div><div class="label">实践透镜</div></div>
-    <div class="stat-card"><div class="num">104</div><div class="label">经典著作</div></div>
+    <div class="stat-card"><div class="num">134</div><div class="label">经典著作</div></div>
     <div class="stat-card"><div class="num">14</div><div class="label">分析场景</div></div>
   </div>
 
@@ -277,8 +275,8 @@
   <div class="stats-row">
     <div class="stat-card"><div class="num">17</div><div class="label">理论框架</div></div>
     <div class="stat-card"><div class="num">21</div><div class="label">现实模式</div></div>
-    <div class="stat-card"><div class="num">104</div><div class="label">经典著作</div></div>
-    <div class="stat-card"><div class="num">38</div><div class="label">知识条目</div></div>
+    <div class="stat-card"><div class="num">134</div><div class="label">经典著作</div></div>
+    <div class="stat-card"><div class="num">55</div><div class="label">知识条目</div></div>
   </div>
 
   <div class="card worksheet">
@@ -322,7 +320,7 @@
 </section>
 
 <!-- ====== 思潮批判 ====== -->
-<section class="section" id="tab-critique">
+<section class="section" id="tab-critique" style="display:none !important;">
   <div class="card">
     <h2><span class="icon">🎯</span> 21种当代思潮的马克思主义批判</h2>
     <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
@@ -399,18 +397,59 @@
 </section>
 
 <!-- ====== 经典引文 ====== -->
-<section class="section" id="tab-citations">
+<section class="section" id="tab-library">
   <div class="card">
-    <h2><span class="icon">📖</span> 经典引文速查</h2>
+    <h2><span class="icon">📖</span> 经典引文速查（100+条）</h2>
     <div class="search-box">
       <input type="text" id="citeSearch" placeholder="🔍 搜索引文——输入关键词如"矛盾""人性""实践""阶级"…" oninput="filterCitations()">
     </div>
     <div class="citation-list" id="citationList"></div>
   </div>
+
+  <div class="card">
+    <h2><span class="icon">⚙️</span> 方法论映射</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">马克思主义基本原理 → 具体操作对应</p>
+    <div class="citation-list" id="methodListInline"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 场景路由表</h2>
+    <p style="color:var(--text-light);font-size:0.88em;margin-bottom:12px;">面对不同问题，快速定位分析工具</p>
+    <div style="overflow-x:auto;">
+      <table class="route-table" id="routeTableInline"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 学习路线图 —— 从零开始学马列</h2>
+    <p style="color:var(--text-light);margin-bottom:12px;">为自学者设计的阶段性阅读路线</p>
+    <div id="roadmapContentInline"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（134部）</h2>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-outline lit-filter active" onclick="filterByAuthor('all',this)" style="font-size:0.82em;">全部</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('marx',this)" style="font-size:0.82em;">马克思</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('engels',this)" style="font-size:0.82em;">恩格斯</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('lenin',this)" style="font-size:0.82em;">列宁</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('stalin',this)" style="font-size:0.82em;">斯大林</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('mao',this)" style="font-size:0.82em;">毛泽东</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('luxemburg',this)" style="font-size:0.82em;">卢森堡</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('gramsci',this)" style="font-size:0.82em;">葛兰西</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('lukacs',this)" style="font-size:0.82em;">卢卡奇</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('althusser',this)" style="font-size:0.82em;">阿尔都塞</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('fanon',this)" style="font-size:0.82em;">法农</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('trotsky',this)" style="font-size:0.82em;">托洛茨基</button>
+      <button class="btn btn-outline lit-filter" onclick="filterByAuthor('che',this)" style="font-size:0.82em;">切·格瓦拉</button>
+    </div>
+    <input type="text" id="litSearch" placeholder="🔍 搜索著作——输入关键词…" oninput="filterLiterature()" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:0.95em;margin-bottom:12px;">
+    <div class="citation-list" id="literatureListInline"></div>
+  </div>
 </section>
 
 <!-- ====== 场景路由 ====== -->
-<section class="section" id="tab-routes">
+<section class="section" id="tab-routes" style="display:none !important;">
   <div class="card">
     <h2><span class="icon">🗺️</span> 场景路由表</h2>
     <p style="color:var(--text-light);font-size:0.88em;margin-bottom:14px;">
@@ -423,7 +462,7 @@
 </section>
 
 <!-- ====== 方法论映射 ====== -->
-<section class="section" id="tab-method">
+<section class="section" id="tab-method" style="display:none !important;">
   <div class="card">
     <h2><span class="icon">⚙️</span> 方法论映射</h2>
     <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
@@ -436,17 +475,18 @@
 </main>
 
 <!-- ====== 经典著作 ====== -->
-<section class="section" id="tab-literature">
+<section class="section" id="tab-literature" style="display:none !important;">
   <div class="stats-row">
     <div class="stat-card"><div class="num">22</div><div class="label">马克思</div></div>
     <div class="stat-card"><div class="num">15</div><div class="label">恩格斯</div></div>
     <div class="stat-card"><div class="num">24</div><div class="label">列宁</div></div>
     <div class="stat-card"><div class="num">9</div><div class="label">斯大林</div></div>
-    <div class="stat-card"><div class="num">34</div><div class="label">毛泽东</div></div>
+    <div class="stat-card"><div class="num">40</div><div class="label">毛泽东</div></div>
+    <div class="stat-card"><div class="num">24</div><div class="label">其他</div></div>
   </div>
 
   <div class="card">
-    <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（104部）</h2>
+    <h2><span class="icon">📚</span> 马恩列斯毛经典著作提要（134部）</h2>
     <div class="search-box">
       <input type="text" id="litSearch" placeholder="🔍 搜索著作——输入关键词如"资本论""矛盾""国家""帝国主义"…" oninput="filterLiterature()">
     </div>
@@ -459,6 +499,48 @@
       <button class="btn btn-outline lit-filter" data-author="mao" onclick="filterByAuthor('mao',this)">毛泽东</button>
     </div>
     <div class="citation-list" id="literatureList"></div>
+  </div>
+</section>
+
+
+<!-- ====== 阶级分析器 ====== -->
+<section class="section" id="tab-class">
+  <div class="card">
+    <h2><span class="icon">🏛️</span> 阶级位置分析器</h2>
+    <p style="color:var(--text-light);margin-bottom:16px;">输入你的职业、收入、工作条件——了解你在阶级结构中的位置</p>
+    <div class="worksheet">
+      <label>你的职业</label>
+      <input type="text" id="classJob" placeholder="例如：互联网程序员、外卖骑手、工厂流水线工人、中学教师…">
+      <label>月收入（税前）</label>
+      <input type="text" id="classIncome" placeholder="例如：5000、15000…">
+      <label>工作条件（选填）</label>
+      <textarea id="classCondition" placeholder="例如：996、有社保/无社保、远程办公、被派单系统管理、有下属/无下属…" style="min-height:80px;"></textarea>
+      <label>资产状况（选填）</label>
+      <textarea id="classAssets" placeholder="例如：有房有贷、租房、有存款无投资、持有股票/基金、有房产出租…" style="min-height:60px;"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="analyzeClass()">🔍 分析阶级位置</button>
+        <button class="btn btn-outline" onclick="clearClass()">清空</button>
+      </div>
+      <div id="classResult" style="display:none;margin-top:20px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 政治经济学入门 ====== -->
+<section class="section" id="tab-polecon">
+  <div class="card">
+    <h2><span class="icon">💰</span> 政治经济学核心概念</h2>
+    <p style="color:var(--text-light);margin-bottom:16px;">用通俗语言解释马克思主义政治经济学的关键概念</p>
+    <div class="critique-grid" id="poleconGrid"></div>
+  </div>
+</section>
+
+<!-- ====== 学习路线图 ====== -->
+<section class="section" id="tab-roadmap" style="display:none !important;">
+  <div class="card">
+    <h2><span class="icon">🗺️</span> 从零开始学习马克思主义——推荐阅读顺序</h2>
+    <p style="color:var(--text-light);margin-bottom:16px;">为自学马克思主义的小白设计的阶段性阅读路线</p>
+    <div id="roadmapContent"></div>
   </div>
 </section>
 
@@ -488,7 +570,17 @@ const critiques = [
   { id:18, title:'后现代主义', brief:'解构一切宏大叙事——但解构之后，还剩什么？', body:'<p class="point">后现代主义是对1968年失败的回应：</p><p>革命没有发生，左翼知识分子从改造世界的实践中撤退，转向在学院里解构文本。改变不了物质世界，至少可以颠覆意义。</p><p class="point">解构一切，除了资本：</p><p>后现代主义安全地激进——在话语层面挑战一切，但在物质层面什么都不挑战。</p><p class="point">"没有客观真理"的政治后果：</p><p>如果一切真理都只是"话语建构"，那么剥削也只是"一种观点"——否定客观真理最终服务于权力。</p>' },
   { id:19, title:'民粹主义与新民族主义', brief:'愤怒是真实的——但愤怒被引向了谁？', body:'<p class="point">民粹主义的阶级基础：</p><p>新自由主义几十年的破坏制造了大量愤怒的、被抛弃的群体。他们的愤怒是真实的——但愤怒被引向了错误的方向。</p><p class="point">右翼民粹主义如何转移阶级怒火：</p><p>把阶级矛盾转化为民族矛盾、种族矛盾——让被剥削的白人工人恨移民工人，而不是恨剥削他们的资本家。</p><div class="quote">"全世界的无产者联合起来" 被替换为 "全世界的无产者互相仇恨"。</div>' },
   { id:20, title:'"身心健康"意识形态', brief:'正念冥想、自我关怀——让你更好地继续被剥削？', body:'<p class="point">将社会痛苦医学化和个体化：</p><p>你焦虑，不是因为工作不稳定、房租太高——而是因为"你不会管理压力"。每一种社会性的苦难都被重新定义为个人的心理缺陷。</p><p class="point">"自我关怀"是让你更好地继续被剥削：</p><p>正念帮你平静地接受不合理的工作量。瑜伽减轻了腰背痛——让你能再坐 10 个小时。</p><p class="point">双重剥削：</p><p>劳动中被榨取，再为修复榨取的损伤而消费。资本先让你生病，再卖药给你。</p>' },
-  { id:21, title:'改良主义', brief:'装修牢房还是释放囚犯？改良能无限积累成革命吗？', body:'<p class="point">改良主义的逻辑陷阱：</p><p>改良是在资本主义框架内的调整，框架本身不变。每一次改良都可能被资本的应对抵消。战后福利国家几十年成果，二三十年就被新自由主义吞噬大半。</p><p class="point">苏联的教训——修正主义如何导致复辟：</p><p>赫鲁晓夫→勃列日涅夫→戈尔巴乔夫→叶利钦，三代人的渐变。否认社会主义时期的阶级斗争是修正主义的第一个错误。</p><div class="quote">"改良是革命的副产品。" —— 列宁</div>' }
+  { id:21, title:'改良主义', brief:'装修牢房还是释放囚犯？改良能无限积累成革命吗？', body:'<p class="point">改良主义的逻辑陷阱：</p><p>改良是在资本主义框架内的调整，框架本身不变。每一次改良都可能被资本的应对抵消。战后福利国家几十年成果，二三十年就被新自由主义吞噬大半。</p><p class="point">苏联的教训——修正主义如何导致复辟：</p><p>赫鲁晓夫→勃列日涅夫→戈尔巴乔夫→叶利钦，三代人的渐变。否认社会主义时期的阶级斗争是修正主义的第一个错误。</p><div class="quote">"改良是革命的副产品。" —— 列宁</div>' },
+	  { id:22, title:'数字极权主义与监控资本主义', brief:'便利换自由？监控是为了安全？数据采集无可避免？', body:'<p class="point">监控资本主义的本质：</p><p>监控不是技术的"副作用"——它是数字资本的商业模式本身。Google和Meta的利润不来自"技术服务"——来自将用户行为数据转化为广告精准投放。人的全部生活被转化为可榨取的"行为剩余"。</p><p class="point">从监控资本到数字极权：</p><p>监控资本主义与政治权力的合流是必然的。资本需要数据以获利，权力需要数据以管控——两者各取所需。社会信用体系、人脸识别、健康码——它们首先是技术可能性，然后才成为治理工具。而"技术可能性"本身是由资本利益驱动的。</p><p class="point">"我没有秘密"的陷阱：</p><p>隐私不是因为你"有见不得人的事"——隐私是人的自主权。当你的一切行为都被记录、分析、预测、操控时，你不是"被保护"了——你是被剥夺了人的主体性。</p><div class="quote">"他们没有意识到这一点，但是他们这样做了。" —— 马克思《资本论》</div>' },
+	  { id:23, title:'平台资本主义', brief:'平台只是"中介"？Uber解放了司机？淘宝赋能了小商家？', body:'<p class="point">平台不是中立的"中介"：</p><p>平台声称自己只是"连接供需"——但实际上，平台制定规则、定价、派单、评价体系，拥有对劳动者和商家的绝对控制权。这不是"中介"——这是新型的资本权力。</p><p class="point">平台"赋能"的真相：</p><p>淘宝"赋能"小商家——但同时收取技术服务费、广告费、排名费。美团"赋能"骑手——但同时用算法将配送时间压到极限。赋能的另一面是控制。</p><p class="point">平台资本主义将风险全面转嫁给劳动者（不承担社保、最低工资），同时将利润集中。它是"没有资产的资本家"——比传统资本家更高效地剥削。</p><div class="quote">"资本不是物，而是一定的、社会的、属于一定历史社会形态的生产关系。" —— 马克思《雇佣劳动与资本》</div>' },
+	  { id:24, title:'绿色资本主义与生态现代主义', brief:'市场能解决环境问题？电动车=绿色？碳交易=减排？', body:'<p class="point">绿色资本主义的核心矛盾：</p><p>资本主义的生存逻辑是无限增长——但地球是一个有限系统。绿色资本主义试图在"不改变增长逻辑"的前提下解决生态危机——这在物理上是不可能的。</p><p class="point">碳交易的骗局：</p><p>碳交易将排放权变成可买卖的商品——富国和富公司可以通过购买"碳信用"继续排放，而减排的真正负担被转嫁给穷国。这不是解决气候危机——这是给破坏定价、让破坏合法化。</p><p class="point">电动车的阶级盲区：</p><p>电池需要锂、钴，它们的开采在南半球制造了新的生态灾难和劳工剥削。绿色消费主义让北半球中产"感觉自己环保"，而将生态代价转移到看不见的地方。</p><div class="quote">"资本害怕没有利润或利润太少，就像自然界害怕真空一样。" —— 马克思引用邓宁格</div>' },
+	  { id:25, title:'超人类主义与人类增强', brief:'技术能超越死亡？人类能被"升级"？意识可以上传？', body:'<p class="point">超人类主义的阶级本质：</p><p>谁有钱"增强"自己？谁有权"上传意识"？当寿命延长技术出现时，谁先享受到？答案永远是：有钱人。超人类主义不是"人类的未来"——它是阶级社会的终极形态——有钱人进化成"神"，没钱人继续做"凡人"。</p><p class="point">对死亡的恐惧被转化为商品：</p><p>硅谷富豪投资抗衰老研究——不是因为"关心人类"，而是因为他们害怕死亡，而且有足够的钱去对抗它。这是"自我优化"意识形态的终极形态。</p><p class="point">"人类增强"是对人的异化的极致：</p><p>当你的身体、大脑、情感都可以被技术改造"升级"时——你还是人吗？谁定义"升级"的标准？超人类主义将人变成可无限改造的"产品"。</p><div class="quote">"人的本质不是单个人所固有的抽象物，在其现实性上，它是一切社会关系的总和。" —— 马克思《关于费尔巴哈的提纲》</div>' },
+	  { id:26, title:'元宇宙与虚拟逃避主义', brief:'元宇宙是自由的数字乌托邦？戴上头盔就平等了？', body:'<p class="point">元宇宙的物质基础：</p><p>谁建造元宇宙？谁拥有元宇宙的服务器、数据和协议？Meta（Facebook）市值数千亿美元——元宇宙从第一天起就是巨头的地产游戏。虚拟世界不是"无主之地"——它从诞生那一刻起就已被资本圈占。</p><p class="point">虚拟平等是真实的欺骗：</p><p>在元宇宙里你可以"拥有"一个虚拟豪宅——但在现实世界你仍然付不起房租。虚拟平等让被压迫者在虚假世界中获得满足，从而减少在真实世界中反抗的动力。这是数字时代的"宗教是人民的鸦片"——VR头盔成为了新的鸦片烟枪。</p><p class="point">逃避主义作为控制工具：</p><p>当现实越来越不可忍受，虚拟世界变得越来越诱人。资本从两端同时获利：在现实中剥削你的劳动，在虚拟中收割你的注意力和消费。</p><div class="quote">"宗教是人民的鸦片。" —— 马克思《〈黑格尔法哲学批判〉导言》</div>' },
+	  { id:27, title:'算法中立论', brief:'算法没有偏见？AI决策比人更公平？数学模型=客观？', body:'<p class="point">算法是权力关系的数学化：</p><p>算法不是从天上掉下来的——它是人写的，数据是人选的，优化目标是人为设定的。Amazon的招聘AI学会歧视女性——不是因为"算法有偏见"，而是因为它从历史数据中学到了系统性排斥。算法放大并固化了已有的社会偏见。</p><p class="point">"算法决策"让权力不可见：</p><p>当一个人拒绝你的贷款申请，你可以质问他。当一个算法拒绝你——你能质问谁？算法把决策过程变成了黑箱，把权力行使变成了"技术问题"。这是最完美的权力形式——不可见、不可质疑、不可追责。</p><p class="point">算法的"优化"目标永远是由资本设定的——外卖配送时间最短（骑手的安全不进入目标函数）、用户停留时间最长（用户的心理健康不进入目标函数）。"客观"和"效率"是有立场的。</p><div class="quote">"统治阶级的思想在每一时代都是占统治地位的思想。" —— 马克思、恩格斯《德意志意识形态》</div>' },
+	  { id:28, title:'共享经济意识形态', brief:'共享是新的生活方式？Airbnb让旅行更地道？共享单车绿色出行？', body:'<p class="point">"共享"的语言腐败：</p><p>Uber不是"共享汽车"——它是出租车公司，只是不雇司机、不买车。Airbnb不是"共享房间"——它是连锁酒店，只是不建楼房。将商业平台包装成"共享"是一种语言欺诈——它让你觉得在参与一种"友好的新型社会关系"，而实际上你是在参与一种更加赤裸的资本剥削关系。</p><p class="point">"共享"如何侵蚀公共空间：</p><p>共享单车不设停车桩——代价是人行道被占领、公共空间被私有化。Airbnb让短租取代长租——代价是社区居民租不起自己街区的房子。资本以"共享"之名将公共资源私有化。</p><p class="point">真正的共享不需要平台：</p><p>真正的共享是——社区工具库、合作住房、免费图书馆。真正的共享不需要从每一次"分享"中抽成的巨型平台。资本主义的"共享经济"不是共享——是把以前不收费的东西变成收费的。</p><div class="quote">"资产阶级撕下了罩在家庭关系上的温情脉脉的面纱，把这种关系变成了纯粹的金钱关系。" ——《共产党宣言》</div>' },
+	  { id:29, title:'无条件基本收入（UBI）的资产阶级版本', brief:'发钱=解放？UBI能解决贫困？全民基本收入=共产主义？', body:'<p class="point">UBI的两种版本：</p><p>进步版UBI：作为通往更大社会变革的过渡步骤——配合强大的公共服务、住房保障、全民医疗。资产阶级版UBI：用一笔低保金替代一切——"给你钱，但取消一切社会保障、最低工资、劳动保护"。硅谷精英之所以热衷UBI——是因为它让AI大规模替代劳动力而不引发社会崩溃。UBI在这里不是"解放"——是维稳。</p><p class="point">UBI不改变生产关系：</p><p>发钱让你活下去——但生产资料仍然掌握在少数人手中。不改变生产资料所有制的UBI——是让被剥削者获得最低限度的生存，从而使剥削制度得以延续。</p><p class="point">真正的解放不是"领钱"——是掌握生产资料：在资本主义框架内要求UBI，不触及生产资料所有制，只是让被剥削者的处境不那么绝望而已。</p><div class="quote">"在雇佣劳动制基础上要求平等的或仅仅是公平的报酬，就犹如在奴隶制基础上要求自由一样。" —— 马克思《工资、价格和利润》</div>' },
+	  { id:30, title:'注意力经济与网红文化', brief:'网红=新职业？流量=民主？关注度=价值？', body:'<p class="point">注意力是数字时代最稀缺的资源：</p><p>在资本主义早期，资本家争夺的是自然资源和劳动力。在数字资本主义时代，他们争夺的是人的注意力——因为注意力=数据=广告收入=利润。每一条推送、每一个算法推荐——都是为争夺你有限的注意力而设计的。</p><p class="point">网红是"个体化"的无产阶级：</p><p>网红以为自己是"个人创业者"——但实际上，平台控制着流量分配、算法推荐、分成比例。一个算法调整可以让一个创作者的收入瞬间消失。他们是数字时代的"独立承包商"——拥有形式的自由，实质的依附。</p><p class="point">注意力经济的自我消耗：</p><p>创作者的burnout、网暴、粉丝的情感绑架——这些都是注意力经济的内生代价。当创作者的全部价值被窄化为"流量数字"时——人不再是目的，人变成了指标。</p><div class="quote">"在资产阶级社会里，资本具有独立性和个性，而活动着的个人却没有独立性和个性。" ——《共产党宣言》</div>' },
+	  { id:31, title:'数字游民与远程工作主义', brief:'拿着笔记本周游世界=自由？远程工作=解放？', body:'<p class="point">数字游民的特权盲区：</p><p>能成为"数字游民"的人——通常来自全球北方、持有强护照、拥有高薪技能。他们的"自由"建立在全球不平等的结构上——去清迈或巴厘岛是因为汇率差让他们的美元工资拥有超强购买力。当地居民被挤出自己的社区。</p><p class="point">远程工作的双重性：</p><p>进步面：省去通勤、灵活安排、打破办公室政治。压迫面：工作与生活边界消失、社交原子化、集体议价能力下降（你连同事的面都没见过，怎么组织罢工？）。</p><p class="point">"在任何地方工作"的另一面是"在任何地方被剥削"：</p><p>远程工作让资本在全球范围内寻找最廉价的劳动力——你不仅和同城的竞争者竞争，还要和全世界的竞争者竞争。"数字游民"的自由是少数人的特权——对大多数远程劳动者来说，这只是在客厅里延续996。</p><div class="quote">"工人只有在劳动之外才感到自在，而在劳动中则感到不自在。" —— 马克思《1844年经济学哲学手稿》</div>' }
 ];
 
 const citations = [
@@ -532,6 +624,104 @@ const citations = [
   { quote:'百花齐放、百家争鸣。', source:'毛泽东《关于正确处理人民内部矛盾的问题》(1957)', use:'文化方针——学术与艺术自由' },
   { quote:'应当把社会主义社会看成是一个不断变化和不断进步的社会。', source:'恩格斯《致奥托·伯尼克》(1890)', use:'社会主义不是一成不变的' },
   { quote:'国家不是"被废除"的，它是自行消亡的。', source:'恩格斯《社会主义从空想到科学的发展》(1880)', use:'国家消亡的辩证过程' },
+{ quote:'生产力是社会发展的最终决定力量。', source:'马克思《政治经济学批判·序言》(1859)', use:'判断社会变革的物质基础' },
+  { quote:'手推磨产生的是封建主的社会，蒸汽磨产生的是工业资本家的社会。', source:'马克思《哲学的贫困》(1847)', use:'技术与生产关系' },
+  { quote:'物质生活的生产方式制约着整个社会生活、政治生活和精神生活的过程。', source:'马克思《政治经济学批判·序言》(1859)', use:'唯物史观核心公式' },
+  { quote:'一切阶级斗争都是政治斗争。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'阶级分析——经济斗争要上升为政治斗争' },
+  { quote:'无产者在这个革命中失去的只是锁链。他们获得的将是整个世界。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'革命号召' },
+  { quote:'至今一切社会的历史都是阶级斗争的历史。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'历史分析的总纲' },
+  { quote:'资产阶级在它已经取得了统治的地方把一切封建的、宗法的和田园诗般的关系都破坏了。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'资本主义对传统社会的瓦解' },
+  { quote:'它使人和人之间除了赤裸裸的利害关系，除了冷酷无情的"现金交易"，就再也没有任何别的联系了。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'批判金钱关系' },
+  { quote:'资产阶级，由于一切生产工具的迅速改进，由于交通的极其便利，把一切民族甚至最野蛮的民族都卷到文明中来了。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'全球化批判' },
+  { quote:'它按照自己的面貌为自己创造出一个世界。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'资本主义全球化' },
+  { quote:'一切固定的僵化的关系以及与之相适应的素被尊崇的观念和见解都被消除了。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'资本主义的破坏性进步' },
+  { quote:'生产的不断变革，一切社会状况不停的动荡，永远的不安定和变动，这就是资产阶级时代不同于过去一切时代的地方。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'现代社会的不稳定性' },
+  { quote:'工人没有祖国。决不能剥夺他们所没有的东西。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'国际主义——工人阶级无国界' },
+  { quote:'共产党人可以用一句话把自己的理论概括起来：消灭私有制。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'共产主义核心纲领' },
+  { quote:'共产主义并不剥夺任何人占有社会产品的权力，它只剥夺利用这种占有去奴役他人劳动的权力。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'区分个人财产与资本' },
+  { quote:'每个人的自由发展是一切人的自由发展的条件。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'共产主义社会原则' },
+  { quote:'共产党人为工人阶级的最近的目的和利益而斗争，但是他们在当前的运动中同时代表运动的未来。', source:'马克思、恩格斯《共产党宣言》(1848)', use:'当前斗争与长远目标统一' },
+  { quote:'资本是死劳动，它像吸血鬼一样，只有吮吸活劳动才有生命，吮吸的活劳动越多，它的生命就越旺盛。', source:'马克思《资本论》第一卷 (1867)', use:'资本与劳动的关系' },
+  { quote:'平等地剥削劳动力，是资本的首要的人权。', source:'马克思《资本论》第一卷 (1867)', use:'资本主义"平等"的真相' },
+  { quote:'暴力是每一个孕育着新社会的旧社会的助产婆。', source:'马克思《资本论》第一卷 (1867)', use:'暴力在历史变革中的作用' },
+  { quote:'资本主义生产不仅是商品的生产，它实质上是剩余价值的生产。', source:'马克思《资本论》第一卷 (1867)', use:'资本主义生产的本质' },
+  { quote:'作为资本家，他只是人格化的资本。他的灵魂就是资本的灵魂。', source:'马克思《资本论》第一卷 (1867)', use:'资本家的阶级本质' },
+  { quote:'生产资料的集中和劳动的社会化，达到了同它们的资本主义外壳不能相容的地步。这个外壳就要炸毁了。', source:'马克思《资本论》第一卷 (1867)', use:'资本主义必然灭亡' },
+  { quote:'自由王国只是在由必需和外在目的规定要做的劳动终止的地方才开始。', source:'马克思《资本论》第三卷 (1894)', use:'自由与必然——自由时间' },
+  { quote:'真正的自由，存在于物质生产领域的彼岸。', source:'马克思《资本论》第三卷 (1894)', use:'自由的含义' },
+  { quote:'劳动不是一切财富的源泉。自然界和劳动一样也是使用价值的源泉。', source:'马克思《哥达纲领批判》(1875)', use:'批判"劳动创造一切"的片面观点' },
+  { quote:'各尽所能，按需分配！', source:'马克思《哥达纲领批判》(1875)', use:'共产主义高级阶段的分配原则' },
+  { quote:'工人阶级不能简单地掌握现成的国家机器，并运用它来达到自己的目的。', source:'马克思《法兰西内战》(1871)', use:'打碎旧国家机器' },
+  { quote:'历史什么事情也没有做……创造这一切、拥有这一切并为这一切而斗争的，不是"历史"，而正是人，现实的、活生生的人。', source:'马克思、恩格斯《神圣家族》(1845)', use:'人民群众创造历史' },
+  { quote:'思想根本不能实现什么东西。为了实现思想，就要有使用实践力量的人。', source:'马克思、恩格斯《神圣家族》(1845)', use:'理论与实践的关系' },
+  { quote:'政治解放当然是一大进步——但不是一般人类解放的最后形式。', source:'马克思《论犹太人问题》(1843)', use:'区分政治解放与人类解放' },
+  { quote:'所谓彻底，就是抓住事物的根本。但人的根本就是人本身。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'彻底批判的标准' },
+  { quote:'理论一经掌握群众，也会变成物质力量。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'理论转化为实践力量' },
+  { quote:'理论只要彻底，就能说服人。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'理论的力量在于彻底' },
+  { quote:'批判并不是理性的激情，而是激情的理性。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'批判的方法论' },
+  { quote:'光是思想力求成为现实是不够的，现实本身应当力求趋向思想。', source:'马克思《〈黑格尔法哲学批判〉导言》(1843)', use:'理论与实践的双向运动' },
+  { quote:'劳动创造了美，但是使工人变成畸形。', source:'马克思《1844年经济学哲学手稿》', use:'异化劳动的审美维度' },
+  { quote:'私有财产使我们变得如此愚蠢而片面。', source:'马克思《1844年经济学哲学手稿》', use:'私有制对人的扭曲' },
+  { quote:'感觉在自己的实践中直接成为理论家。', source:'马克思《1844年经济学哲学手稿》', use:'感性经验蕴含理性' },
+  { quote:'自然科学往后将包括关于人的科学，正像关于人的科学包括自然科学一样：这将是一门科学。', source:'马克思《1844年经济学哲学手稿》', use:'自然科学与人的科学的统一' },
+  { quote:'历史本身是自然史的一个现实部分，即自然界生成为人这一过程的一个现实部分。', source:'马克思《1844年经济学哲学手稿》', use:'人与自然统一' },
+  { quote:'这种共产主义，作为完成了的自然主义=人道主义，而作为完成了的人道主义=自然主义。', source:'马克思《1844年经济学哲学手稿》', use:'共产主义的哲学定义' },
+  { quote:'无论哪一个社会形态，在它所能容纳的全部生产力发挥出来以前，是决不会灭亡的；而新的更高的生产关系，在它的物质存在条件在旧社会的胎胞里成熟以前，是决不会出现的。', source:'马克思《政治经济学批判·序言》(1859)', use:'两个"绝不会"——判断变革时机' },
+  { quote:'人类始终只提出自己能够解决的任务。', source:'马克思《政治经济学批判·序言》(1859)', use:'历史任务的客观条件' },
+  { quote:'人们自己创造自己的历史，但是他们并不是随心所欲地创造，并不是在他们自己选定的条件下创造，而是在直接碰到的、既定的、从过去承继下来的条件下创造。', source:'马克思《路易·波拿巴的雾月十八日》(1852)', use:'历史创造的双重性' },
+  { quote:'一切已死的先辈们的传统，像梦魇一样纠缠着活人的头脑。', source:'马克思《路易·波拿巴的雾月十八日》(1852)', use:'历史传统的束缚' },
+  { quote:'黑格尔在某个地方说过，一切伟大的世界历史事变和人物，可以说都出现两次。他忘记补充一点：第一次是作为悲剧出现，第二次是作为笑剧出现。', source:'马克思《路易·波拿巴的雾月十八日》(1852)', use:'历史重复中的质变' },
+  { quote:'小农人数众多，他们的生活条件相同，但是彼此间并没有发生多种多样的关系。他们不能代表自己，一定要别人来代表他们。', source:'马克思《路易·波拿巴的雾月十八日》(1852)', use:'小农阶级分析' },
+  { quote:'自由竞争必然产生生产的集中，而生产的集中发展到一定阶段就导致垄断。', source:'列宁《帝国主义是资本主义的最高阶段》(1916)', use:'从竞争到垄断' },
+  { quote:'帝国主义是资本主义的特殊历史阶段。这种特殊性分三个方面：帝国主义是垄断的资本主义；帝国主义是寄生的或腐朽的资本主义；帝国主义是垂死的资本主义。', source:'列宁《帝国主义和社会主义运动中的分裂》(1916)', use:'帝国主义三方面定义' },
+  { quote:'机会主义者在客观上是小资产阶级和工人阶级中受帝国主义超额利润收买而变成资本的看门狗和工人运动的败坏者的那一部分。', source:'列宁《帝国主义和社会主义运动中的分裂》(1916)', use:'工人贵族与机会主义根源' },
+  { quote:'马克思主义的最本质的东西，马克思主义的活的灵魂：具体地分析具体的情况。', source:'列宁《共产主义》(1920)', use:'马克思主义方法论核心' },
+  { quote:'没有革命的理论，就不可能有被压迫阶级的即历史上最革命的阶级的世界上最伟大的解放运动。', source:'列宁《法国社会党人的正直呼声》(1915)', use:'革命理论的重要性' },
+  { quote:'一切民族都将走到社会主义，这是不可避免的，但是一切民族的走法却不完全一样。', source:'列宁《论对马克思主义的讽刺》(1916)', use:'社会主义道路多样性' },
+  { quote:'政治是经济的集中表现。', source:'列宁《再论工会、目前局势及托洛茨基同志和布哈林同志的错误》(1921)', use:'政治与经济的辩证关系' },
+  { quote:'劳动生产率，归根到底是保证新社会制度胜利的最重要最主要的东西。', source:'列宁《伟大的创举》(1919)', use:'社会主义的根本任务' },
+  { quote:'所谓阶级，就是这样一些大的集团，这些集团在历史上一定社会生产体系中所处的地位不同，对生产资料的关系不同，在社会劳动组织中所起的作用不同，因而领得自己所支配的那份社会财富的方式和多寡也不同。', source:'列宁《伟大的创举》(1919)', use:'阶级的经典定义' },
+  { quote:'一切革命的根本问题是国家政权问题。', source:'列宁《论两个政权》(1917)', use:'革命与国家政权' },
+  { quote:'单靠先锋队是不能胜利的。', source:'列宁《共产主义运动中的"左派"幼稚病》(1920)', use:'先锋队与群众关系' },
+  { quote:'把马克思主义变成公式，把它变成俄国社会民主主义的特殊口号，就是背叛马克思主义。', source:'列宁《我们的纲领》(1899)', use:'反对教条主义' },
+  { quote:'只有把社会关系归结于生产关系，把生产关系归结于生产力水平，才能有可靠的根据把社会形态的发展看作自然历史过程。', source:'列宁《什么是"人民之友"》(1894)', use:'唯物史观的科学方法' },
+  { quote:'发展是对立面的统一。', source:'列宁《谈谈辩证法问题》(1915)', use:'辩证法的实质' },
+  { quote:'从生动的直观到抽象的思维，并从抽象的思维到实践，这就是认识真理、认识客观实在的辩证途径。', source:'列宁《哲学笔记》(1914-1916)', use:'认识的辩证过程' },
+  { quote:'人的意识不仅反映客观世界，并且创造客观世界。', source:'列宁《哲学笔记》(1914-1916)', use:'意识的能动作用' },
+  { quote:'世界不会满足人，人决心以自己的行动来改变世界。', source:'列宁《哲学笔记》(1914-1916)', use:'实践改变世界' },
+  { quote:'原则不是研究的出发点，而是它的最终结果。', source:'恩格斯《反杜林论》(1878)', use:'反对从原则出发' },
+  { quote:'自由不在于幻想中摆脱自然规律而独立，而在于认识这些规律，从而能够有计划地使自然规律为一定的目的服务。', source:'恩格斯《反杜林论》(1878)', use:'自由是对必然的认识' },
+  { quote:'一旦社会占有了生产资料，商品生产就将被消除。社会生产内部的无政府状态将为有计划的自觉的组织所代替。', source:'恩格斯《社会主义从空想到科学的发展》(1880)', use:'社会主义基本特征' },
+  { quote:'人终于成为自己的社会结合的主人，从而也就成为自然界的主人，成为自身的主人——自由的人。', source:'恩格斯《社会主义从空想到科学的发展》(1880)', use:'人类解放的终极目标' },
+  { quote:'马克思发现了人类历史的发展规律：人们首先必须吃、喝、住、穿，然后才能从事政治、科学、艺术、宗教等等。', source:'恩格斯《在马克思墓前的讲话》(1883)', use:'唯物史观的基本事实' },
+  { quote:'马克思还发现了现代资本主义生产方式和它所产生的资产阶级社会的特殊的运动规律——剩余价值。', source:'恩格斯《在马克思墓前的讲话》(1883)', use:'两大发现总结' },
+  { quote:'马克思首先是一个革命家。', source:'恩格斯《在马克思墓前的讲话》(1883)', use:'马克思的本质定位' },
+  { quote:'根据唯物主义观点，历史中的决定性因素，归根结蒂是直接生活的生产和再生产。', source:'恩格斯《家庭、私有制和国家的起源》第一版序言 (1884)', use:'两种生产理论' },
+  { quote:'氏族制度的伟大，同时也是它的局限，就在于这里没有统治和奴役存在的余地。', source:'恩格斯《家庭、私有制和国家的起源》(1884)', use:'原始民主制分析' },
+  { quote:'一个这样的社会，只能或者作为这些阶级相互间连续不断的公开斗争而存在，或者存在于第三种力量的统治下。', source:'恩格斯《家庭、私有制和国家的起源》(1884)', use:'国家的产生' },
+  { quote:'马克思的整个世界观不是教义，而是方法。它提供的不是现成的教条，而是进一步研究的出发点和供这种研究使用的方法。', source:'恩格斯《致韦尔纳·桑巴特》(1895)', use:'马克思主义方法论总纲' },
+  { quote:'经济状况是基础，但是对历史斗争的进程发生影响并且在许多情况下主要是决定着这一斗争的形式的，还有上层建筑的各种因素。', source:'恩格斯《致约瑟夫·布洛赫》(1890)', use:'经济基础与上层建筑辩证关系' },
+  { quote:'历史是这样创造的：最终的结果总是从许多单个的意志的相互冲突中产生出来的……这样就有无数互相交错的力量，有无数个力的平行四边形。', source:'恩格斯《致约瑟夫·布洛赫》(1890)', use:'历史合力论' },
+  { quote:'我们自己创造着我们的历史，但是第一，我们是在十分确定的前提和条件下创造的。', source:'恩格斯《致约瑟夫·布洛赫》(1890)', use:'历史创造的约束条件' },
+  { quote:'政治、法、哲学、宗教、文学、艺术等等的发展是以经济发展为基础的。但是，它们又都互相作用并对经济基础发生作用。', source:'恩格斯《致瓦尔特·博尔吉乌斯》(1894)', use:'上层建筑的相对独立性与反作用' },
+  { quote:'并不是只有经济状况才是原因，才是积极的。', source:'恩格斯《致瓦尔特·博尔吉乌斯》(1894)', use:'反对经济决定论' },
+  { quote:'一切真实的、详尽无遗的认识都只在于：我们在思想中把个别的东西从个别性提高到特殊性，然后再从特殊性提高到普遍性。', source:'恩格斯《自然辩证法》(1883)', use:'认识的辩证过程' },
+  { quote:'劳动创造了人本身。', source:'恩格斯《自然辩证法》(1876)', use:'劳动在从猿到人转变中的作用' },
+  { quote:'星星之火，可以燎原。', source:'毛泽东《星星之火，可以燎原》(1930)', use:'革命力量由小到大的必然性' },
+  { quote:'对于马克思主义的理论，要能够精通它、应用它，精通的目的全在于应用。', source:'毛泽东《整顿党的作风》(1942)', use:'理论联系实际' },
+  { quote:'群众是真正的英雄，而我们自己则往往是幼稚可笑的。', source:'毛泽东《〈农村调查〉的序言和跋》(1941)', use:'群众路线——向群众学习' },
+  { quote:'武器是战争的重要的因素，但不是决定的因素，决定的因素是人不是物。', source:'毛泽东《论持久战》(1938)', use:'人的因素第一' },
+  { quote:'战争的伟力之最深厚的根源，存在于民众之中。', source:'毛泽东《论持久战》(1938)', use:'群众的力量' },
+  { quote:'读书是学习，使用也是学习，而且是更重要的学习。', source:'毛泽东《中国革命战争的战略问题》(1936)', use:'实践性学习' },
+  { quote:'我们不但要提出任务，而且要解决完成任务的方法问题。', source:'毛泽东《关心群众生活，注意工作方法》(1934)', use:'方法与任务的统一' },
+  { quote:'马克思主义的哲学认为十分重要的问题，不在于懂得了客观世界的规律性，因而能够解释世界，而在于拿了这种对于客观规律性的认识去能动地改造世界。', source:'毛泽东《实践论》(1937)', use:'认识的目的是实践' },
+  { quote:'世界上只有唯心论和形而上学最省力，因为它可以由人们瞎说一气，不要根据客观实际，也不受客观实际检查的。', source:'毛泽东《关于胡风反革命集团的材料》按语 (1955)', use:'批判主观主义' },
+  { quote:'共产党人的一切言论行动，必须以合乎最广大人民群众的最大利益，为最广大人民群众所拥护为最高标准。', source:'毛泽东《论联合政府》(1945)', use:'群众利益标准' },
+  { quote:'我们能够学会我们原来不懂的东西。我们不但善于破坏一个旧世界，我们还将善于建设一个新世界。', source:'毛泽东《七届二中全会报告》(1949)', use:'从革命到建设的自信' },
+  { quote:'社会主义革命和社会主义建设，必须坚持群众路线，放手发动群众，大搞群众运动。', source:'毛泽东（摘自《关于赫鲁晓夫的假共产主义及其在世界历史上的教训》）', use:'群众路线与群众运动' },
+  { quote:'凡是反动的东西，你不打，他就不倒。这也和扫地一样，扫帚不到，灰尘照例不会自己跑掉。', source:'毛泽东《抗日战争胜利后的时局和我们的方针》(1945)', use:'斗争的必然性' },
+  { quote:'前途是光明的，道路是曲折的。', source:'毛泽东《关于重庆谈判》(1945)', use:'革命乐观主义' },
+  { quote:'世界上怕就怕"认真"二字，共产党就最讲"认真"。', source:'毛泽东《在莫斯科大学会见中国留学生时的讲话》(1957)', use:'共产党人的态度' },
 ];
 
 const routes = [
@@ -617,7 +807,7 @@ function filterCitations() {
 }
 
 function renderRoutes() {
-  document.getElementById('routeTable').innerHTML = `
+  var routeTarget = document.getElementById('routeTableInline') || document.getElementById('routeTable'); if(routeTarget) routeTarget.innerHTML = `
     <thead><tr><th>场景</th><th>路由</th></tr></thead>
     <tbody>${routes.map(r => `
       <tr><td class="scene">${r.scene}</td><td>${r.route}</td></tr>
@@ -626,7 +816,7 @@ function renderRoutes() {
 }
 
 function renderMethods() {
-  document.getElementById('methodList').innerHTML = methods.map(m => `
+  var methodTarget = document.getElementById('methodListInline') || document.getElementById('methodList'); if(methodTarget) methodTarget.innerHTML = methods.map(m => `
     <div class="cite-item">
       <div class="quote-text" style="font-weight:700;color:var(--red-dark);font-style:normal;">${m.quote}</div>
       <div class="source">${m.source}</div>
@@ -1720,7 +1910,7 @@ const litChapters = {
 };
 
 function renderLiterature(data) {
-  const list = document.getElementById('literatureList');
+  var list = document.getElementById('literatureListInline') || document.getElementById('literatureList');
   const items = data || literature;
   let html = '';
   let currentAuthor = '';
@@ -1848,8 +2038,19 @@ document.querySelectorAll('nav button').forEach(btn => {
     this.classList.add('active');
     const tab = this.dataset.tab;
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
+    var target = document.getElementById('tab-' + tab);
+    if (target) target.classList.add('active');
     localStorage.setItem('marx-toolkit-tab', tab);
+    // Trigger renders for library tab
+    if (tab === 'library') {
+      setTimeout(function() {
+        if (typeof renderCitations === 'function') renderCitations();
+        if (typeof renderMethods === 'function') renderMethods();
+        if (typeof renderRoutes === 'function') renderRoutes();
+        if (typeof renderLiterature === 'function') renderLiterature();
+        if (typeof renderRoadmap === 'function') renderRoadmap();
+      }, 50);
+    }
   });
 });
 
@@ -1867,6 +2068,270 @@ if (savedTab) {
   const btn = document.querySelector(`nav button[data-tab="${savedTab}"]`);
   if (btn) btn.click();
 }
+
+// ==================== 阶级分析引擎 ====================
+
+function analyzeClass() {
+  const job = document.getElementById('classJob').value.trim();
+  const income = document.getElementById('classIncome').value.trim();
+  const condition = document.getElementById('classCondition').value.trim().toLowerCase();
+  const assets = document.getElementById('classAssets').value.trim().toLowerCase();
+  if (!job || !income) { showToast('⚠️ 请至少填写职业和收入'); return; }
+
+  const inc = parseInt(income.replace(/[^0-9]/g,''));
+  if (isNaN(inc)) { showToast('⚠️ 收入请输入数字'); return; }
+
+  // Determine class position
+  let classPos = '', classDesc = '', classColor = '';
+  const hasEmployees = condition.includes('下属') || condition.includes('管理') || condition.includes('团队');
+  const hasCapital = assets.includes('出租') || assets.includes('股票') || assets.includes('投资') || assets.includes('公司') || assets.includes('雇');
+  const noSecurity = condition.includes('无社保') || condition.includes('没社保') || condition.includes('外包') || condition.includes('派遣');
+  const platformWorker = condition.includes('骑手') || condition.includes('网约车') || condition.includes('外卖') || condition.includes('派单');
+  const gigWorker = condition.includes('自由职业') || condition.includes('接单') || condition.includes('freelancer');
+
+  if (hasCapital && assets.includes('雇')) {
+    classPos = '资产阶级 / 大资本家'; classColor = '#8b0000';
+    classDesc = '你拥有生产资料（公司、大量资本）并通过雇佣劳动获取利润。你的收入主要来自他人创造的剩余价值而非自身劳动。';
+  } else if (hasCapital && !assets.includes('雇')) {
+    classPos = '小资产阶级（食利者倾向）'; classColor = '#c41e3a';
+    classDesc = '你不直接雇佣劳动，但你拥有可产生被动收入的资产（房产出租、股票投资）。你的阶级位置介于资本和劳动之间——不剥削他人但也不完全依赖出卖劳动力。经济波动时可能向两端分化。';
+  } else if (inc > 30000 && hasEmployees) {
+    classPos = '上层管理人员 / 资产阶级代理人'; classColor = '#c41e3a';
+    classDesc = '虽然你也是雇佣劳动者，但你处于管理阶级的位置——代表资本利益行使对下层劳动者的控制权。你的高薪部分来源于剩余价值的再分配。你的阶级利益客观上是与资本一致的。';
+  } else if (inc > 15000) {
+    classPos = '专业中产阶级 / 小资产阶级'; classColor = '#d4a017';
+    classDesc = '你通过专业技能换取较高收入。你拥有一定的"人力资本"——学历、技能、行业经验——这些在一定程度上保护了你免受最直接的剥削。但你没有生产资料——你仍然必须出卖劳动力。你的阶级位置是不稳定的——可能上升为管理者，也可能因技术更新或年龄歧视下滑。';
+  } else if (platformWorker || gigWorker) {
+    classPos = '零工无产阶级 / 平台劳动者'; classColor = '#cc6600';
+    classDesc = '你是数字时代的新型无产阶级。平台不承认你是"雇员"——不承担社保、最低工资、工伤赔偿——但通过算法对你实施精确控制。你拥有形式的自由（可"选择"何时接单）但实质的不自由（定价权、派单权、规则制定权全部在平台手中）。你是被"个体化"的无产阶级——分散、孤立、难以组织。';
+  } else if (noSecurity || inc < 5000) {
+    classPos = '底层无产阶级 / 不稳定劳动者'; classColor = '#cc0000';
+    classDesc = '你处于劳动力市场最脆弱的位置——无社会保障、低工资、随时可被替代。你面对的是"绝对贫困化"的威胁。马克思所说的"产业后备军"就是你——资本随时可以用更廉价的劳动力替换你。你从工作中得不到任何积累——不论技能还是储蓄。';
+  } else if (inc >= 5000 && inc <= 15000) {
+    classPos = '常规无产阶级 / 工薪劳动者'; classColor = '#e06030';
+    classDesc = '你是现代社会的"标准工人阶级"——通过出卖劳动力换取工资。你有一定的社会保障和稳定性，但你的工资本质上只是"劳动力再生产"的成本——让你能吃饭、租房、恢复体力明天继续工作。你创造的价值远超你的工资——剩余价值被资本占有。你的阶级利益在于：联合起来争取更少的劳动时间和更多的劳动报酬。';
+  } else {
+    classPos = '需进一步分析'; classColor = '#888';
+    classDesc = '你的情况较为复杂，建议补充更多信息：是否有下属？是否拥有可产生收入的资产？是否有债务？工作是否稳定？';
+  }
+
+  // Generate analysis HTML
+  let html = `<div class="card" style="border-left:4px solid ${classColor};">
+    <h3 style="color:${classColor};">🏛️ 阶级位置：${classPos}</h3>
+    <p style="line-height:1.9;">${classDesc}</p>
+  </div>`;
+
+  // Add class relation map
+  html += `<div class="card" style="border-left:4px solid var(--red);">
+    <h3>📊 阶级关系分析</h3>
+    <div style="line-height:1.9;font-size:0.92em;">
+      <p><strong>对生产资料的关系：</strong>${hasCapital ? '拥有生产资料（房产/股票/公司）' : (hasEmployees ? '不拥有生产资料但行使资本的部分权力' : '不拥有生产资料——必须出卖劳动力')}</p>
+      <p><strong>在社会劳动组织中的作用：</strong>${hasCapital ? '组织和管理劳动' : (hasEmployees ? '管理和监督劳动' : '被组织、被管理')}</p>
+      <p><strong>获取财富的方式：</strong>${hasCapital ? '利润/租金/股息（部分来自他人劳动）' : '工资（出卖劳动力）'}</p>
+      <p><strong>获取财富的多寡：</strong>月收入约${inc}元——${inc > 20000 ? '远超社会平均水平' : inc > 8000 ? '处于或略高于社会平均水平' : '低于或远低于社会平均水平'}</p>
+    </div>
+  </div>`;
+
+  // Add practical guidance
+  html += `<div class="card" style="border-left:4px solid var(--gold);background:#fef9f0;">
+    <h3>🔧 实践指导</h3>
+    <div style="line-height:1.9;font-size:0.92em;">
+      <p><strong>你的客观利益所在：</strong>${hasCapital ? '维护和扩大你的资产收益' : (hasEmployees ? '维护你的管理地位和高薪' : '联合其他劳动者——提高工资、减少工时、改善条件')}</p>
+      <p><strong>你的天然盟友：</strong>${hasCapital ? '与你同阶级的资产者' : (hasEmployees ? '你的阶级位置决定了你更接近资本而非劳动——但你的高薪取决于资本的持续盈利' : '所有和你一样出卖劳动力的人——不论他们做什么具体工作')}</p>
+      <p><strong>你的潜在对手：</strong>${hasCapital ? '工人阶级——他们有客观利益要求改变现有分配结构' : (hasEmployees ? '下层劳动者和激进变革力量——他们要求的变革可能威胁你的特权地位' : '资产者和管理层——他们从你的劳动中获利')}</p>
+      <p style="margin-top:8px;font-size:0.85em;color:var(--text-light);">⚠️ 阶级分析基于客观经济地位——不是"身份认同"。一个人的阶级位置是由他在生产关系中的位置决定的，而不是由他"觉得自己是哪个阶级"决定的。</p>
+    </div>
+  </div>`;
+
+  document.getElementById('classResult').style.display = 'block';
+  document.getElementById('classResult').innerHTML = html;
+  document.getElementById('classResult').scrollIntoView({behavior:'smooth'});
+}
+
+function clearClass() {
+  document.getElementById('classJob').value = '';
+  document.getElementById('classIncome').value = '';
+  document.getElementById('classCondition').value = '';
+  document.getElementById('classAssets').value = '';
+  document.getElementById('classResult').style.display = 'none';
+  document.getElementById('classResult').innerHTML = '';
+  showToast('✅ 已清空');
+}
+
+// ==================== 政治经济学概念渲染 ====================
+
+const poleconConcepts = [
+  { title:'商品', icon:'📦', body:'<p>商品是资本主义社会财富的"细胞"。它有两个因素：<strong>使用价值</strong>（有用性——面包能吃）和<strong>价值</strong>（可交换性——面包换衣服）。使用价值是具体的，价值是抽象的——价值的实体是<strong>抽象人类劳动</strong>。这就是商品的"二因素"。</p><p class="point">通俗理解：</p><p>一件商品为什么值钱？不是因为它"有用"（空气很有用但不值钱），而是因为它凝聚了人的劳动——而且这种劳动必须被社会承认为"有用的劳动"。</p>' },
+  { title:'劳动二重性', icon:'🔧', body:'<p>马克思自己说这是"理解政治经济学的枢纽"。<strong>具体劳动</strong>创造使用价值（裁缝劳动做衣服、面包师劳动做面包）——不同质、不可比较。<strong>抽象劳动</strong>创造价值——撇开劳动的具体形式，它们都是"人类劳动力的耗费"——同质、可比较。商品交换之所以可能，正是因为所有商品都凝结了抽象人类劳动。</p><p class="point">通俗理解：</p><p>你花一小时写代码和你花一小时做饭——这两件事具体内容完全不同，但它们有一个共同点：都消耗了你一小时的生命。市场用价格来衡量这个"共同点"。</p>' },
+  { title:'价值形式', icon:'💱', body:'<p>价值是怎么"表现"出来的？通过交换。20码麻布=1件上衣——麻布的价值通过上衣的使用价值表现出来。这就是<strong>简单的价值形式</strong>。发展过程：简单→扩大→一般→货币。最终，<strong>货币</strong>（金/银）成为"一般等价物"——一切商品的价值都用货币来表现。</p><p class="point">通俗理解：</p><p>你做的劳动值多少钱？你不能"直接"知道。你只能在市场上把你的产品换成钱——钱告诉你你的劳动"值"多少。这就是商品拜物教的根源。</p>' },
+  { title:'商品拜物教', icon:'🪄', body:'<p>商品拜物教是马克思最天才的概念之一。<strong>人被人自己创造的东西所支配。</strong>在市场上，商品看起来有"自己的生命"——价格涨跌仿佛遵循自然规律。但实际上，价格波动反映的是<strong>人与人之间的生产关系</strong>。人们被自己创造的商品和货币所统治——就像原始人崇拜他们自己雕刻的偶像。</p><p class="point">通俗理解：</p><p>房价、股价、物价——它们看起来像天气一样"自然"。但实际上它们是无数人的劳动、决策、权力关系的产物。拜物教就是：把"人做的事"看成"物自身的事"。</p><div class="quote">"他们不知道这一点，但是他们这样做了。" —— 马克思</div>' },
+  { title:'剩余价值', icon:'💰', body:'<p>剩余价值是马克思主义政治经济学的核心概念。<strong>工人创造的价值大于劳动力本身的价值</strong>——差额即剩余价值。假设工人工作8小时：前4小时创造的价值等于他的工资（必要劳动时间），后4小时创造的价值被资本家无偿占有（剩余劳动时间）。剩余价值率=剩余劳动/必要劳动——这是<strong>剥削程度</strong>的精确度量。</p><p class="point">通俗理解：</p><p>你一天给公司创造了2000元的价值——但你的日薪只有500元。1500元的差额就是剩余价值。这不是因为老板"黑心"——而是因为如果你不创造剩余价值，雇你就没有意义。资本主义就是这样运转的。</p>' },
+  { title:'绝对剩余价值', icon:'⏰', body:'<p>通过<strong>延长工作日</strong>来增加剩余价值。原来工作8小时（4小时必要+4小时剩余），现在延长到10小时（4小时必要+6小时剩余）——剥削率从100%上升到150%。<strong>996就是绝对剩余价值生产的当代形态。</strong></p><p class="point">通俗理解：</p><p>加班不给够加班费——老板从你的额外工作时间中直接获取更多剩余价值。这是最原始、最粗暴的剥削方式。</p>' },
+  { title:'相对剩余价值', icon:'⚙️', body:'<p>通过<strong>提高劳动生产率</strong>缩短必要劳动时间。如果全社会生活资料的生产率提高——劳动力的价值（再生产劳动力所需的生活资料）下降——必要劳动时间从4小时缩短到3小时——工作日仍是8小时——剩余劳动时间自动增加到5小时。<strong>技术进步在资本主义条件下不是让你更轻松——而是让资本从你身上榨取更多。</strong></p><p class="point">通俗理解：</p><p>电脑让工作效率提高了10倍，但你的工作时间没有减少到原来的1/10——工作量增加了10倍。效率提高的收益归了资本，不归你。</p>' },
+  { title:'资本有机构成', icon:'🏭', body:'<p>资本分为<strong>不变资本（c）</strong>——机器、厂房、原料——和<strong>可变资本（v）</strong>——用来购买劳动力的部分。资本有机构成=c/v。随着技术进步，c的比重不断上升，v的比重不断下降——这意味着：<strong>资本对劳动力的需求相对减少</strong>→相对过剩人口（失业大军）→工资被压低。</p><p class="point">通俗理解：</p><p>公司买更多的AI和自动化设备（c增加），雇更少的人（v减少）——利润高了，但工作岗位消失了。这就是"技术替代劳动"背后的政治经济学逻辑。</p>' },
+  { title:'产业后备军', icon:'👥', body:'<p>相对过剩人口是资本主义的<strong>必然产物</strong>而非偶然故障。它像"蓄水池"——经济扩张时吸收劳动力，收缩时释放劳动力。产业后备军的存在<strong>压低在业工人的工资和反抗意志</strong>——"你不干有的是人干"就是产业后备军机制的直接表现。</p><p class="point">通俗理解：</p><p>失业不是"你的错"——失业是资本主义正常运转的必要组件。资本家需要有一批没工作的人——这样有工作的人才不敢要求加工资。</p>' },
+  { title:'资本积累', icon:'📈', body:'<p>资本积累不是"资本家存钱"——是<strong>剩余价值再转化为资本</strong>。资本家拿剩余价值的一部分再投资，购买更多生产资料和劳动力——榨取更多剩余价值——再投资……这就是资本主义的"内在动力"。结果：<strong>财富一极积累（少数资本家越来越富），贫困另一极积累（多数劳动者相对贫困化）。</strong></p><p class="point">通俗理解：</p><p>富人越来越富不是因为"更聪明"或"更努力"——是因为他们占有了别人创造的剩余价值，然后用这些剩余价值去占有更多的剩余价值。钱生钱——但钱不会自己生钱，是劳动在生钱。</p>' },
+  { title:'原始积累', icon:'🩸', body:'<p>资本主义不是从"勤劳节俭"开始的——它从<strong>暴力剥夺</strong>开始。圈地运动把农民从土地上赶走→他们变成"自由"的无产者（自由到一无所有）。殖民掠夺、奴隶贸易、鸦片战争——这些不是资本主义的"污点"而是它的<strong>起点</strong>。</p><div class="quote">"资本来到世间，从头到脚，每个毛孔都滴着血和肮脏的东西。" —— 马克思</div><p class="point">通俗理解：</p><p>今天某些人说的"第一桶金"——在资本主义的起点上，那不是什么"金"，那是抢劫、奴役和屠杀。</p>' },
+  { title:'危机理论', icon:'📉', body:'<p>资本主义危机不是"意外"——它是<strong>资本主义基本矛盾</strong>的必然表现：<strong>生产社会化与私人占有之间的矛盾。</strong>资本家为追求利润无限扩大生产——但劳动者的购买力被工资压到最低——生产的商品卖不出去——危机爆发。资本主义只有通过<strong>破坏生产力</strong>（倒闭、失业、销毁商品）来恢复平衡。</p><p class="point">通俗理解：</p><p>工厂生产了大量的东西——但工人买不起——因为他们的工资被压到了只够基本生活——商品堆积卖不掉——经济危机。资本主义危机不是"东西太少"而是"东西太多但买的人没钱"。</p>' },
+  { title:'利润率下降趋势', icon:'📊', body:'<p>随着技术进步，资本有机构成（c/v）提高——不变资本c的比重增加——而只有可变资本v才创造剩余价值——所以<strong>利润率有下降趋势</strong>。资本家通过增加剥削程度、开拓新市场、金融投机等手段来抵消——但这些"反作用因素"只能延缓不能消除根本趋势。</p><p class="point">通俗理解：</p><p>公司投入越来越多的机器（c），雇的人相对越来越少（v），但只有人创造新价值——利润率就趋于下降。这是资本主义自己给自己挖的坑。</p>' },
+];
+
+function renderPolecon() {
+  const grid = document.getElementById('poleconGrid');
+  let html = '';
+  poleconConcepts.forEach(c => {
+    html += `<div class="critique-card" onclick="openPolecon('${c.title.replace(/'/g,"\\'")}')" style="border-left:4px solid var(--gold);">
+      <h4>${c.icon} ${c.title}</h4>
+      <div class="brief">${c.body.replace(/<[^>]*>/g,'').slice(0,80)}…</div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function openPolecon(title) {
+  const c = poleconConcepts.find(x => x.title === title);
+  if (!c) return;
+  document.getElementById('modalContent').innerHTML = `
+    <button class="close" onclick="closeModal()">✕</button>
+    <h2 style="color:var(--gold);margin-bottom:16px;">${c.icon} ${c.title}</h2>
+    <div class="critique-body" style="font-size:0.95em;line-height:1.9;">${c.body}</div>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+// ==================== 学习路线图渲染 ====================
+
+const roadmap = [
+  {stage:'第一阶段：启蒙入门（2-4周）', books:[
+    {title:'《共产党宣言》', author:'马克思、恩格斯', reason:'最精炼、最有力量的马克思主义入门文献。语言激情澎湃、逻辑清晰——建立对马克思主义的第一印象。全文仅约40页。'},
+    {title:'《社会主义从空想到科学的发展》', author:'恩格斯', reason:'恩格斯晚年最成熟的小册子。"两大发现使社会主义成为科学"——唯物史观和剩余价值。通俗易懂，是宣言之后第二本应该读的。全文约60页。'},
+    {title:'《工资、价格和利润》', author:'马克思', reason:'用通俗演讲形式讲剩余价值理论的入门读物。读完它你就理解了"为什么涨工资不能解决根本问题"。约50页。'},
+  ]},
+  {stage:'第二阶段：哲学基础（4-6周）', books:[
+    {title:'《关于费尔巴哈的提纲》', author:'马克思', reason:'全文只有11条，但每一条都是重磅。"哲学家们只是解释世界——问题在于改变世界"就出自这里。一天可以读完，但需要反复思考。'},
+    {title:'《实践论》', author:'毛泽东', reason:'马克思主义认识论的通俗阐述。为什么"吃梨子才知道梨子的味道"——知行关系的经典论证。全文一万字左右。'},
+    {title:'《矛盾论》', author:'毛泽东', reason:'唯物辩证法最系统的通俗阐述。主要矛盾、矛盾主要方面、同一性与斗争性——分析任何问题都用得上。全文约一万五千字。'},
+    {title:'《路德维希·费尔巴哈和德国古典哲学的终结》', author:'恩格斯', reason:'哲学基本问题——思维与存在。理解马克思主义哲学和德国古典哲学（康德→黑格尔→费尔巴哈→马克思）的关系。约80页。'},
+  ]},
+  {stage:'第三阶段：经济学基础（8-12周）', books:[
+    {title:'《雇佣劳动与资本》', author:'马克思', reason:'《资本论》的通俗入门。工资是劳动力价格不是劳动价格。资本是生产关系不是物。约60页。'},
+    {title:'《资本论》第一卷（重点篇章）', author:'马克思', reason:'不必从头到尾读完——重点读：第一篇（商品与货币，理解劳动价值论）、第三至五篇（剩余价值论）、第七篇（资本积累）。其他部分可根据兴趣选读。循序渐进，不必贪快。'},
+    {title:'《帝国主义是资本主义的最高阶段》', author:'列宁', reason:'理解当代全球资本主义的必读书。垄断→金融资本→资本输出→瓜分世界。今天的中美关系、全球供应链——都能从中找到分析框架。约120页。'},
+  ]},
+  {stage:'第四阶段：政治与国家（4-6周）', books:[
+    {title:'《国家与革命》', author:'列宁', reason:'马克思主义国家学说最系统阐述。国家是阶级矛盾不可调和的产物——打碎旧国家机器——无产阶级专政——国家消亡。约120页。'},
+    {title:'《路易·波拿巴的雾月十八日》', author:'马克思', reason:'历史唯物主义分析当代政治事件的典范。"人们创造历史但不是随心所欲"——小农阶级分析——国家机器本质。约100页。'},
+    {title:'《家庭、私有制和国家的起源》', author:'恩格斯', reason:'两种生产理论。国家不是从来就有的——原始社会→阶级社会→国家产生。"母权制的被推翻是女性具有世界历史意义的失败"。约150页。'},
+  ]},
+  {stage:'第五阶段：深入原著（持续学习）', books:[
+    {title:'《1844年经济学哲学手稿》', author:'马克思', reason:'异化劳动的四重规定——马克思早期最具哲学深度的著作之一。理解"异化"概念的最佳入口。'},
+    {title:'《德意志意识形态》', author:'马克思、恩格斯', reason:'历史唯物主义第一次系统表述。"统治阶级的思想是占统治地位的思想。"意识形态批判的经典。约200页。'},
+    {title:'《资本论》第二、三卷', author:'马克思', reason:'在读完第一卷核心篇章的基础上继续——第二卷讲资本流通过程，第三卷讲资本主义生产总过程（利润率下降、信用、地租）。'},
+    {title:'《怎么办？》', author:'列宁', reason:'革命政党建设经典。"没有革命的理论就没有革命的运动。"自发性与自觉性——为什么不能等待群众"自发觉悟"。'},
+    {title:'《中国社会各阶级的分析》+《湖南农民运动考察报告》', author:'毛泽东', reason:'马克思主义中国化的经典——如何用阶级分析方法和调查研究方法分析现实问题。前者约2000字，后者约一万字。'},
+    {title:'《狱中札记》（选编）', author:'葛兰西', reason:'文化霸权、有机知识分子——理解当代文化斗争和意识形态运作的必读。不需要读完全书，选读核心章节即可。'},
+  ]},
+];
+
+function renderRoadmap() {
+  var container = document.getElementById('roadmapContentInline') || document.getElementById('roadmapContent');
+  let html = '';
+  roadmap.forEach((stage, i) => {
+    html += `<div class="card" style="border-left:4px solid var(--red);margin-bottom:16px;">
+      <h3 style="color:var(--red-dark);">📌 ${stage.stage}</h3>`;
+    stage.books.forEach((book, j) => {
+      html += `<div style="margin:10px 0;padding:12px 16px;background:#fefefb;border-radius:8px;border:1px solid var(--border);">
+        <div style="font-weight:700;color:#333;">${i+1}.${j+1} ${book.title} <span style="color:var(--text-light);font-weight:400;">—— ${book.author}</span></div>
+        <div style="font-size:0.9em;color:#555;margin-top:4px;line-height:1.7;">📖 ${book.reason}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  html += `<div class="card" style="border-left:4px solid var(--gold);background:#fef9f0;">
+    <h3>💡 学习方法建议</h3>
+    <div style="line-height:1.9;font-size:0.92em;">
+      <p>1. <strong>做笔记</strong>——用自己的话复述每一章的核心论点。这是检验是否真懂的试金石。</p>
+      <p>2. <strong>联系现实</strong>——每学一个概念，找一个当代的例子。剩余价值？想想你的工资和你创造的价值。异化？想想你对工作的感受。</p>
+      <p>3. <strong>讨论和输出</strong>——把学到的东西讲给别人听。能用简单的话讲清楚复杂的事，才说明真懂了。</p>
+      <p>4. <strong>按顺序但不要卡壳</strong>——不建议跳过阶段，但不要在某本书上卡太久。实在读不懂的，先放一放——读后面的书时回头看可能就懂了。</p>
+      <p>5. <strong>实践检验</strong>——"人的思维是否具有真理性不是一个理论问题而是一个实践问题。"用学到的概念去分析你身边的问题——如果分析不通，回头检查你的理解。</p>
+    </div>
+  </div>`;
+  container.innerHTML = html;
+}
+
+// ==================== 实践指导增强 ====================
+
+// Enhance the full analysis with more practical guidance
+// Override runFullAnalysis to add enhanced practical steps
+const _originalRunFullAnalysis = runFullAnalysis;
+runFullAnalysis = function() {
+  _originalRunFullAnalysis();
+  // Add enhanced practical guidance after analysis
+  setTimeout(function() {
+    const resultDiv = document.getElementById('analysisResult');
+    if (!resultDiv || resultDiv.style.display === 'none') return;
+    const input = document.getElementById('wsInput').value.trim();
+    if (!input) return;
+    const matches = matchPatterns(input);
+    if (matches.length === 0) return;
+    const top = matches[0];
+
+    const guidance = document.createElement('div');
+    guidance.innerHTML = `<div class="card" style="border-left:4px solid #c41e3a;background:#fff5f5;margin-top:12px;">
+      <h3 style="color:var(--red-dark);">🔧 实践行动指南</h3>
+      <div style="line-height:1.9;font-size:0.92em;">
+        <p><strong>📋 立即可以做的一步：</strong></p>
+        <p>1. <strong>记录与调查</strong>：连续一周记录与这个矛盾相关的具体事件、时间、涉及的人。客观数据是行动的基础——"没有调查就没有发言权"。</p>
+        <p>2. <strong>找到处境相同的人</strong>：你不是一个人面对这个问题。谁和你处境相同？找到他们——先从一次非正式的交流开始。"全世界的无产者联合起来"从最小的联合开始。</p>
+        <p>3. <strong>识别权力节点</strong>：谁有权改变这个状况？决策链是什么？谁在中间阻挠？画出权力地图。</p>
+        <p><strong>📋 中期策略：</strong></p>
+        <p>4. <strong>集体表达</strong>：将个人的不满转化为集体的诉求。不是"我不满意"而是"我们不接受"。集体表达比个体表达安全得多、也有效得多。</p>
+        <p>5. <strong>建立信息网络</strong>：让处境相同的人保持信息互通。资本最怕的就是劳动者之间的信息透明——因为信息透明=议价能力。</p>
+        <p><strong>📋 长期方向：</strong></p>
+        <p>6. <strong>从防御到进攻</strong>：不只是"反对"不合理的条件——还要提出替代方案。不只是"不要996"——还要提出"我们要怎样的工作方式？"</p>
+        <p>7. <strong>链路到更大的变革</strong>：你的具体矛盾不是孤立的——它和其他人的矛盾有共同的结构性根源。追踪这个根源，和对抗同一根源的其他人联合。</p>
+      </div>
+    </div>`;
+    resultDiv.appendChild(guidance.firstElementChild);
+  }, 100);
+};
+
+// Also enhance comprehensive analysis
+const _originalRunComprehensive = runComprehensiveAnalysis;
+runComprehensiveAnalysis = function() {
+  _originalRunComprehensive();
+  setTimeout(function() {
+    const resultDiv = document.getElementById('comprehensiveResult');
+    if (!resultDiv || resultDiv.style.display === 'none') return;
+    const ctx = window._lastComprehensive;
+    if (!ctx || !ctx.best) return;
+
+    const guidance = document.createElement('div');
+    guidance.innerHTML = `<div class="card" style="border-left:4px solid #c41e3a;background:#fff5f5;margin-top:12px;">
+      <h3 style="color:var(--red-dark);">🔧 实践行动指南</h3>
+      <div style="line-height:1.9;font-size:0.92em;">
+        <p><strong>🎯 分析之后的下一步：</strong></p>
+        <p>${ctx.isTheory ? `
+        1. <strong>识别这种理论在你身边的变体</strong>：它通过什么渠道传播？谁在传播？谁在相信？<br>
+        2. <strong>准备一个简单的反驳</strong>：用普通人的语言——不是学术术语——解释为什么这种理论不对。练习把它讲给朋友听。<br>
+        3. <strong>在合适的时机发声</strong>：当有人在传播这种理论时，温和但坚定地提出不同的视角。不是为了"赢"争论——是为了让旁观者看到另一种可能。<br>
+        4. <strong>追踪物质利益</strong>：这种理论背后谁在出钱？谁在推广？谁在受益？揭露理论的物质基础往往比反驳理论本身更有力。` : `
+        1. <strong>继续深入调查</strong>：分析只是起点——"调查就像十月怀胎，解决问题就像一朝分娩。"补充更多一手信息验证判断。<br>
+        2. <strong>找到有共同利益的人</strong>：在这个问题上——谁和你站在同一边？主动联系他们。<br>
+        3. <strong>制定最小可行行动</strong>：不是宏大的计划——是一个具体的小步骤。本周可以完成的一件事。<br>
+        4. <strong>建立反馈和调整机制</strong>：行动→观察结果→修正判断→再行动。这就是"实践、认识、再实践、再认识"。`}
+        </p>
+        <p style="margin-top:8px;"><strong>⚠️ 重要提示：</strong>分析的目的不是让你"看懂了然后继续忍受"——分析的目的是帮你找到改变的有效路径。如果每次分析完你只是"哦原来如此"然后一切照旧——那分析本身就成了意识形态。"哲学家们只是用不同的方式解释世界，而问题在于改变世界。"</p>
+      </div>
+    </div>`;
+    resultDiv.appendChild(guidance.firstElementChild);
+  }, 100);
+};
+
+// Initialize new components
+renderPolecon();
+renderRoadmap();
 </script>
 </body>
 </html>
