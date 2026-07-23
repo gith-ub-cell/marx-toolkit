@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -212,7 +212,7 @@
 <nav>
   <button class="active" data-tab="worksheet">📋 矛盾分析</button>
   <button data-tab="comprehensive">🎯 综合批判</button>
-  <button data-tab="critique">🎯 思潮批判 (21种)</button>
+  <button data-tab="critique">🎯 思潮批判 (27种)</button>
   <button data-tab="lenses">🔍 实践透镜</button>
   <button data-tab="citations">📖 经典引文</button>
   <button data-tab="routes">🗺️ 场景路由</button>
@@ -225,7 +225,7 @@
 <!-- ====== 矛盾分析工作表 ====== -->
 <section class="section active" id="tab-worksheet">
   <div class="stats-row">
-    <div class="stat-card"><div class="num">21</div><div class="label">批判对象</div></div>
+    <div class="stat-card"><div class="num">27</div><div class="label">批判对象</div></div>
     <div class="stat-card"><div class="num">5</div><div class="label">实践透镜</div></div>
     <div class="stat-card"><div class="num">104</div><div class="label">经典著作</div></div>
     <div class="stat-card"><div class="num">14</div><div class="label">分析场景</div></div>
@@ -325,7 +325,7 @@
 <!-- ====== 思潮批判 ====== -->
 <section class="section" id="tab-critique">
   <div class="card">
-    <h2><span class="icon">🎯</span> 21种当代思潮的马克思主义批判</h2>
+    <h2><span class="icon">🎯</span> 27种当代思潮的马克思主义批判</h2>
     <p style="color:var(--text-light);font-size:0.88em;margin-bottom:16px;">
       点击任意卡片查看完整批判分析。红色标记 = 最常遇到的意识形态。
     </p>
@@ -490,6 +490,13 @@ const critiques = [
   { id:19, title:'民粹主义与新民族主义', brief:'愤怒是真实的——但愤怒被引向了谁？', body:'<p class="point">民粹主义的阶级基础：</p><p>新自由主义几十年的破坏制造了大量愤怒的、被抛弃的群体。他们的愤怒是真实的——但愤怒被引向了错误的方向。</p><p class="point">右翼民粹主义如何转移阶级怒火：</p><p>把阶级矛盾转化为民族矛盾、种族矛盾——让被剥削的白人工人恨移民工人，而不是恨剥削他们的资本家。</p><div class="quote">"全世界的无产者联合起来" 被替换为 "全世界的无产者互相仇恨"。</div>' },
   { id:20, title:'"身心健康"意识形态', brief:'正念冥想、自我关怀——让你更好地继续被剥削？', body:'<p class="point">将社会痛苦医学化和个体化：</p><p>你焦虑，不是因为工作不稳定、房租太高——而是因为"你不会管理压力"。每一种社会性的苦难都被重新定义为个人的心理缺陷。</p><p class="point">"自我关怀"是让你更好地继续被剥削：</p><p>正念帮你平静地接受不合理的工作量。瑜伽减轻了腰背痛——让你能再坐 10 个小时。</p><p class="point">双重剥削：</p><p>劳动中被榨取，再为修复榨取的损伤而消费。资本先让你生病，再卖药给你。</p>' },
   { id:21, title:'改良主义', brief:'装修牢房还是释放囚犯？改良能无限积累成革命吗？', body:'<p class="point">改良主义的逻辑陷阱：</p><p>改良是在资本主义框架内的调整，框架本身不变。每一次改良都可能被资本的应对抵消。战后福利国家几十年成果，二三十年就被新自由主义吞噬大半。</p><p class="point">苏联的教训——修正主义如何导致复辟：</p><p>赫鲁晓夫→勃列日涅夫→戈尔巴乔夫→叶利钦，三代人的渐变。否认社会主义时期的阶级斗争是修正主义的第一个错误。</p><div class="quote">"改良是革命的副产品。" —— 列宁</div>' }
+
+	  { id:22, title:'消费主义', brief:'我买故我在？消费自由=真正的自由？需求被谁制造？', body:'<p class="point">消费主义是资本实现剩余价值的最后一环：</p><p>资本循环 M→C→P→C&#39;→M&#39;，如果 C&#39; 卖不掉整个循环断裂。消费主义的功能就是确保商品永远能被卖掉——制造需求、制造欲望、制造"必须拥有"的幻觉。</p><p class="point">虚假主体性：</p><p>你以为你在"选择"，实际上你的每一个选择都在预先给定的商品菜单里。真正的个性被消解为商品的选择组合。</p><p class="point">幸福是永恒的不满足：</p><p>购买→短暂满足→欲望再现→再购买。它必须让你永远不满足——因为满足的人停止消费。消费主义承诺幸福，但商业模式依赖你不幸福。</p><div class="quote">"生产不仅为主体生产对象，而且也为对象生产主体。" —— 马克思《政治经济学批判大纲》</div>' },
+	  { id:23, title:'商品/货币/资本拜物教', brief:'人与人的关系为何变成物与物的关系？钱生钱的幻觉如何运作？', body:'<p class="point">商品拜物教——人与人的关系→物与物的关系：</p><p>一个iPhone在你面前呈现为"物自身的属性"。你看不到富士康工人的加班、刚果钴矿的童工。全球供应链上被剥削的数百万人——在你面前消失了。</p><p class="point">三层递进——商品→货币→资本拜物教：</p><p>商品(C→C&#39;)：价值被看作物自身属性 → 货币(C→M→C&#39;)：钱被体验为自身就有权力 → 资本(M→M&#39;)：钱生钱，生产过程和劳动者的血汗全部消失——最纯粹的拜物教形式。</p><p class="point">"客观的幻象"不是主观错误：</p><p>商品拜物教不是广告编造的故事——它是资本主义生产方式的客观存在形式。消灭拜物教的途径不是教育"不要拜金"——是消灭商品生产本身。</p><div class="quote">"他们没有意识到这一点，但是他们这样做了。" —— 马克思《资本论》</div>' },
+	  { id:24, title:'绿色资本主义与消费环保主义', brief:'买环保产品拯救地球？ESG 是资本化的"绿妆"？碳交易是赎罪券？', body:'<p class="point">"绿色资本主义"是矛盾的修辞：</p><p>资本主义的DNA是无限增长，而地球是有限的。一个必须无限增长的系统在有限星球上是不可持续的——这是资本与自然的结构性矛盾，不是通过"更绿色的技术"能解决的。</p><p class="point">碳交易=把污染权市场化：</p><p>资本污染了大气，然后通过金融操作"赎罪"。穷国出售排放权，富国继续排放——污染的阶级关系和全球不平等被"市场机制"精美地包装。</p><p class="point">ESG=制度化的greenwashing：</p><p>评级标准谁定？评级机构。被谁资助？资本。只要请个好ESG顾问，污染企业照样拿投资。</p><div class="quote">"对资本来说，任何一个对象本身所能具有的唯一的有用性，只能是使资本保存和增大。" —— 马克思《政治经济学批判大纲》</div>' },
+	  { id:25, title:'教育焦虑与学历拜物教', brief:'学历=能力的商品化符号？知识付费的陷阱？教育=阶级固化的合法化机器？', body:'<p class="point">教育资本化——从培养人到生产"人力资本"：</p><p>不问你"想学什么"——问"学什么好找工作"。不问你"获得了什么能力"——问"拿了什么证书"。教育的价值被等同于劳动力市场上的交换价值。</p><p class="point">学历拜物教——文凭遮蔽了能力：</p><p>实际的批判思维、创造力（使用价值）不被看见；被看见的只有文凭（交换价值）。正如货币遮蔽了劳动，文凭遮蔽了实际的智识和技能。</p><p class="point">教育=阶级固化的合法化机器：</p><p>教育被声称是"阶级流动的阶梯"——但在大多数时候是阶级固化的合法化机器。"你没考上好大学=你不够努力"——这种意识形态遮蔽了起点的不平等。</p><div class="quote">"对货币的需要是国民经济学所产生的唯一需要。" —— 马克思《1844年经济学哲学手稿》</div>' },
+	  { id:26, title:'"做自己"与本真性意识形态', brief:'"做真实的自己"是解放还是新的牢笼？个人品牌=人的彻底商品化？', body:'<p class="point">"做自己"——当所有的自己都已被商品化：</p><p>"找到你的风格"=在已有商品目录中选择组合。"表达你的个性"=购买能"表达"你的商品。你以为你在"做自己"，实际上在用市场提供的碎片拼贴一个自己——每一个元素都是商品。</p><p class="point">追随passion=自我剥削的燃料：</p><p>如果你工作是"你的passion"，你怎么好意思要求涨工资？"为爱发电"让劳动者自发地无偿付出。当劳动披上"做自己"的外衣，剥削就不再像剥削。</p><p class="point">"个人品牌"——人本身成为商品：</p><p>传统资本主义：出卖劳动力。个人品牌时代：出卖整个人——长相、故事、性格、情感、人际关系——全部打包成品牌贩卖。人的彻底商品化。</p><div class="quote">"每个人的自由发展是一切人的自由发展的条件。" —— 马克思、恩格斯《共产党宣言》</div>' },
+	  { id:27, title:'AI 末日论与 AI 乌托邦主义', brief:'AI 毁灭人类还是拯救人类？同一枚硬币的两面——AI 拜物教批判', body:'<p class="point">AI拜物教——将AI从社会关系中剥离：</p><p>AI不是自主力量。AI是特定生产关系下的工具——由资本投资、受资本控制、为资本服务。末日论或乌托邦——两种叙事都把它当作独立于社会关系的存在。</p><p class="point">末日论的政治功能：</p><p>当你担心"AI在20年后灭绝人类"时，你不会组织起来反抗今天AI的剥削性使用——算法管理、监控工人、大规模裁员。对遥远末日的恐惧取代了对当下压迫的反抗。</p><p class="point">乌托邦=共产主义愿景被偷换为技术愿景：</p><p>物质丰裕、自由发展——本质是共产主义愿景。但AI乌托邦说：不需要改变所有制、不需要阶级斗争——只需要等技术变好。幻觉。</p><div class="quote">蒸汽机没有解放19世纪的工人。AI也不会自动解放21世纪的工人——除非连同控制AI的生产关系一起被改变。</div>' }
 ];
 
 const citations = [
@@ -549,6 +556,12 @@ const routes = [
   { scene:'内卷/躺平', route:'critique-methodology.md §2.14 + political-economy.md' },
   { scene:'政治经济学/剥削', route:'political-economy.md' },
   { scene:'革命/国家/阶级斗争', route:'scientific-socialism.md' },
+  { scene:'消费主义', route:'critique-methodology.md §2.22 + political-economy.md' },
+  { scene:'商品拜物教/货币拜物教/资本拜物教', route:'critique-methodology.md §2.23 + political-economy.md §1.4, §6.4' },
+  { scene:'绿色资本主义/消费环保主义', route:'critique-methodology.md §2.24 + political-economy.md' },
+  { scene:'教育焦虑/学历崇拜/知识付费', route:'critique-methodology.md §2.25 + political-economy.md' },
+  { scene:'"做自己"/个人品牌/本真性', route:'critique-methodology.md §2.26 + §2.8' },
+  { scene:'AI末日论/AI乌托邦', route:'critique-methodology.md §2.27 + §2.1, §2.3' },
   { scene:'阶级分析', route:'historical-materialism.md §四 + §十' },
 ];
 
@@ -2036,3 +2049,5 @@ if (savedTab) {
 </script>
 </body>
 </html>
+
+
